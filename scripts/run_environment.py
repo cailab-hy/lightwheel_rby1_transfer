@@ -18,7 +18,7 @@ from isaacsim.core.api import World
 from isaacsim.core.prims import SingleArticulation
 from isaacsim.core.utils.stage import open_stage
 from isaacsim.core.utils.types import ArticulationAction
-from isaacsim.core.utils.viewports import set_camera_view
+from front_camera import activate_front_camera
 from success_original import OriginalSuccess
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,7 +35,7 @@ try:
     q = np.array([meta["ready_arm_joint_radians"].get(n, 0) for n in robot.dof_names])
     robot.set_joint_positions(q)
     robot.apply_action(ArticulationAction(joint_positions=q))
-    set_camera_view(eye=np.array([3.8, -0.4, 2.4]), target=np.array([2.44, -2.05, 0.8]))
+    activate_front_camera()
     print(meta["Language Instruction"])
     print("success_original active; ready-pose hold, no autonomous policy.", flush=True)
     step = 0

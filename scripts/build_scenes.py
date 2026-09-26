@@ -137,6 +137,8 @@ def main():
   light=UsdLux.DomeLight.Define(s,'/World/Light');light.CreateIntensityAttr().Set(800)
   overview=UsdGeom.Camera.Define(s,'/World/OverviewCamera');overview.CreateProjectionAttr().Set('orthographic');overview.CreateHorizontalApertureAttr().Set(22.0);overview.CreateVerticalApertureAttr().Set(16.5);overview.CreateClippingRangeAttr().Set(Gf.Vec2f(.01,100));set_matrix(overview.GetPrim(),Gf.Matrix4d().SetRotate(Gf.Rotation(Gf.Vec3d(0,0,1),180))*Gf.Matrix4d().SetTranslate(Gf.Vec3d(2.44,-2.13,4.0)))
   root.CreateAttribute('task:name',Sdf.ValueTypeNames.String).Set(row['Task 이름']);root.CreateAttribute('task:instruction',Sdf.ValueTypeNames.String).Set(row['Language Instruction'])
+  from front_camera import author_front_camera
+  author_front_camera(s)
   from portable_usd import make_layer_portable
   make_layer_portable(s.GetRootLayer())
   s.GetRootLayer().Save()

@@ -27,3 +27,11 @@ policy. The pinned LW-BenchHub success_original evaluator is attached for all te
 T1–T10 keyboard teleoperation and LeRobot data collection are now available via
 `../collect_keyboard.sh --task T1` (the existing `../collect_t1_keyboard.sh` also works). See [the Korean keyboard guide](../KEYBOARD_COLLECTION_KO.md)
 for controls, episode saving, output paths and validation limits.
+
+## 기본 정면 뷰
+
+T1~T10은 촬영 이미지와 같은 `/World/FrontPreviewCamera`를 기본 뷰로 사용합니다.
+위치 `(2.44, -4.0, 2.15)`, 주시점 `(2.44, -1.90, 1.02)`, 초점거리 34mm입니다.
+`run_environment.py`와 키보드 수집기 모두 시작 시 이 카메라를 선택합니다.
+USD에도 기본 카메라 메타데이터를 저장했습니다. 렌더링과 재생성 설정은 `scripts/front_camera.py`에서 공유합니다.
+수집용 헤드/손목 카메라 설정은 그대로입니다. 창의 종횡비에 따라 보이는 가장자리 범위는 달라질 수 있습니다.

@@ -31,15 +31,9 @@ try:
             app.update()
         stage = omni.usd.get_context().get_stage()
         stage.SetEditTarget(stage.GetSessionLayer())
-        cam = UsdGeom.Camera.Define(stage, '/World/FrontPreviewCamera')
-        eye = [2.44, -4.0, 2.15]
-        target = [2.44, -1.90, 1.02]
-        cam.CreateFocalLengthAttr().Set(34)
-        cam.CreateHorizontalApertureAttr().Set(36)
-        cam.CreateVerticalApertureAttr().Set(22.5)
-        cam.CreateClippingRangeAttr().Set(Gf.Vec2f(.01, 100))
-        transform = Gf.Matrix4d().SetLookAt(Gf.Vec3d(*eye), Gf.Vec3d(*target), Gf.Vec3d(0, 0, 1)).GetInverse()
-        UsdGeom.Xformable(cam).AddTransformOp().Set(transform)
+        from front_camera import author_front_camera, EYE, TARGET
+        cam = author_front_camera(stage)
+        eye, target = list(EYE), list(TARGET)
         rp = rep.create.render_product(str(cam.GetPath()), (1280, 800))
         rgb = rep.AnnotatorRegistry.get_annotator('rgb')
         rgb.attach([rp])

@@ -108,7 +108,7 @@ from isaacsim.core.api import World
 from isaacsim.core.prims import SingleArticulation
 from isaacsim.core.utils.stage import open_stage
 from isaacsim.core.utils.types import ArticulationAction
-from isaacsim.core.utils.viewports import set_camera_view
+from front_camera import activate_front_camera
 from isaaclab.devices import Se3Keyboard, Se3KeyboardCfg
 from isaaclab.controllers import DifferentialIKController, DifferentialIKControllerCfg
 from kinematics import build_rby, READY
@@ -322,9 +322,7 @@ class Collector:
         for key in ["ENTER", "TAB", "ESCAPE", "BACKSPACE"]:
             assert hasattr(carb.input.KeyboardInput, key), key
         self.reset()
-        set_camera_view(
-            eye=np.array([3.8, -0.6, 2.3]), target=np.array([2.44, -2.0, 0.8])
-        )
+        activate_front_camera()
         print(self.keyboard)
         print("OUTPUT", a.output, "RAW", rawroot, flush=True)
 
