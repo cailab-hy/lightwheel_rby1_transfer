@@ -1,0 +1,182 @@
+{
+  "Task": "T8",
+  "Task 이름": "L90K2StackTheMiddleBlackBowlOnTheBackBlackBowl",
+  "Language Instruction": "Stack the black bowl in the middle on the black bowl at the back.",
+  "역할": "Precision Stacking",
+  "역할에 대한 상세 설명": "여러 유사 그릇의 가운데·뒤 관계를 구분하고 정밀 적층하여 위치 정확도와 물체 상호작용을 평가한다. 기존 T8과 동일.",
+  "LIBERO 레이아웃 번호": "libero-1-1",
+  "source_task_index": 26,
+  "episodes": 50,
+  "frames": 33232,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T08.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "front_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/front_bowl",
+      "aabb": [
+        [
+          2.137880799770355,
+          -1.9421192002296452,
+          0.722
+        ],
+        [
+          2.2821192002296447,
+          -1.7978807997703559,
+          0.7879303992986678
+        ]
+      ],
+      "center": [
+        2.21,
+        -1.8700000000000006,
+        0.7549651996493338
+      ],
+      "source_name": "akita_black_bowl_front"
+    },
+    {
+      "name": "middle_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/middle_bowl",
+      "aabb": [
+        [
+          2.367880799770355,
+          -2.0321192002296447,
+          0.722
+        ],
+        [
+          2.5121192002296446,
+          -1.8878807997703553,
+          0.7879303992986678
+        ]
+      ],
+      "center": [
+        2.4399999999999995,
+        -1.96,
+        0.7549651996493338
+      ],
+      "source_name": "akita_black_bowl_middle"
+    },
+    {
+      "name": "back_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/back_bowl",
+      "aabb": [
+        [
+          2.597880799770355,
+          -2.1221192002296445,
+          0.722
+        ],
+        [
+          2.7421192002296446,
+          -1.9778807997703551,
+          0.7879303992986678
+        ]
+      ],
+      "center": [
+        2.67,
+        -2.05,
+        0.7549651996493338
+      ],
+      "source_name": "akita_black_bowl_back"
+    },
+    {
+      "name": "plate",
+      "asset": ".assets/lightwheel/object/Plate012/Plate012.usd",
+      "prim": "/World/Objects/plate",
+      "aabb": [
+        [
+          2.052705998122692,
+          -2.4169870007038115,
+          0.722
+        ],
+        [
+          2.327294001877308,
+          -2.143012999296188,
+          0.7519390004947781
+        ]
+      ],
+      "center": [
+        2.19,
+        -2.28,
+        0.736969500247389
+      ],
+      "source_name": "plate"
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "storage_furniture_right_group_1",
+      "source_name": "storage_furniture_right_group_1",
+      "prim": "/World/Scene/storage_furniture_right_group_1",
+      "aabb": [
+        [
+          2.789511056216606,
+          -2.3985701909737003,
+          0.7219999999999996
+        ],
+        [
+          3.1689745026980605,
+          -2.0719992708568924,
+          1.0431410621779662
+        ]
+      ],
+      "center": [
+        2.9792427794573335,
+        -2.2352847309152963,
+        0.8825705310889829
+      ],
+      "restored_from_source_inventory": true
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      0.4226182641968916,
+      -2.220446049250313e-16,
+      -0.906307785891309
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

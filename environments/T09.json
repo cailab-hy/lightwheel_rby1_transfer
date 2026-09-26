@@ -1,0 +1,153 @@
+{
+  "Task": "T9",
+  "Task 이름": "L10K4PutTheBlackBowlInTheBottomDrawerOfTheCabinetAndCloseIt",
+  "Language Instruction": "Put the black bowl in the bottom drawer of the cabinet and close it.",
+  "역할": "Long-Horizon Sequential Manipulation",
+  "역할에 대한 상세 설명": "그릇 집기, 아래 서랍 내부 배치, 서랍 닫기의 순차 의존성을 평가한다. X7S에 없는 머그 넣고 전자레인지 닫기 T9를 대체하며 회전문 대신 직선 서랍을 사용하므로 완전 동일 조건은 아니다.",
+  "LIBERO 레이아웃 번호": "libero-1-1",
+  "source_task_index": 1,
+  "episodes": 50,
+  "frames": 88389,
+  "match": "similar",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T09.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/bowl",
+      "aabb": [
+        [
+          2.6068956997990624,
+          -1.9931043002009399,
+          0.7220000000000003
+        ],
+        [
+          2.7331043002009405,
+          -1.8668956997990613,
+          0.7796890993863351
+        ]
+      ],
+      "center": [
+        2.6700000000000017,
+        -1.9300000000000006,
+        0.7508445496931677
+      ],
+      "source_name": "akita_black_bowl"
+    },
+    {
+      "name": "wine_bottle",
+      "asset": ".assets/lightwheel/object/Bottle054/Bottle054.usd",
+      "prim": "/World/Objects/wine_bottle",
+      "aabb": [
+        [
+          2.539511056216607,
+          -2.0910712730293644,
+          0.722
+        ],
+        [
+          2.6085030570348597,
+          -2.021999270856894,
+          0.9760607929229737
+        ]
+      ],
+      "center": [
+        2.5740070566257334,
+        -2.056535271943129,
+        0.8490303964614868
+      ],
+      "source_name": "wine_bottle",
+      "restored_from_source_inventory": true
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "storage_furniture",
+      "prim": "/World/Scene/storage_furniture_right_group_1",
+      "aabb": [
+        [
+          2.1302682767592724,
+          -2.2532854600584047,
+          0.7219999999999996
+        ],
+        [
+          2.509731723240727,
+          -1.926714539941597,
+          1.0431410621779662
+        ]
+      ]
+    },
+    {
+      "name": "winerack_left_group_1",
+      "source_name": "winerack_left_group_1",
+      "prim": "/World/Scene/winerack_left_group_1",
+      "aabb": [
+        [
+          1.7770110562166104,
+          -2.387008034626252,
+          0.722
+        ],
+        [
+          2.1065820950073895,
+          -2.046999270856891,
+          1.021005133536372
+        ]
+      ],
+      "center": [
+        1.941796575612,
+        -2.2170036527415715,
+        0.8715025667681859
+      ],
+      "restored_from_source_inventory": true
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      3.6732051031939217e-06,
+      0.9999999999932537,
+      0.0
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "Task": "T6",
+  "Task 이름": "LGTurnOnTheStove",
+  "Language Instruction": "Turn on the stove.",
+  "역할": "Contact / Actuation",
+  "역할에 대한 상세 설명": "물체 운반 없이 스토브 조작부를 접촉하여 켜는 정밀 접근 및 작동 task. 기존 T6와 동일.",
+  "LIBERO 레이아웃 번호": "libero-8-8",
+  "source_task_index": 107,
+  "episodes": 50,
+  "frames": 11249,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T06.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "plate",
+      "asset": ".assets/lightwheel/object/Plate012/Plate012.usd",
+      "prim": "/World/Objects/plate",
+      "aabb": [
+        [
+          2.302011056216608,
+          -2.5584732722645147,
+          0.722
+        ],
+        [
+          2.576599059971224,
+          -2.2844992708568914,
+          0.7519390004947781
+        ]
+      ],
+      "center": [
+        2.439305058093916,
+        -2.421486271560703,
+        0.736969500247389
+      ],
+      "source_name": "plate",
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "akita_black_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/akita_black_bowl",
+      "aabb": [
+        [
+          2.627011056216607,
+          -2.052297271431005,
+          0.722
+        ],
+        [
+          2.807309056790719,
+          -1.8719992708568933,
+          0.8044129991233349
+        ]
+      ],
+      "center": [
+        2.717160056503663,
+        -1.962148271143949,
+        0.7632064995616674
+      ],
+      "source_name": "akita_black_bowl",
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "wine_bottle",
+      "asset": ".assets/lightwheel/object/Bottle054/Bottle054.usd",
+      "prim": "/World/Objects/wine_bottle",
+      "aabb": [
+        [
+          2.1895110562166082,
+          -2.066071273029364,
+          0.722
+        ],
+        [
+          2.258503057034861,
+          -1.9969992708568938,
+          0.9760607929229737
+        ]
+      ],
+      "center": [
+        2.2240070566257346,
+        -2.0315352719431288,
+        0.8490303964614868
+      ],
+      "source_name": "wine_bottle",
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "cream_cheese",
+      "asset": ".assets/lightwheel/object/CreamCheeseStick013/CreamCheeseStick013.usd",
+      "prim": "/World/Objects/cream_cheese",
+      "aabb": [
+        [
+          2.1770110562166085,
+          -1.9780652711322073,
+          0.722
+        ],
+        [
+          2.2561905555149426,
+          -1.9594992708568935,
+          0.7629549996256828
+        ]
+      ],
+      "center": [
+        2.2166008058657756,
+        -1.9687822709945504,
+        0.7424774998128414
+      ],
+      "source_name": "cream_cheese",
+      "restored_from_source_inventory": true
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "stovetop",
+      "prim": "/World/Scene/stovetop_front_group_1",
+      "aabb": [
+        [
+          2.2814003330522574,
+          -2.2540710551466043,
+          0.7219999999999996
+        ],
+        [
+          2.5985996669477456,
+          -1.805928944853395,
+          0.7826060592514091
+        ]
+      ]
+    },
+    {
+      "name": "storage_furniture_right_group_1",
+      "source_name": "storage_furniture_right_group_1",
+      "prim": "/World/Scene/storage_furniture_right_group_1",
+      "aabb": [
+        [
+          2.789511056216606,
+          -2.3985701909737003,
+          0.7219999999999996
+        ],
+        [
+          3.1689745026980605,
+          -2.0719992708568924,
+          1.0431410621779662
+        ]
+      ],
+      "center": [
+        2.9792427794573335,
+        -2.2352847309152963,
+        0.8825705310889829
+      ],
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "winerack_left_group_1",
+      "source_name": "winerack_left_group_1",
+      "prim": "/World/Scene/winerack_left_group_1",
+      "aabb": [
+        [
+          1.7770110562166104,
+          -2.387008034626252,
+          0.722
+        ],
+        [
+          2.1065820950073895,
+          -2.046999270856891,
+          1.021005133536372
+        ]
+      ],
+      "center": [
+        1.941796575612,
+        -2.2170036527415715,
+        0.8715025667681859
+      ],
+      "restored_from_source_inventory": true
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      0.4226182641968916,
+      -2.220446049250313e-16,
+      -0.906307785891309
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

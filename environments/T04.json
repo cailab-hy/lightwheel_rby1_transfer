@@ -1,0 +1,176 @@
+{
+  "Task": "T4",
+  "Task 이름": "L90K2OpenTheTopDrawerOfTheCabinet",
+  "Language Instruction": "Open the top drawer of the cabinet.",
+  "역할": "Single-Step Articulated Manipulation",
+  "역할에 대한 상세 설명": "서랍 손잡이에 접근하여 직선 관절을 여는 접촉 조작. T7의 서랍 열기 primitive이며 기존 T4와 동일.",
+  "LIBERO 레이아웃 번호": "libero-1-1",
+  "source_task_index": 20,
+  "episodes": 50,
+  "frames": 44498,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T04.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "front_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/front_bowl",
+      "aabb": [
+        [
+          2.097880799770355,
+          -1.9821192002296446,
+          0.722
+        ],
+        [
+          2.2421192002296446,
+          -1.8378807997703552,
+          0.7879303992986678
+        ]
+      ],
+      "center": [
+        2.17,
+        -1.91,
+        0.7549651996493338
+      ],
+      "source_name": "akita_black_bowl_front"
+    },
+    {
+      "name": "middle_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/middle_bowl",
+      "aabb": [
+        [
+          2.097880799770355,
+          -2.182119200229646,
+          0.722
+        ],
+        [
+          2.2421192002296446,
+          -2.0378807997703565,
+          0.7879303992986678
+        ]
+      ],
+      "center": [
+        2.17,
+        -2.110000000000001,
+        0.7549651996493338
+      ],
+      "source_name": "akita_black_bowl_middle"
+    },
+    {
+      "name": "back_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/back_bowl",
+      "aabb": [
+        [
+          2.097880799770355,
+          -2.382119200229646,
+          0.722
+        ],
+        [
+          2.2421192002296446,
+          -2.2378807997703567,
+          0.7879303992986678
+        ]
+      ],
+      "center": [
+        2.17,
+        -2.3100000000000014,
+        0.7549651996493338
+      ],
+      "source_name": "akita_black_bowl_back"
+    },
+    {
+      "name": "plate",
+      "asset": ".assets/lightwheel/object/Plate012/Plate012.usd",
+      "prim": "/World/Objects/plate",
+      "aabb": [
+        [
+          2.302011056216608,
+          -2.495973272264515,
+          0.722
+        ],
+        [
+          2.576599059971224,
+          -2.221999270856892,
+          0.7519390004947781
+        ]
+      ],
+      "center": [
+        2.439305058093916,
+        -2.3589862715607035,
+        0.736969500247389
+      ],
+      "source_name": "plate",
+      "restored_from_source_inventory": true
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "storage_furniture",
+      "prim": "/World/Scene/storage_furniture_right_group_1",
+      "aabb": [
+        [
+          2.250268276759276,
+          -2.1932854600584037,
+          0.7219999999999996
+        ],
+        [
+          2.6297317232407305,
+          -1.866714539941596,
+          1.0431410621779662
+        ]
+      ]
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      0.4226182641968916,
+      -2.220446049250313e-16,
+      -0.906307785891309
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

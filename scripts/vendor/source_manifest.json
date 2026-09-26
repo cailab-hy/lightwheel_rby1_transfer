@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/LightwheelAI/LW-BenchHub",
+  "commit": "b2bcb2d00edef691f9fcc49039cbf0bcc7464605",
+  "files": {
+    "lw_benchhub/utils/object_utils.py": "e6873c897deb330d0ca9a83ff9b8e56fb765ff8767776e749a8de128d268934a",
+    "lw_benchhub/core/models/fixtures/fixture.py": "9cacdc4b68832efd810892a31851dd00f00a00a85fdcd4a3e6ffefe231d954f3",
+    "lw_benchhub/core/tasks/base.py": "783144b2284814379ccedcc58ecf4df2d57bddfedc1c998e1b3b72268478b3c6",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_90/L90K1_put_the_black_bowl_on_the_plate.py": "7c83a880021791f160c198dcaeb18a24473c9da21c3200f6d9e14543d83d681d",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_spatial/LS_pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.py": "133c144433c5aff23600c246fe2c5dad24bdab660f838d291c7aada12c3ebfa1",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_90/L90L1_pick_up_the_ketchup_and_put_it_in_the_basket.py": "3df599bcdf96ff87ba8844ca918270fa9970bec79c4fe279b90282d3b81982f0",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_90/L90K2_open_the_top_drawer_of_the_cabinet.py": "2ff8457a214a645aef5802754572a1afb17e41dbb6a046ab172303c65472718a",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_90/L90K7_open_the_microwave.py": "96efb872357a46590f860c618fec3f897530f6ed87699d2594cf69f3062bc794",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_goal/LG_turn_on_the_stove.py": "b61942e8379d078e10e4b44722ebb045709a4ad7dbab6c158fbab1c12b1501aa",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_goal/LG_open_the_top_drawer_and_put_the_bowl_inside.py": "c07b93073a0d00b80efe4adc2e808f5cea4360103394232fc806f7d614a98e56",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_90/L90K2_stack_the_middle_black_bowl_on_the_back_black_bowl.py": "0fdf163c01b134282426a51a856521d2d636efa4c6c84d0f517b1ce0b5cc3bdb",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_10/L10K4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.py": "7ad5a4eeb1501110e57a3c9f1804b698c2468605c55466fb37d248c879fb81e6",
+    "lw_benchhub_tasks/lightwheel_libero_tasks/libero_10/L10L2_put_objects_in_basket.py": "f83064788adc41b4e114f615f0fc5c2391be6a0dea5a70c0d94136917804283b"
+  },
+  "historical_dataset_code_equivalence": "not established; pinned public implementation"
+}

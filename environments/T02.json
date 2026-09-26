@@ -1,0 +1,229 @@
+{
+  "Task": "T2",
+  "Task 이름": "LSPickUpTheBlackBowlOnTheCookieBoxAndPlaceItOnThePlate",
+  "Language Instruction": "Pick the akita black bowl on the cookies box and place it on the plate.",
+  "역할": "Spatial Relational Pick-and-Place",
+  "역할에 대한 상세 설명": "쿠키 상자 위라는 물체 간 공간 관계로 목표 그릇을 식별하고 접시에 옮긴다. 기존 T2와 동일.",
+  "LIBERO 레이아웃 번호": "libero-8-8",
+  "source_task_index": 113,
+  "episodes": 50,
+  "frames": 42746,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T02.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "cookie_box",
+      "asset": ".assets/lightwheel/object/Cookies002/Cookies002.usd",
+      "prim": "/World/Objects/cookie_box",
+      "aabb": [
+        [
+          2.544999997019768,
+          -2.130000001490116,
+          0.722
+        ],
+        [
+          2.6950000029802323,
+          -1.9299999985098837,
+          0.772000000745058
+        ]
+      ],
+      "center": [
+        2.62,
+        -2.03,
+        0.747000000372529
+      ],
+      "source_name": "cookies"
+    },
+    {
+      "name": "bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/bowl",
+      "aabb": [
+        [
+          2.5659105998277667,
+          -2.084089400172233,
+          0.7740000007450577
+        ],
+        [
+          2.674089400172234,
+          -1.9759105998277662,
+          0.8234478002190586
+        ]
+      ],
+      "center": [
+        2.62,
+        -2.03,
+        0.7987239004820581
+      ],
+      "source_name": "bowl_target"
+    },
+    {
+      "name": "plate",
+      "asset": ".assets/lightwheel/object/Plate012/Plate012.usd",
+      "prim": "/World/Objects/plate",
+      "aabb": [
+        [
+          2.1301647984981535,
+          -2.0795896005630494,
+          0.722
+        ],
+        [
+          2.349835201501846,
+          -1.8604103994369507,
+          0.7459512003958225
+        ]
+      ],
+      "center": [
+        2.2399999999999998,
+        -1.9700000000000002,
+        0.7339756001979112
+      ],
+      "source_name": "plate"
+    },
+    {
+      "name": "distractor_bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/distractor_bowl",
+      "aabb": [
+        [
+          2.235910599827768,
+          -2.314089400172233,
+          0.722
+        ],
+        [
+          2.344089400172235,
+          -2.2059105998277664,
+          0.7714477994740009
+        ]
+      ],
+      "center": [
+        2.290000000000002,
+        -2.26,
+        0.7467238997370005
+      ],
+      "source_name": "bowl"
+    },
+    {
+      "name": "ramekin",
+      "asset": ".assets/lightwheel/object/Bowl009/Bowl009.usd",
+      "prim": "/World/Objects/ramekin",
+      "aabb": [
+        [
+          2.4020110562166077,
+          -2.0644522708063486,
+          0.722
+        ],
+        [
+          2.4819150574227673,
+          -1.9844992708568934,
+          0.7619999991059303
+        ]
+      ],
+      "center": [
+        2.4419630568196875,
+        -2.024475770831621,
+        0.7419999995529651
+      ],
+      "source_name": "ramekin",
+      "restored_from_source_inventory": true
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "storage_furniture_right_group_1",
+      "source_name": "storage_furniture_right_group_1",
+      "prim": "/World/Scene/storage_furniture_right_group_1",
+      "aabb": [
+        [
+          1.827011056216609,
+          -2.4360701909737026,
+          0.7219999999999996
+        ],
+        [
+          2.2064745026980637,
+          -2.1094992708568947,
+          1.0431410621779662
+        ]
+      ],
+      "center": [
+        2.0167427794573363,
+        -2.2727847309152986,
+        0.8825705310889829
+      ],
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "stovetop_front_group_1",
+      "source_name": "stovetop_front_group_1",
+      "prim": "/World/Scene/stovetop_front_group_1",
+      "aabb": [
+        [
+          2.714511056216607,
+          -2.4826413811501014,
+          0.7219999999999996
+        ],
+        [
+          3.031710390112095,
+          -2.0344992708568923,
+          0.7826060592514091
+        ]
+      ],
+      "center": [
+        2.873110723164351,
+        -2.258570326003497,
+        0.7523030296257044
+      ],
+      "restored_from_source_inventory": true
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      0.4226182641968916,
+      -2.220446049250313e-16,
+      -0.906307785891309
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

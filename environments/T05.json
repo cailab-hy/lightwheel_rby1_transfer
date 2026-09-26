@@ -1,0 +1,130 @@
+{
+  "Task": "T5",
+  "Task 이름": "L90K7OpenTheMicrowave",
+  "Language Instruction": "Open the microwave.",
+  "역할": "Articulated Appliance Manipulation",
+  "역할에 대한 상세 설명": "전자레인지의 회전식 문을 열어 서랍과 다른 관절 기하 및 손잡이 상호작용을 평가한다. 기존 T5와 동일.",
+  "LIBERO 레이아웃 번호": "libero-1-1",
+  "source_task_index": 44,
+  "episodes": 50,
+  "frames": 40753,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T05.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "plate",
+      "asset": ".assets/lightwheel/object/Plate012/Plate012.usd",
+      "prim": "/World/Objects/plate",
+      "aabb": [
+        [
+          2.652705998122692,
+          -2.1169870007038116,
+          0.722
+        ],
+        [
+          2.927294001877308,
+          -1.8430129992961883,
+          0.7519390004947781
+        ]
+      ],
+      "center": [
+        2.79,
+        -1.98,
+        0.736969500247389
+      ],
+      "source_name": "plate"
+    },
+    {
+      "name": "white_bowl",
+      "asset": ".assets/lightwheel/object/Bowl011/Bowl011.usd",
+      "prim": "/World/Objects/white_bowl",
+      "aabb": [
+        [
+          2.4395110562166074,
+          -2.1245162706976295,
+          0.722
+        ],
+        [
+          2.6295110538324216,
+          -1.934499270856893,
+          0.8020000019371509
+        ]
+      ],
+      "center": [
+        2.5345110550245145,
+        -2.0295077707772613,
+        0.7620000009685755
+      ],
+      "source_name": "white_bowl",
+      "restored_from_source_inventory": true
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "microwave",
+      "prim": "/World/Scene/microwave_axis_group_1",
+      "aabb": [
+        [
+          1.961463669985299,
+          -2.2208083952360367,
+          0.722
+        ],
+        [
+          2.4185363300146987,
+          -1.759191604763966,
+          0.9313933372099445
+        ]
+      ]
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      0.4226182641968916,
+      -2.220446049250313e-16,
+      -0.906307785891309
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

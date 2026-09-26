@@ -1,0 +1,255 @@
+{
+  "Task": "T10",
+  "Task 이름": "L10L2PutBothTheAlphabetSoupAndTheTomatoSauceInTheBasket",
+  "Language Instruction": "Pick up the alphabet soup and the tomato sauce, and put them in the basket.",
+  "역할": "Multi-Object Sequential Manipulation",
+  "역할에 대한 상세 설명": "알파벳 수프와 토마토 소스를 각각 바구니에 옮기며 물체 전환과 반복적 조작 순서를 평가한다. 기존 T10과 동일.",
+  "LIBERO 레이아웃 번호": "libero-2-2",
+  "source_task_index": 4,
+  "episodes": 50,
+  "frames": 77906,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T10.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.6967464369250779,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "alphabet_soup",
+      "asset": ".assets/lightwheel/object/AlphabetSoup001/AlphabetSoup001.usd",
+      "prim": "/World/Objects/alphabet_soup",
+      "aabb": [
+        [
+          2.629618399441244,
+          -1.9428851997852339,
+          0.722
+        ],
+        [
+          2.6903816005587595,
+          -1.8771148002147686,
+          0.7961232007741927
+        ]
+      ],
+      "center": [
+        2.660000000000002,
+        -1.9100000000000013,
+        0.7590616003870964
+      ],
+      "source_name": "alphabet_soup"
+    },
+    {
+      "name": "tomato_sauce",
+      "asset": ".assets/lightwheel/object/Ketchup003/Ketchup003.usd",
+      "prim": "/World/Objects/tomato_sauce",
+      "aabb": [
+        [
+          2.411999999880792,
+          -1.97800000011921,
+          0.722
+        ],
+        [
+          2.468000000119211,
+          -1.9219999998807913,
+          0.7939999998807907
+        ]
+      ],
+      "center": [
+        2.4400000000000013,
+        -1.9500000000000006,
+        0.7579999999403954
+      ],
+      "source_name": "tomato_sauce"
+    },
+    {
+      "name": "basket",
+      "asset": ".assets/lightwheel/object/Basket058/Basket058.usd",
+      "prim": "/World/Objects/basket",
+      "aabb": [
+        [
+          2.0925263528525813,
+          -2.1789511224627494,
+          0.7220000000000003
+        ],
+        [
+          2.3474736471474156,
+          -1.9410488775372505,
+          0.9433204540312293
+        ]
+      ],
+      "center": [
+        2.2199999999999984,
+        -2.06,
+        0.8326602270156148
+      ],
+      "source_name": "basket"
+    },
+    {
+      "name": "butter",
+      "asset": ".assets/lightwheel/object/Butter001/Butter001.usd",
+      "prim": "/World/Objects/butter",
+      "aabb": [
+        [
+          2.4049999999999976,
+          -2.1374999952316287,
+          0.722
+        ],
+        [
+          2.4650000005215382,
+          -2.0075000000000003,
+          0.8020000019371509
+        ]
+      ],
+      "center": [
+        2.435000000260768,
+        -2.0724999976158145,
+        0.7620000009685755
+      ],
+      "source_name": "butter",
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "cream_cheese",
+      "asset": ".assets/lightwheel/object/CreamCheeseStick013/CreamCheeseStick013.usd",
+      "prim": "/World/Objects/cream_cheese",
+      "aabb": [
+        [
+          2.4924999999999975,
+          -2.113566000275314,
+          0.722
+        ],
+        [
+          2.5716794992983316,
+          -2.095,
+          0.7629549996256828
+        ]
+      ],
+      "center": [
+        2.5320897496491646,
+        -2.104283000137657,
+        0.7424774998128414
+      ],
+      "source_name": "cream_cheese",
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "milk",
+      "asset": ".assets/lightwheel/object/MilkDrink009/MilkDrink009.usd",
+      "prim": "/World/Objects/milk",
+      "aabb": [
+        [
+          2.4924999999999975,
+          -2.06819999858737,
+          0.722
+        ],
+        [
+          2.5647000002861,
+          -1.995,
+          0.9124000043869018
+        ]
+      ],
+      "center": [
+        2.5286000001430486,
+        -2.031599999293685,
+        0.8172000021934509
+      ],
+      "source_name": "milk",
+      "restored_from_source_inventory": true
+    },
+    {
+      "name": "orange_juice",
+      "asset": ".assets/lightwheel/object/OrangeJuice001/OrangeJuice001.usd",
+      "prim": "/World/Objects/orange_juice",
+      "aabb": [
+        [
+          2.4924999999999975,
+          -1.968624000698328,
+          0.722
+        ],
+        [
+          2.5536240006983255,
+          -1.9075,
+          0.8849939973354339
+        ]
+      ],
+      "center": [
+        2.5230620003491615,
+        -1.938062000349164,
+        0.803496998667717
+      ],
+      "source_name": "orange_juice",
+      "restored_from_source_inventory": true
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "ketchup_island_group_1",
+      "source_name": "ketchup_island_group_1",
+      "prim": "/World/Scene/ketchup_island_group_1",
+      "aabb": [
+        [
+          2.7799999999999963,
+          -2.152356569328258,
+          0.7220000000000003
+        ],
+        [
+          2.847496866317951,
+          -2.1075000000000004,
+          0.8796692015301476
+        ]
+      ],
+      "center": [
+        2.813748433158974,
+        -2.129928284664129,
+        0.800834600765074
+      ],
+      "restored_from_source_inventory": true
+    }
+  ],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      3.6732051031939217e-06,
+      0.9999999999932537,
+      0.0
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}

@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import {Workbook} from '@oai/artifact-tool';
+const root='/home/cai/lightwheel_rby1_transfer';
+const rows=JSON.parse(await fs.readFile(root+'/selection.json','utf8'));
+const headers=['Task','Task 이름','Language Instruction','역할','역할에 대한 상세 설명','LIBERO 레이아웃 번호'];
+const wb=Workbook.create();const s=wb.worksheets.add('Tasks');
+s.getRange('A1:F11').values=[headers,...rows.map(r=>headers.map(h=>r[h]))];
+wb.recalculate();
+console.log((await wb.inspect({kind:'table',range:'Tasks!A1:F11',tableMaxRows:11,tableMaxCols:6,maxChars:1000})).ndjson);
+const quote=x=>'"'+String(x??'').replaceAll('"','""')+'"';
+await fs.writeFile(root+'/selected_tasks.csv','\ufeff'+s.getRange('A1:F11').values.map(r=>r.map(quote).join(',')).join('\r\n')+'\r\n');

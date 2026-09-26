@@ -1,0 +1,112 @@
+{
+  "Task": "T1",
+  "Task 이름": "L90K1PutTheBlackBowlOnThePlate",
+  "Language Instruction": "put the black bowl on the plate.",
+  "역할": "Basic Pick-and-Place",
+  "역할에 대한 상세 설명": "집기, 운반, 놓기의 기본 조작 능력을 평가하는 기준 task. 기존 PaMQR-chunk T1과 동일.",
+  "LIBERO 레이아웃 번호": "libero-1-1",
+  "source_task_index": 18,
+  "episodes": 50,
+  "frames": 25137,
+  "match": "exact",
+  "layout_evidence": "Verified for all 50 episodes per task against public raw HDF5 data.attrs.env_args layout_id/style_id; matched by complete state/action/processed_action arrays.",
+  "usd": "./environments/T01.usd",
+  "table_top_m": 0.72,
+  "original_table_top_m": 0.7509999701976775,
+  "robot_base_world": [
+    2.44,
+    -1.43,
+    0.0
+  ],
+  "robot_yaw_rad": -1.5707963267948966,
+  "objects": [
+    {
+      "name": "bowl",
+      "asset": ".assets/lightwheel/object/Bowl008/Bowl008.usd",
+      "prim": "/World/Objects/bowl",
+      "aabb": [
+        [
+          2.539850999712944,
+          -2.050149000287056,
+          0.722
+        ],
+        [
+          2.720149000287056,
+          -1.869850999712944,
+          0.8044129991233349
+        ]
+      ],
+      "center": [
+        2.63,
+        -1.96,
+        0.7632064995616674
+      ],
+      "source_name": "akita_black_bowl"
+    },
+    {
+      "name": "plate",
+      "asset": ".assets/lightwheel/object/Plate012/Plate012.usd",
+      "prim": "/World/Objects/plate",
+      "aabb": [
+        [
+          2.132705998122692,
+          -2.1669870007038115,
+          0.722
+        ],
+        [
+          2.407294001877308,
+          -1.8930129992961882,
+          0.7519390004947781
+        ]
+      ],
+      "center": [
+        2.27,
+        -2.03,
+        0.736969500247389
+      ],
+      "source_name": "plate"
+    }
+  ],
+  "fixtures": [],
+  "head_camera_ray_robot_frame": {
+    "origin": [
+      0.34574778035581427,
+      -0.000339996492000008,
+      1.3913263878138322
+    ],
+    "direction": [
+      0.4226182641968916,
+      -2.220446049250313e-16,
+      -0.906307785891309
+    ],
+    "table_intersection": [
+      0.6587924183299122,
+      -0.0003399964920001725,
+      0.72
+    ],
+    "real_head_1_deg": -35,
+    "usd_baked_head_1_deg": 35
+  },
+  "scene_status": "adapted deterministic task scene; not reconstruction of source episode; dynamics and task success require validation",
+  "fixed_robot_joints": [
+    "base",
+    "torso_0..5",
+    "head_0..1"
+  ],
+  "ready_arm_joint_radians": {
+    "left_arm_0": 0.2617993877991494,
+    "left_arm_1": 1.1344640137963142,
+    "left_arm_2": 0.2617993877991494,
+    "left_arm_3": -2.007128639793479,
+    "left_arm_4": -1.3089969389957472,
+    "left_arm_5": -1.1344640137963142,
+    "left_arm_6": -0.08726646259971647,
+    "right_arm_0": 0.2617993877991494,
+    "right_arm_1": -1.1344640137963142,
+    "right_arm_2": -0.2617993877991494,
+    "right_arm_3": -2.007128639793479,
+    "right_arm_4": 1.3089969389957472,
+    "right_arm_5": -1.1344640137963142,
+    "right_arm_6": -0.08726646259971647
+  }
+}
