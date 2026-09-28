@@ -10,10 +10,20 @@ from collections import deque
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_EPISODE_SECONDS = {
+    "T1": 60, "T2": 60, "T3": 120, "T4": 90, "T5": 60,
+    "T6": 60, "T7": 120, "T8": 60, "T9": 120, "T10": 150,
+}
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument("--task", choices=[f"T{i}" for i in range(1, 11)], default="T1")
 p.add_argument("--output", type=Path)
 p.add_argument("--fps", type=int, default=50, choices=[10, 20, 25, 50])
+p.add_argument(
+    "--max-episode-seconds", type=int,
+    help="Positive integer recording limit in simulation seconds; defaults: "
+    "T1/T2/T5/T6/T8=60, T4=90, T3/T7/T9=120, T10=150. "
+    "Unsuccessful episodes are discarded and reset at the limit.",
+)
 p.add_argument("--pos-speed", type=float, default=0.08, help="m per simulation second")
 p.add_argument("--rot-speed", type=float, default=0.5, help="rad per simulation second")
 p.add_argument(
@@ -29,6 +39,10 @@ p.add_argument(
 p.add_argument("--width", type=int, default=640)
 p.add_argument("--height", type=int, default=480)
 a = p.parse_args()
+if a.max_episode_seconds is None:
+    a.max_episode_seconds = DEFAULT_EPISODE_SECONDS[a.task]
+if a.max_episode_seconds <= 0:
+    p.error("--max-episode-seconds must be a positive integer")
 if a.smoke_success_test:
     a.smoke_test = True
     if a.task != "T1":
@@ -289,6 +303,7 @@ class Collector:
             "success_evaluator": self.success.mapping,
             "instruction": self.meta["Language Instruction"],
             "fps": a.fps,
+            "max_episode_seconds": a.max_episode_seconds,
             "width": a.width,
             "height": a.height,
             "cameras": list(self.camera_paths),
@@ -325,6 +340,7 @@ class Collector:
         activate_front_camera()
         print(self.keyboard)
         print("OUTPUT", a.output, "RAW", rawroot, flush=True)
+        print(f"Recording limit: {a.max_episode_seconds}s simulation time", flush=True)
 
     def get_q(self):
         return np.asarray(self.robot.get_joint_positions(), dtype=float)
@@ -477,6 +493,21 @@ class Collector:
             self.reset()
         else:
             self.running = False
+
+    def finish_recording_step(self, auto_save):
+        # Success on the final allowed frame takes precedence over timeout.
+        if auto_save:
+            self.command("save")
+            return True
+        if self.rec.active and self.rec.count >= a.max_episode_seconds * a.fps:
+            self.command("discard")
+            self.message = (
+                f"Time limit reached ({a.max_episode_seconds}s): "
+                "unsuccessful episode discarded; scene reset. B: start recording"
+            )
+            print(self.message, flush=True)
+            return True
+        return False
 
     def command(self, c):
         if c == "start" and not self.rec.active:
@@ -642,15 +673,14 @@ class Collector:
                     self.time,
                 )
                 self.time = measured_time
-                if auto_save:
-                    self.command("save")
+                if self.finish_recording_step(auto_save):
                     continue
             status = (
                 "PAUSED"
                 if self.paused
                 else ("RECORDING" if self.rec.active else "IDLE")
             )
-            self.label.text = f"success_original={self.success.success_original} (predicate={self.success.raw_predicate}) | {status} | ARM {self.side.upper()} | gripper {'OPEN' if self.grip_open[self.side] else 'CLOSED'}\nFrames: {self.rec.count} | {self.message}\nOutput: {a.output}"
+            self.label.text = f"success_original={self.success.success_original} (predicate={self.success.raw_predicate}) | {status} | ARM {self.side.upper()} | gripper {'OPEN' if self.grip_open[self.side] else 'CLOSED'}\nFrames: {self.rec.count} | Recording: {self.rec.count / a.fps:.1f}/{a.max_episode_seconds}s | {self.message}\nOutput: {a.output}"
             if not a.smoke_test:
                 delay = 1 / a.fps - (time.monotonic() - last)
                 if delay > 0:
