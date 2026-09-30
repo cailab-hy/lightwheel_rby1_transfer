@@ -20,6 +20,9 @@ def evaluator(mapping):
         raise ValueError("Recorded predicate source differs from this installation")
     value = OriginalSuccess.__new__(OriginalSuccess)
     value.task_id = mapping["task"]
+    # Replay with the adapter version and thresholds recorded in the episode.
+    value.version = mapping["version"]
+    value.adaptations = mapping.get("rby1_adaptations", {})
     value.scene = Scene()
     value.geometry = {}
     value.world = NS(
@@ -151,7 +154,8 @@ def check_live_mapping(record):
         d.joint_pos[0, i] = lo + (hi - lo) * (1 - amount if lo < 0 else amount)
 
     if t == "T1":
-        place("akita_black_bowl", obj("plate").body_com_pos_w)
+        # Resting height above the plate COM measured on T01 (adapter v2 requires it).
+        place("akita_black_bowl", obj("plate").body_com_pos_w + torch.tensor([0, 0, 0.036]))
     elif t == "T2":
         place("bowl_target", obj("plate").body_com_pos_w + torch.tensor([0, 0, 0.04]))
     elif t == "T3":

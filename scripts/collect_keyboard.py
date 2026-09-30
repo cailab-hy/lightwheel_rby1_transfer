@@ -10,20 +10,16 @@ from collections import deque
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_EPISODE_SECONDS = {
-    "T1": 60, "T2": 60, "T3": 120, "T4": 90, "T5": 60,
-    "T6": 60, "T7": 120, "T8": 60, "T9": 120, "T10": 150,
-}
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument("--task", choices=[f"T{i}" for i in range(1, 11)], default="T1")
 p.add_argument("--output", type=Path)
-p.add_argument("--fps", type=int, default=50, choices=[10, 20, 25, 50])
 p.add_argument(
-    "--max-episode-seconds", type=int,
-    help="Positive integer recording limit in simulation seconds; defaults: "
-    "T1/T2/T5/T6/T8=60, T4=90, T3/T7/T9=120, T10=150. "
-    "Unsuccessful episodes are discarded and reset at the limit.",
+    "--profile",
+    choices=["rby1", "sim"],
+    default="rby1",
+    help="rby1: record like the real RB-Y1 dataset (15 fps, 480x640 portrait wrist cameras, left one flipped); sim: previous layout (all cameras --width x --height)",
 )
+p.add_argument("--fps", type=int, choices=[10, 15, 20, 25, 50], help="default: 15 (rby1 profile) or 50 (sim profile)")
 p.add_argument("--pos-speed", type=float, default=0.08, help="m per simulation second")
 p.add_argument("--rot-speed", type=float, default=0.5, help="rad per simulation second")
 p.add_argument(
@@ -36,13 +32,27 @@ p.add_argument(
     action="store_true",
     help="T1 synthetic placement test; test data only",
 )
+p.add_argument(
+    "--layout",
+    choices=["random", "fixed"],
+    default="random",
+    help="random: resample object poses within the scene JSON 'randomization' ranges on every reset",
+)
+p.add_argument(
+    "--auto-export",
+    action="store_true",
+    help="also convert to LeRobot in the background while collecting (default: raw only; use export_dataset.sh)",
+)
+p.add_argument("--seed", type=int, help="layout RNG seed (default: random; 0 for smoke tests)")
 p.add_argument("--width", type=int, default=640)
 p.add_argument("--height", type=int, default=480)
 a = p.parse_args()
-if a.max_episode_seconds is None:
-    a.max_episode_seconds = DEFAULT_EPISODE_SECONDS[a.task]
-if a.max_episode_seconds <= 0:
-    p.error("--max-episode-seconds must be a positive integer")
+if a.fps is None:
+    a.fps = 15 if a.profile == "rby1" else 50
+# Physics sub-steps per control frame: keep dt <= 0.01 s and make them sum to exactly 1/fps
+# (10/20/25/50 fps keep dt = 0.01; 15 fps uses 7 steps of 1/105 s).
+SUBSTEPS = -(-100 // a.fps)
+PHYSICS_DT = 1.0 / (a.fps * SUBSTEPS)
 if a.smoke_success_test:
     a.smoke_test = True
     if a.task != "T1":
@@ -54,6 +64,7 @@ if a.width % 2 or a.height % 2 or min(a.width, a.height) < 64:
 if a.headless and not a.smoke_test:
     p.error("Headless mode is only supported with --smoke-test")
 a.headless = a.headless or a.smoke_test
+AUTO_EXPORT = a.auto_export or a.smoke_test
 if a.output is None:
     a.output = (
         ROOT
@@ -74,6 +85,14 @@ except BlockingIOError:
 if a.output.exists():
     info = a.output / "meta/info.json"
     if (a.output / "meta/keyboard_export_in_progress.json").exists():
+        # Exports run detached; a held export lock means one is still running, not interrupted.
+        with a.output.with_name(a.output.name + ".export.lock").open("a") as export_lock:
+            try:
+                fcntl.flock(export_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                p.error(
+                    "A LeRobot export from a previous session is still running; retry when it finishes"
+                )
         p.error(
             "Interrupted export detected; raw episodes are preserved. See KEYBOARD_COLLECTION_KO.md recovery instructions."
         )
@@ -86,19 +105,21 @@ if a.output.exists():
         or json.loads(collection.read_text())
         .get("success_evaluator", {})
         .get("version")
-        != "lw-benchhub-b2bcb2d-rby1-adapter-v1"
+        != "lw-benchhub-b2bcb2d-rby1-adapter-v2"
     ):
         p.error("Output uses a different/manual success schema; choose a new --output")
     if json.loads(collection.read_text()).get("task") != a.task:
         p.error("Existing dataset task mismatch")
-    if info["robot_type"] != "rby1_isaac_keyboard" or info["fps"] != a.fps:
-        p.error("Existing dataset robot_type/fps mismatch")
-    if tuple(info["features"]["observation.images.first_person"]["shape"]) != (
-        a.height,
-        a.width,
-        3,
-    ):
-        p.error("Existing dataset image shape mismatch")
+# Raw episodes already in this folder must match (the exporter converts them together).
+previous = next(iter(sorted(rawroot.glob("episode-*/episode.json"))), None)
+if previous is not None:
+    prev = json.loads(previous.read_text())
+    mismatch = [
+        k for k, mine in (("task", a.task), ("fps", a.fps), ("profile", a.profile))
+        if prev.get(k, "sim" if k == "profile" else None) != mine
+    ]
+    if mismatch:
+        p.error(f"Raw episodes in {rawroot} were recorded with a different {', '.join(mismatch)}; choose a new --output")
 paths.prepare_assets()
 
 # Follow record_demos.py: import installed Pinocchio before launching Isaac Sim.
@@ -128,6 +149,8 @@ from isaaclab.controllers import DifferentialIKController, DifferentialIKControl
 from kinematics import build_rby, READY
 from keyboard_recorder import EpisodeRecorder
 from success_original import OriginalSuccess
+import layout_randomization
+import rby1_format
 
 
 class Keyboard(Se3Keyboard):
@@ -184,7 +207,8 @@ class Collector:
         for _ in range(8):
             app.update()
         self.world = World(
-            physics_dt=0.01, rendering_dt=1 / a.fps, stage_units_in_meters=1
+            # Isaac Sim stores int(1/dt) steps per second: nudge dt so 1/(1/105) does not truncate to 104
+            physics_dt=PHYSICS_DT * (1 - 1e-12), rendering_dt=1 / a.fps, stage_units_in_meters=1
         )
         self.robot = self.world.scene.add(
             SingleArticulation(prim_path="/World/Robot", name="rby1")
@@ -227,7 +251,19 @@ class Collector:
             num_envs=1,
             device="cpu",
         )
+        self.layout_spec = (
+            self.meta.get("randomization") if a.layout == "random" else None
+        )
+        if a.layout == "random" and self.layout_spec is None:
+            print(f"{a.task} has no 'randomization' ranges; using the fixed layout", flush=True)
+        self.layout_seed = 0 if a.seed is None and a.smoke_test else a.seed
+        self.layout_rng = np.random.default_rng(self.layout_seed)
+        self.layout = None
         self.commands = deque()
+        self.export_queue = deque()
+        self.saved_this_session = 0
+        self.export_proc = None
+        self.export_error = None
         self.side = "left"
         self.grip_open = {"left": True, "right": True}
         self.paused = False
@@ -265,9 +301,15 @@ class Collector:
             "left_hand": "/World/Robot/left_gripper/ee_left/left_hand_camera",
             "right_hand": "/World/Robot/right_gripper/ee_right/right_hand_camera",
         }
+        # rby1 profile: RB-Y1 camera layout (portrait wrist cameras, left one turned so the fingers are at the bottom)
+        self.camera_sizes = {
+            name: (rby1_format.RENDER[name][0] if a.profile == "rby1" else (a.width, a.height))
+            for name in self.camera_paths
+        }
+        self.camera_flip = {name: a.profile == "rby1" and rby1_format.RENDER[name][1] for name in self.camera_paths}
         for name, path in self.camera_paths.items():
             assert stage.GetPrimAtPath(path).IsA(UsdGeom.Camera)
-            rp = rep.create.render_product(path, (a.width, a.height))
+            rp = rep.create.render_product(path, self.camera_sizes[name])
             ann = rep.AnnotatorRegistry.get_annotator("rgb")
             ann.attach([rp])
             self.products[name] = rp
@@ -303,9 +345,12 @@ class Collector:
             "success_evaluator": self.success.mapping,
             "instruction": self.meta["Language Instruction"],
             "fps": a.fps,
-            "max_episode_seconds": a.max_episode_seconds,
-            "width": a.width,
-            "height": a.height,
+            "profile": a.profile,
+            "physics_dt": PHYSICS_DT,
+            "width": self.camera_sizes["first_person"][0],
+            "height": self.camera_sizes["first_person"][1],
+            "camera_sizes": {n: [wh[1], wh[0]] for n, wh in self.camera_sizes.items()},
+            "camera_flip_180": [n for n, f in self.camera_flip.items() if f],
             "cameras": list(self.camera_paths),
             "camera_paths": self.camera_paths,
             "joint_names": self.names,
@@ -318,10 +363,11 @@ class Collector:
             "isaaclab_version": Path(str(paths.ISAACLAB / 'VERSION'))
             .read_text()
             .strip(),
+            "layout_randomization": self.layout_spec,
         }
         self.rec = EpisodeRecorder(rawroot, metadata)
         self.window = ui.Window(
-            f"RB-Y1 {a.task} keyboard collector", width=720, height=270
+            f"RB-Y1 {a.task} keyboard collector", width=900, height=330
         )
         with self.window.frame:
             with ui.VStack():
@@ -340,7 +386,6 @@ class Collector:
         activate_front_camera()
         print(self.keyboard)
         print("OUTPUT", a.output, "RAW", rawroot, flush=True)
-        print(f"Recording limit: {a.max_episode_seconds}s simulation time", flush=True)
 
     def get_q(self):
         return np.asarray(self.robot.get_joint_positions(), dtype=float)
@@ -358,6 +403,9 @@ class Collector:
         self.robot.set_joint_velocities(np.zeros(18))
         self.robot.apply_action(ArticulationAction(joint_positions=self.target))
         self.success.reset_scene()
+        if self.layout_spec is not None:
+            self.layout = layout_randomization.sample(self.layout_spec, self.layout_rng, meta=self.meta)
+            layout_randomization.apply(self.layout, self.meta, self.success, self.layout_spec)
         for _ in range(100):
             self.world.step(render=False)
         for _ in range(8):
@@ -417,6 +465,11 @@ class Collector:
     def initial_state(self):
         return {
             "simulation_time": self.time,
+            "layout": {
+                "mode": "random" if self.layout_spec is not None else "fixed",
+                "seed": self.layout_seed,
+                "objects_robot_frame": self.layout,
+            },
             "joint_names": self.names,
             "joint_positions": self.get_q().tolist(),
             "success_evaluator": self.success.mapping,
@@ -451,7 +504,7 @@ class Collector:
             times = np.array(times, dtype=np.float64)
             if np.max(np.abs(times - float(self.world.current_time))) < 1e-5:
                 return {
-                    k: np.asarray(v.get_data())[..., :3].copy()
+                    k: (np.rot90(np.asarray(v.get_data())[..., :3], 2) if self.camera_flip[k] else np.asarray(v.get_data())[..., :3]).copy()
                     for k, v in self.annotators.items()
                 }, times - self.time_origin
             self.world.render()
@@ -460,12 +513,46 @@ class Collector:
         )
 
     def export(self, raw):
-        self.world.pause()
-        self.keyboard.reset()
-        log = raw / "export.log"
-        with log.open("w") as f:
-            proc = subprocess.Popen(
+        """Reset the scene at once; LeRobot conversion is export_dataset.sh unless --auto-export."""
+        self.saved_this_session += 1
+        if AUTO_EXPORT:
+            self.export_queue.append(raw)
+            self.poll_exports()
+            self.message = f"Saved episode: {raw.name} (LeRobot export queued); scene reset"
+        else:
+            self.message = f"Saved raw episode {self.saved_this_session}: {raw.name}; scene reset (convert later with export_dataset.sh)"
+        print(self.message, flush=True)
+        self.commands.clear()
+        self.reset()
+
+    def exports_pending(self):
+        return self.export_proc is not None or (
+            bool(self.export_queue) and self.export_error is None
+        )
+
+    def poll_exports(self):
+        """Run queued exports one at a time; the raw journal is already durable."""
+        if self.export_proc is not None:
+            code = self.export_proc.poll()
+            if code is None:
+                return
+            self.export_log.close()
+            raw, self.export_proc = self.export_raw, None
+            if code:
+                # An interrupted export leaves a marker that blocks later exports.
+                self.export_error = f"Export failed; raw episode preserved at {raw}; see {raw / 'export.log'}"
+                print(self.export_error, flush=True)
+                return
+            print("Exported episode:", raw.name, flush=True)
+        if self.export_queue and self.export_error is None:
+            raw = self.export_raw = self.export_queue.popleft()
+            self.export_log = (raw / "export.log").open("w")
+            # Own session: Ctrl+C in the collector terminal must not interrupt a running export.
+            self.export_proc = subprocess.Popen(
                 [
+                    "nice",
+                    "-n",
+                    "10",
                     sys.executable,
                     str(ROOT / "scripts/export_keyboard_episode.py"),
                     "--raw",
@@ -473,41 +560,21 @@ class Collector:
                     "--output",
                     str(a.output),
                 ],
-                stdout=f,
+                stdout=self.export_log,
                 stderr=subprocess.STDOUT,
                 env={**os.environ, "HF_HUB_OFFLINE": "1"},
+                start_new_session=True,
             )
-            while proc.poll() is None and app.is_running():
-                app.update()
-                time.sleep(0.01)
-            # The export owns the files; allow it to finish even if the GUI window is closed.
-            code = proc.wait()
-        if code:
-            raise RuntimeError(
-                f"Export failed; saved raw episode is preserved at {raw}; see {log}"
-            )
-        self.message = "Saved episode: " + raw.name
-        print(self.message, flush=True)
-        self.commands.clear()
-        if app.is_running():
-            self.reset()
-        else:
-            self.running = False
 
-    def finish_recording_step(self, auto_save):
-        # Success on the final allowed frame takes precedence over timeout.
-        if auto_save:
-            self.command("save")
-            return True
-        if self.rec.active and self.rec.count >= a.max_episode_seconds * a.fps:
-            self.command("discard")
-            self.message = (
-                f"Time limit reached ({a.max_episode_seconds}s): "
-                "unsuccessful episode discarded; scene reset. B: start recording"
-            )
-            print(self.message, flush=True)
-            return True
-        return False
+    def drain_exports(self):
+        if self.exports_pending():
+            print("Waiting for queued LeRobot exports to finish...", flush=True)
+        while self.exports_pending():
+            self.poll_exports()
+            if app.is_running():
+                self.label.text = f"Finishing LeRobot export ({len(self.export_queue) + 1} left)...\nOutput: {a.output}"
+                app.update()
+            time.sleep(0.05)
 
     def command(self, c):
         if c == "start" and not self.rec.active:
@@ -517,10 +584,24 @@ class Collector:
             self.paused = False
             self.world.play()
         elif c == "save":
+            if not self.rec.active:
+                self.message = "Not saved: not recording. Press B before the demonstration, then complete the task"
+                print(self.message, flush=True)
+                return
             if not self.success.ever_success and (
                 not a.smoke_test or a.smoke_success_test
             ):
-                self.message = "Not saved: success_original is false; continue or BACKSPACE to discard"
+                failing = [
+                    f"{name} ({value})"
+                    for name, ok, value in self.success.conditions() or []
+                    if not ok
+                ]
+                self.message = (
+                    "Not saved: success_original is false; unmet: " + ", ".join(failing)
+                    if failing
+                    else "Not saved yet: conditions met, hold still for the success delay "
+                    f"({self.success.context._success_count} checks = {self.success.context._success_count / a.fps:.1f} s)"
+                ) + ". Continue, or BACKSPACE to discard"
                 print(self.message, flush=True)
                 return
             raw = self.rec.save(
@@ -607,7 +688,7 @@ class Collector:
                         )
                         body.set_linear_velocity(np.zeros(3))
                         body.set_angular_velocity(np.zeros(3))
-                if (a.output / "meta/info.json").exists():
+                if not self.exports_pending() and (a.output / "meta/info.json").exists():
                     if (
                         json.loads((a.output / "meta/info.json").read_text())[
                             "total_episodes"
@@ -616,13 +697,14 @@ class Collector:
                     ):
                         self.running = False
                         break
-                if iteration > 150:
+                if iteration > 150 and not self.exports_pending():
                     raise AssertionError(
                         "Synthetic successful placement did not auto-save"
                     )
             if a.smoke_test:
                 for key, pressed in schedule.get(iteration, []):
                     self.inject(key, pressed)
+            self.poll_exports()
             while self.commands:
                 self.command(self.commands.popleft())
             if not self.running:
@@ -664,7 +746,7 @@ class Collector:
                     ):
                         auto_save = True
                 self.robot.apply_action(ArticulationAction(joint_positions=act))
-                for sub in range(100 // a.fps):
+                for sub in range(SUBSTEPS):
                     self.world.step(render=False)
                 self.world.render()
                 measured_time = float(self.world.current_time) - self.time_origin
@@ -673,20 +755,46 @@ class Collector:
                     self.time,
                 )
                 self.time = measured_time
-                if self.finish_recording_step(auto_save):
+                if auto_save:
+                    self.command("save")
                     continue
             status = (
                 "PAUSED"
                 if self.paused
                 else ("RECORDING" if self.rec.active else "IDLE")
             )
-            self.label.text = f"success_original={self.success.success_original} (predicate={self.success.raw_predicate}) | {status} | ARM {self.side.upper()} | gripper {'OPEN' if self.grip_open[self.side] else 'CLOSED'}\nFrames: {self.rec.count} | Recording: {self.rec.count / a.fps:.1f}/{a.max_episode_seconds}s | {self.message}\nOutput: {a.output}"
+            export_status = (
+                f"off (raw only; {self.saved_this_session} saved this session) - run ./export_dataset.sh --output {a.output}"
+                if not AUTO_EXPORT
+                else self.export_error
+                or (
+                    f"running, {len(self.export_queue)} queued"
+                    if self.export_proc is not None
+                    else "idle"
+                )
+            )
+            rows = self.success.conditions()
+            checks = (
+                "Success checks: "
+                + " | ".join(f"{'OK' if ok else 'NO'} {name} {value}" for name, ok, value in rows)
+                if rows
+                else ""
+            )
+            if (
+                not self.rec.active
+                and not self.paused
+                and self.success.raw_predicate
+                and not self.message.startswith("Task condition met")
+            ):
+                self.message = "Task condition met but NOT recording (IDLE): press B before the demonstration"
+            self.label.text = f"success_original={self.success.success_original} (predicate={self.success.raw_predicate}) | {status} | ARM {self.side.upper()} | gripper {'OPEN' if self.grip_open[self.side] else 'CLOSED'}\nFrames: {self.rec.count} | {self.message}\n{checks}\nLeRobot export: {export_status}\nOutput: {a.output}"
             if not a.smoke_test:
                 delay = 1 / a.fps - (time.monotonic() - last)
                 if delay > 0:
                     time.sleep(delay)
             last = time.monotonic()
             iteration += 1
+        self.drain_exports()
         if a.smoke_test:
             info = json.loads((a.output / "meta/info.json").read_text())
             assert info["total_episodes"] == saved_before + (
@@ -707,6 +815,19 @@ class Collector:
             print("SMOKE_OK", report, flush=True)
 
     def close(self):
+        if not AUTO_EXPORT and self.saved_this_session:
+            print(
+                f"Saved {self.saved_this_session} raw episodes this session. Convert to LeRobot with:\n"
+                f"  ./export_dataset.sh --output {a.output}",
+                flush=True,
+            )
+        if self.exports_pending() or self.export_error:
+            # A running export continues in its own session; queued ones are resumable.
+            print(
+                "Unexported raw episodes may remain. Export them (already exported ones are skipped):\n"
+                f"  ./run_python.sh scripts/export_keyboard_episode.py --raw-root {rawroot} --output {a.output}",
+                flush=True,
+            )
         self.rec.close()
         # Let SimulationApp close the stage and shared Replicator graphs together.
         self.world.pause()

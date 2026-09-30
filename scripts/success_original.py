@@ -11,7 +11,27 @@ from scipy.spatial.transform import Rotation
 from vendor import original_predicates as original
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "lw-benchhub-b2bcb2d-rby1-adapter-v1"
+VERSION = "lw-benchhub-b2bcb2d-rby1-adapter-v2"
+VERSION_V1 = "lw-benchhub-b2bcb2d-rby1-adapter-v1"
+# v2: T1 additionally requires the bowl to rest flat on the plate. The upstream
+# 0.1945 m xy radius also accepts a bowl leaning on the plate rim or beside it
+# on the table, which the left-arm T1 layout (bowl-plate 0.27 m) reaches after ~8 cm.
+# Thresholds measured in PhysX on T01: flat up to xy 0.067 m, leaning from 0.077 m;
+# bowl-minus-plate COM height 0.036 m on the plate vs 0.027 m on the table.
+# See reports/t1_layout_check/README.md.
+RBY1_ADAPTATIONS = {
+    "T1": {"bowl_on_plate_max_xy_m": 0.065, "bowl_on_plate_min_dz_m": 0.032},
+}
+
+
+def t1_bowl_on_plate(env, limits):
+    bowl = env.scene.rigid_objects["akita_black_bowl"].data.body_com_pos_w[:, 0, :]
+    plate = env.scene.rigid_objects["plate"].data.body_com_pos_w[:, 0, :]
+    xy = torch.norm(bowl[:, :2] - plate[:, :2], dim=-1)
+    dz = bowl[:, 2] - plate[:, 2]
+    return (xy < limits["bowl_on_plate_max_xy_m"]) & (
+        dz > limits["bowl_on_plate_min_dz_m"]
+    )
 
 
 def tensor(x):
@@ -265,9 +285,14 @@ class OriginalSuccess:
             "tomato_sauce",
         ]:
             setattr(self.context, n, n)
-        self.context._check_success = lambda env: getattr(
-            original, "check_" + self.task_id
-        )(self.context, env)
+        upstream = getattr(original, "check_" + self.task_id)
+        self.context._check_success = lambda env: upstream(self.context, env)
+        # Episodes recorded by the v1 adapter replay with the upstream predicate only.
+        if self.task_id == "T1" and getattr(self, "version", VERSION) != VERSION_V1:
+            limits = getattr(self, "adaptations", None) or RBY1_ADAPTATIONS["T1"]
+            self.context._check_success = lambda env: upstream(
+                self.context, env
+            ) & t1_bowl_on_plate(env, limits)
         self.env = NS(
             scene=self.scene,
             device="cpu",
@@ -298,6 +323,7 @@ class OriginalSuccess:
             "version": VERSION,
             "source_commit": "b2bcb2d00edef691f9fcc49039cbf0bcc7464605",
             "task": self.task_id,
+            "rby1_adaptations": RBY1_ADAPTATIONS.get(self.task_id, {}),
             "objects": {n: e["prim"] for n, e in self.entries.items()},
             "geometry": {
                 n: (
@@ -427,6 +453,41 @@ class OriginalSuccess:
         )
         self.ever_success |= self.success_original
         return self.success_original
+
+    def conditions(self):
+        """Operator-facing breakdown of the current predicate inputs (T1 only; None otherwise).
+
+        Uses the state from the last update(); mirrors check_T1, gripper_obj_far and the v2 check.
+        """
+        if self.task_id != "T1" or "akita_black_bowl" not in self.scene.rigid_objects:
+            return None
+        bowl = self.scene.rigid_objects["akita_black_bowl"].data.body_com_pos_w[0, 0].numpy()
+        plate = self.scene.rigid_objects["plate"].data.body_com_pos_w[0, 0].numpy()
+        xy = float(np.linalg.norm(bowl[:2] - plate[:2]))
+        dz = float(bowl[2] - plate[2])
+        radius = self.geometry["plate"].horizontal_radius
+        limits = (
+            RBY1_ADAPTATIONS["T1"]
+            if getattr(self, "version", VERSION) != VERSION_V1
+            else {"bowl_on_plate_max_xy_m": radius, "bowl_on_plate_min_dz_m": -np.inf}
+        )
+        max_xy = min(radius, limits["bowl_on_plate_max_xy_m"])
+        tcp = self.scene["ee_frame"].data.target_pos_w[0].numpy()
+        rows = [
+            ("bowl-plate xy", xy < max_xy, f"{xy:.3f}<{max_xy:.3f}m"),
+            ("bowl on plate dz", dz > limits["bowl_on_plate_min_dz_m"], f"{dz:.3f}>{limits['bowl_on_plate_min_dz_m']:.3f}m"),
+        ]
+        for i, side in enumerate(["left", "right"]):
+            distance = float(np.linalg.norm(tcp[i] - bowl))
+            force = float(
+                np.linalg.norm(
+                    self.scene.sensors[side + "_gripper_contact"]._data.net_forces_w.numpy()
+                )
+            )
+            rows.append(
+                (f"{side} gripper away", distance > 0.25 and force < 0.1, f"{distance:.2f}>0.25m, {force:.2f}<0.1N")
+            )
+        return rows
 
     def snapshot(self):
         def conv(v):

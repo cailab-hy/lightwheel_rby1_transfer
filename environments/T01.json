@@ -26,19 +26,19 @@
       "prim": "/World/Objects/bowl",
       "aabb": [
         [
-          2.539850999712944,
-          -2.050149000287056,
+          2.649850999712944,
+          -2.070149000287056,
           0.722
         ],
         [
-          2.720149000287056,
-          -1.869850999712944,
+          2.8301490002870557,
+          -1.889850999712944,
           0.8044129991233349
         ]
       ],
       "center": [
-        2.63,
-        -1.96,
+        2.7399999999999998,
+        -1.98,
         0.7632064995616674
       ],
       "source_name": "akita_black_bowl"
@@ -49,18 +49,18 @@
       "prim": "/World/Objects/plate",
       "aabb": [
         [
-          2.132705998122692,
+          2.332705998122692,
           -2.1669870007038115,
           0.722
         ],
         [
-          2.407294001877308,
+          2.6072940018773076,
           -1.8930129992961882,
           0.7519390004947781
         ]
       ],
       "center": [
-        2.27,
+        2.4699999999999998,
         -2.03,
         0.736969500247389
       ],
@@ -108,5 +108,66 @@
     "right_arm_4": 1.3089969389957472,
     "right_arm_5": -1.1344640137963142,
     "right_arm_6": -0.08726646259971647
+  },
+  "layout_revision": {
+    "date": "2026-09-29",
+    "reason": "left-arm-only reach (torso/base fixed); see reports/t1_layout_check/README.md",
+    "robot_frame_xy_m": {
+      "bowl": {
+        "from": [
+          0.53,
+          0.19
+        ],
+        "to": [
+          0.55,
+          0.3
+        ]
+      },
+      "plate": {
+        "from": [
+          0.6,
+          -0.17
+        ],
+        "to": [
+          0.6,
+          0.03
+        ]
+      }
+    }
+  },
+  "randomization": {
+    "frame": "robot base (x forward, y left); object AABB centre; yaw about vertical",
+    "objects": {
+      "bowl": {
+        "x": [
+          0.52,
+          0.58
+        ],
+        "y": [
+          0.27,
+          0.35
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      },
+      "plate": {
+        "x": [
+          0.52,
+          0.6
+        ],
+        "y": [
+          0.01,
+          0.09
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      }
+    },
+    "min_center_distance_m": 0.25,
+    "basis": "left-arm-only reach (torso/base fixed), head-camera visibility, no overlap, initial state not successful; see reports/t1_layout_check/README.md"
   }
 }

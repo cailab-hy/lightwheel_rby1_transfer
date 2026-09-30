@@ -26,19 +26,19 @@
       "prim": "/World/Objects/bowl",
       "aabb": [
         [
-          2.587880799770355,
-          -1.9921192002296453,
+          2.8578807997703546,
+          -2.0221192002296458,
           0.722
         ],
         [
-          2.732119200229645,
-          -1.847880799770356,
+          3.0021192002296444,
+          -1.8778807997703564,
           0.7879303992986678
         ]
       ],
       "center": [
-        2.66,
-        -1.9200000000000006,
+        2.9299999999999997,
+        -1.950000000000001,
         0.7549651996493338
       ],
       "source_name": "akita_black_bowl"
@@ -49,19 +49,19 @@
       "prim": "/World/Objects/plate",
       "aabb": [
         [
-          2.2270110562166083,
-          -2.545973272264515,
+          2.8787070154282106,
+          -2.528303405806627,
           0.722
         ],
         [
-          2.501599059971224,
-          -2.2719992708568917,
+          3.1532950191828264,
+          -2.254329404399004,
           0.7519390004947781
         ]
       ],
       "center": [
-        2.3643050580939162,
-        -2.4089862715607033,
+        3.0160010173055185,
+        -2.3913164051028155,
         0.736969500247389
       ],
       "source_name": "plate",
@@ -73,19 +73,19 @@
       "prim": "/World/Objects/wine_bottle",
       "aabb": [
         [
-          2.4020110562166064,
-          -1.8910712730293626,
+          2.3107102750399267,
+          -2.1055529862491213,
           0.722
         ],
         [
-          2.471003057034859,
-          -1.8219992708568926,
+          2.3797022758581794,
+          -2.036480984076651,
           0.9760607929229737
         ]
       ],
       "center": [
-        2.4365070566257327,
-        -1.8565352719431276,
+        2.345206275449053,
+        -2.071016985162886,
         0.8490303964614868
       ],
       "source_name": "wine_bottle",
@@ -97,19 +97,19 @@
       "prim": "/World/Objects/cream_cheese",
       "aabb": [
         [
-          2.277011056216607,
-          -1.89427847118727,
+          2.9500364882817234,
+          -2.125696835888877,
           0.722
         ],
         [
-          2.3720264553746078,
-          -1.8719992708568933,
+          3.0450518874397243,
+          -2.1034176355585004,
           0.7711459995508194
         ]
       ],
       "center": [
-        2.3245187557956073,
-        -1.8831388710220818,
+        2.997544187860724,
+        -2.1145572357236886,
         0.7465729997754097
       ],
       "source_name": "cream_cheese",
@@ -122,13 +122,13 @@
       "prim": "/World/Scene/storage_furniture_right_group_1",
       "aabb": [
         [
-          2.1202682767592727,
-          -2.2432854600584076,
+          2.430268276759273,
+          -2.3312854600584045,
           0.7219999999999996
         ],
         [
-          2.499731723240727,
-          -1.9167145399416,
+          2.8097317232407275,
+          -2.004714539941596,
           1.0431410621779662
         ]
       ]
@@ -139,13 +139,13 @@
       "prim": "/World/Scene/winerack_left_group_1",
       "aabb": [
         [
-          1.7645110562166098,
-          -2.3870080346262545,
+          1.7152144806046106,
+          -2.5500043818846803,
           0.722
         ],
         [
-          2.094082095007388,
-          -2.046999270856894,
+          2.0447855193953894,
+          -2.2099956181153195,
           1.021005133536372
         ]
       ],
@@ -162,13 +162,13 @@
       "prim": "/World/Scene/stovetop_front_group_1",
       "aabb": [
         [
-          2.5270110562166086,
-          -2.4826413811501014,
+          2.111400333052255,
+          -2.5840710551466044,
           0.7219999999999996
         ],
         [
-          2.8442103901120968,
-          -2.0344992708568923,
+          2.428599666947743,
+          -2.1359289448533954,
           0.7826060592514091
         ]
       ],
@@ -220,5 +220,970 @@
     "right_arm_4": 1.3089969389957472,
     "right_arm_5": -1.1344640137963142,
     "right_arm_6": -0.08726646259971647
+  },
+  "layout_revisions": [
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.6500000000000037,
+            -0.13000000000000034
+          ],
+          "to_robot_xy": [
+            0.7999999999999983,
+            -0.09999999999999831
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8285703260034969,
+            0.24561072316435295
+          ],
+          "to_robot_xy": [
+            0.8699999999999999,
+            0.4199999999999986
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.7870036527415742,
+            -0.5107034243880011
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.49000000000000066,
+            0.2200000000000002
+          ],
+          "to_robot_xy": [
+            0.5199999999999998,
+            0.31000000000000005
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.9789862715607034,
+            -0.07569494190608372
+          ],
+          "to_robot_xy": [
+            0.5828916532703483,
+            -0.47444171325588025
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.4265352719431277,
+            -0.003492943374267199
+          ],
+          "to_robot_xy": [
+            1.0650405200375326,
+            -0.03902859843186457
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "cream_cheese",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.45313887102208183,
+            -0.11548124420439265
+          ],
+          "to_robot_xy": [
+            0.48674898682929935,
+            0.5200845319609533
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.7999999999999983,
+            -0.09999999999999831
+          ],
+          "to_robot_xy": [
+            0.7999999999999987,
+            -0.10000000000000187
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8699999999999999,
+            0.4199999999999986
+          ],
+          "to_robot_xy": [
+            0.8699999999999999,
+            0.4199999999999995
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.7999999999999987,
+            -0.10000000000000187
+          ],
+          "to_robot_xy": [
+            0.8000000000000014,
+            -0.09999999999999831
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8699999999999999,
+            0.4199999999999995
+          ],
+          "to_robot_xy": [
+            0.8699999999999999,
+            0.4200000000000004
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8000000000000014,
+            -0.09999999999999831
+          ],
+          "to_robot_xy": [
+            0.7999999999999987,
+            -0.10000000000000187
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8699999999999999,
+            0.4200000000000004
+          ],
+          "to_robot_xy": [
+            0.8699999999999999,
+            0.4199999999999995
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5199999999999998,
+            0.31000000000000005
+          ],
+          "to_robot_xy": [
+            0.5200000000000011,
+            0.31000000000000005
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5828916532703483,
+            -0.47444171325588025
+          ],
+          "to_robot_xy": [
+            0.5793050149995247,
+            -0.5811846458382832
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0650405200375326,
+            -0.03902859843186457
+          ],
+          "to_robot_xy": [
+            0.5358192184305552,
+            0.6052335216942919
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "cream_cheese",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.48674898682929935,
+            0.5200845319609533
+          ],
+          "to_robot_xy": [
+            1.0219429208380497,
+            0.17882846347579884
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.7999999999999987,
+            -0.10000000000000187
+          ],
+          "to_robot_xy": [
+            0.8000000000000014,
+            -0.09999999999999831
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8699999999999999,
+            0.4199999999999995
+          ],
+          "to_robot_xy": [
+            0.9200000000000015,
+            0.4500000000000015
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5200000000000011,
+            0.31000000000000005
+          ],
+          "to_robot_xy": [
+            0.5199999999999998,
+            0.31000000000000005
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5793050149995247,
+            -0.5811846458382832
+          ],
+          "to_robot_xy": [
+            0.5793050149995247,
+            -0.5811846458382834
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5358192184305552,
+            0.6052335216942919
+          ],
+          "to_robot_xy": [
+            0.5358192184305552,
+            0.6052335216942919
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "cream_cheese",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0219429208380497,
+            0.17882846347579884
+          ],
+          "to_robot_xy": [
+            1.0219429208380502,
+            0.17882846347579884
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8000000000000014,
+            -0.09999999999999831
+          ],
+          "to_robot_xy": [
+            0.8,
+            -0.050000000000000266
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9200000000000015,
+            0.4500000000000015
+          ],
+          "to_robot_xy": [
+            0.9199999999999988,
+            0.4500000000000006
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5199999999999998,
+            0.31000000000000005
+          ],
+          "to_robot_xy": [
+            0.5199999999999991,
+            0.31000000000000005
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5793050149995247,
+            -0.5811846458382834
+          ],
+          "to_robot_xy": [
+            0.5793050149995247,
+            -0.5811846458382834
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5358192184305552,
+            0.6052335216942919
+          ],
+          "to_robot_xy": [
+            0.5358192184305552,
+            0.6052335216942919
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "cream_cheese",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0219429208380502,
+            0.17882846347579884
+          ],
+          "to_robot_xy": [
+            1.0555962584320058,
+            -0.15276307174026238
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8,
+            -0.050000000000000266
+          ],
+          "to_robot_xy": [
+            0.8000000000000014,
+            -0.1500000000000008
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9199999999999988,
+            0.4500000000000006
+          ],
+          "to_robot_xy": [
+            0.9200000000000015,
+            0.44999999999999973
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8000000000000014,
+            -0.1500000000000008
+          ],
+          "to_robot_xy": [
+            0.8000000000000005,
+            -0.14999999999999902
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9200000000000015,
+            0.44999999999999973
+          ],
+          "to_robot_xy": [
+            0.9199999999999988,
+            0.4500000000000006
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5199999999999991,
+            0.31000000000000005
+          ],
+          "to_robot_xy": [
+            0.4999999999999998,
+            -0.43000000000000016
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5793050149995247,
+            -0.5811846458382834
+          ],
+          "to_robot_xy": [
+            0.5174817598505046,
+            0.5927470325659736
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5358192184305552,
+            0.6052335216942919
+          ],
+          "to_robot_xy": [
+            1.0775869784317946,
+            -0.0789322639230341
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "cream_cheese",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0555962584320058,
+            -0.15276307174026238
+          ],
+          "to_robot_xy": [
+            0.8929546764822927,
+            0.1341801601019328
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8000000000000005,
+            -0.14999999999999902
+          ],
+          "to_robot_xy": [
+            0.7379999999999984,
+            0.18000000000000016
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9199999999999988,
+            0.4500000000000006
+          ],
+          "to_robot_xy": [
+            0.9299999999999986,
+            -0.17000000000000037
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.95,
+            -0.52
+          ],
+          "to_robot_xy": [
+            0.9499999999999986,
+            -0.5599999999999992
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.7379999999999984,
+            0.18000000000000016
+          ],
+          "to_robot_xy": [
+            0.7380000000000002,
+            0.18000000000000016
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "stovetop_front_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9299999999999986,
+            -0.17000000000000037
+          ],
+          "to_robot_xy": [
+            0.9299999999999999,
+            -0.17000000000000126
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "winerack_left_group_1",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9499999999999986,
+            -0.5599999999999992
+          ],
+          "to_robot_xy": [
+            0.95,
+            -0.56
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T7: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.4999999999999998,
+            -0.43000000000000016
+          ],
+          "to_robot_xy": [
+            0.5200000000000011,
+            0.48999999999999977
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5174817598505046,
+            0.5927470325659736
+          ],
+          "to_robot_xy": [
+            0.9613164051028156,
+            0.5760010173055186
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0775869784317946,
+            -0.0789322639230341
+          ],
+          "to_robot_xy": [
+            0.6410169851628862,
+            -0.09479372455094692
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "cream_cheese",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.8929546764822927,
+            0.1341801601019328
+          ],
+          "to_robot_xy": [
+            0.6845572357236887,
+            0.5575441878607239
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    }
+  ],
+  "randomization": {
+    "frame": "robot base (x forward, y left); object AABB centre; yaw about vertical",
+    "min_gap_m": 0.03,
+    "objects": {
+      "bowl": {
+        "x": [
+          0.48,
+          0.56
+        ],
+        "y": [
+          0.47,
+          0.53
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ],
+        "target": true
+      },
+      "plate": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      },
+      "wine_bottle": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      },
+      "cream_cheese": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      }
+    },
+    "keep_out": [
+      {
+        "name": "top-drawer sweep + hand",
+        "x": [
+          0.3,
+          0.63
+        ],
+        "y": [
+          0.02,
+          0.34
+        ]
+      },
+      {
+        "name": "ready-pose left gripper",
+        "x": [
+          0.3,
+          0.47
+        ],
+        "y": [
+          0.19,
+          0.43
+        ],
+        "distractors_only": true
+      },
+      {
+        "name": "ready-pose right gripper",
+        "x": [
+          0.3,
+          0.47
+        ],
+        "y": [
+          -0.43,
+          -0.19
+        ],
+        "distractors_only": true
+      }
+    ],
+    "basis": "cabinet close on the left (face x 0.62, y 0.18): the left arm opens the top drawer, and places the bowl from the left front into the drawer at ~1.1 m TCP height where its vertical-gripper reach is comfortable",
+    "table": {
+      "x": [
+        0.36,
+        1.15
+      ],
+      "y": [
+        -0.74,
+        0.74
+      ]
+    }
   }
 }

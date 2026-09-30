@@ -26,19 +26,19 @@
       "prim": "/World/Objects/front_bowl",
       "aabb": [
         [
-          2.097880799770355,
-          -1.9821192002296446,
+          2.0547907304892186,
+          -2.347992381354664,
           0.722
         ],
         [
-          2.2421192002296446,
-          -1.8378807997703552,
+          2.1990291309485084,
+          -2.2037539808953746,
           0.7879303992986678
         ]
       ],
       "center": [
-        2.17,
-        -1.91,
+        2.1269099307188633,
+        -2.2758731811250192,
         0.7549651996493338
       ],
       "source_name": "akita_black_bowl_front"
@@ -49,19 +49,19 @@
       "prim": "/World/Objects/middle_bowl",
       "aabb": [
         [
-          2.097880799770355,
-          -2.182119200229646,
+          2.679996122708594,
+          -2.3267642432666706,
           0.722
         ],
         [
-          2.2421192002296446,
-          -2.0378807997703565,
+          2.824234523167884,
+          -2.1825258428073813,
           0.7879303992986678
         ]
       ],
       "center": [
-        2.17,
-        -2.110000000000001,
+        2.7521153229382387,
+        -2.254645043037026,
         0.7549651996493338
       ],
       "source_name": "akita_black_bowl_middle"
@@ -72,19 +72,19 @@
       "prim": "/World/Objects/back_bowl",
       "aabb": [
         [
-          2.097880799770355,
-          -2.382119200229646,
+          2.79744163337564,
+          -2.556669896881082,
           0.722
         ],
         [
-          2.2421192002296446,
-          -2.2378807997703567,
+          2.94168003383493,
+          -2.4124314964217928,
           0.7879303992986678
         ]
       ],
       "center": [
-        2.17,
-        -2.3100000000000014,
+        2.869560833605285,
+        -2.4845506966514375,
         0.7549651996493338
       ],
       "source_name": "akita_black_bowl_back"
@@ -95,19 +95,19 @@
       "prim": "/World/Objects/plate",
       "aabb": [
         [
-          2.302011056216608,
-          -2.495973272264515,
+          1.8270860730996732,
+          -2.202268943085774,
           0.722
         ],
         [
-          2.576599059971224,
-          -2.221999270856892,
+          2.101674076854289,
+          -1.9282949416781507,
           0.7519390004947781
         ]
       ],
       "center": [
-        2.439305058093916,
-        -2.3589862715607035,
+        1.9643800749769813,
+        -2.0652819423819624,
         0.736969500247389
       ],
       "source_name": "plate",
@@ -120,13 +120,13 @@
       "prim": "/World/Scene/storage_furniture_right_group_1",
       "aabb": [
         [
-          2.250268276759276,
-          -2.1932854600584037,
+          2.2502682767592725,
+          -2.493285460058404,
           0.7219999999999996
         ],
         [
-          2.6297317232407305,
-          -1.866714539941596,
+          2.629731723240727,
+          -2.1667145399415957,
           1.0431410621779662
         ]
       ]
@@ -172,5 +172,499 @@
     "right_arm_4": 1.3089969389957472,
     "right_arm_5": -1.1344640137963142,
     "right_arm_6": -0.08726646259971647
+  },
+  "layout_revisions": [
+    {
+      "date": "2026-09-29",
+      "reason": "T4: cabinet back so ready-pose grippers clear 0.4 m after opening; plate out of its way",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.5999999999999999,
+            3.1086244689504383e-15
+          ],
+          "to_robot_xy": [
+            0.8299999999999994,
+            4.440892098500626e-16
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.9289862715607036,
+            -0.0006949419060839901
+          ],
+          "to_robot_xy": [
+            0.95,
+            0.41999999999999993
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: allow a fully opened top drawer with ready-pose grippers >0.4 m from the cabinet",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8299999999999994,
+            4.440892098500626e-16
+          ],
+          "to_robot_xy": [
+            0.8999999999999992,
+            -4.440892098500626e-16
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.8999999999999992,
+            -4.440892098500626e-16
+          ],
+          "to_robot_xy": [
+            0.9000000000000001,
+            4.440892098500626e-16
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "front_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.48,
+            -0.27
+          ],
+          "to_robot_xy": [
+            0.8458731811250193,
+            -0.3130900692811367
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "middle_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.6800000000000013,
+            -0.27
+          ],
+          "to_robot_xy": [
+            0.41156934486996977,
+            0.42604752531237056
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "back_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.8800000000000014,
+            -0.27
+          ],
+          "to_robot_xy": [
+            0.824645043037026,
+            0.31211532293823874
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.95,
+            0.41999999999999993
+          ],
+          "to_robot_xy": [
+            1.0545506966514375,
+            0.42956083360528385
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9000000000000001,
+            4.440892098500626e-16
+          ],
+          "to_robot_xy": [
+            0.9000000000000001,
+            -4.440892098500626e-16
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "front_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.8458731811250193,
+            -0.3130900692811367
+          ],
+          "to_robot_xy": [
+            0.8124682095482638,
+            -0.3180082136932403
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "middle_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.41156934486996977,
+            0.42604752531237056
+          ],
+          "to_robot_xy": [
+            1.0421711965105185,
+            0.37273466428485813
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "back_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.824645043037026,
+            0.31211532293823874
+          ],
+          "to_robot_xy": [
+            0.46479626789650275,
+            -0.5344434830027152
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0545506966514375,
+            0.42956083360528385
+          ],
+          "to_robot_xy": [
+            0.7349892878498314,
+            0.47145713187599547
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9000000000000001,
+            -4.440892098500626e-16
+          ],
+          "to_robot_xy": [
+            0.9000000000000001,
+            4.440892098500626e-16
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "front_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.8124682095482638,
+            -0.3180082136932403
+          ],
+          "to_robot_xy": [
+            0.8124682095482652,
+            -0.3180082136932394
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "middle_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0421711965105185,
+            0.37273466428485813
+          ],
+          "to_robot_xy": [
+            1.0421711965105203,
+            0.37273466428485813
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "back_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.46479626789650275,
+            -0.5344434830027152
+          ],
+          "to_robot_xy": [
+            0.46479626789650275,
+            -0.5344434830027156
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.7349892878498314,
+            0.47145713187599547
+          ],
+          "to_robot_xy": [
+            0.7349892878498314,
+            0.47145713187599547
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.9000000000000001,
+            4.440892098500626e-16
+          ],
+          "to_robot_xy": [
+            0.9000000000000001,
+            -4.440892098500626e-16
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T4: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "front_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.8124682095482652,
+            -0.3180082136932394
+          ],
+          "to_robot_xy": [
+            0.8458731811250193,
+            -0.3130900692811367
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "middle_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0421711965105203,
+            0.37273466428485813
+          ],
+          "to_robot_xy": [
+            0.824645043037026,
+            0.31211532293823874
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "back_bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.46479626789650275,
+            -0.5344434830027156
+          ],
+          "to_robot_xy": [
+            1.0545506966514375,
+            0.4295608336052852
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "plate",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.7349892878498314,
+            0.47145713187599547
+          ],
+          "to_robot_xy": [
+            0.6352819423819625,
+            -0.47561992502301864
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    }
+  ],
+  "randomization": {
+    "frame": "robot base (x forward, y left); object AABB centre; yaw about vertical",
+    "min_gap_m": 0.03,
+    "objects": {
+      "front_bowl": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      },
+      "middle_bowl": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      },
+      "back_bowl": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      },
+      "plate": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      }
+    },
+    "keep_out": [
+      {
+        "name": "top-drawer sweep + hand",
+        "x": [
+          0.35,
+          0.76
+        ],
+        "y": [
+          -0.21,
+          0.21
+        ]
+      },
+      {
+        "name": "ready-pose left gripper",
+        "x": [
+          0.3,
+          0.47
+        ],
+        "y": [
+          0.19,
+          0.43
+        ],
+        "distractors_only": true
+      },
+      {
+        "name": "ready-pose right gripper",
+        "x": [
+          0.3,
+          0.47
+        ],
+        "y": [
+          -0.43,
+          -0.19
+        ],
+        "distractors_only": true
+      }
+    ],
+    "basis": "target is the fixed cabinet (top drawer handle x 0.75): ready-pose grippers stay >0.4 m from every cabinet body even with the drawer fully open; bowls/plate are distractors",
+    "table": {
+      "x": [
+        0.36,
+        1.15
+      ],
+      "y": [
+        -0.74,
+        0.74
+      ]
+    }
   }
 }

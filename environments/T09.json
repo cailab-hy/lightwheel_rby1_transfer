@@ -26,19 +26,19 @@
       "prim": "/World/Objects/bowl",
       "aabb": [
         [
-          2.6068956997990624,
-          -1.9931043002009399,
+          2.676895699799061,
+          -1.9931043002009392,
           0.7220000000000003
         ],
         [
-          2.7331043002009405,
-          -1.8668956997990613,
+          2.803104300200939,
+          -1.8668956997990607,
           0.7796890993863351
         ]
       ],
       "center": [
-        2.6700000000000017,
-        -1.9300000000000006,
+        2.74,
+        -1.93,
         0.7508445496931677
       ],
       "source_name": "akita_black_bowl"
@@ -49,19 +49,19 @@
       "prim": "/World/Objects/wine_bottle",
       "aabb": [
         [
-          2.539511056216607,
-          -2.0910712730293644,
+          2.7176193225291114,
+          -2.289181044123261,
           0.722
         ],
         [
-          2.6085030570348597,
-          -2.021999270856894,
+          2.786611323347364,
+          -2.2201090419507907,
           0.9760607929229737
         ]
       ],
       "center": [
-        2.5740070566257334,
-        -2.056535271943129,
+        2.752115322938238,
+        -2.254645043037026,
         0.8490303964614868
       ],
       "source_name": "wine_bottle",
@@ -74,13 +74,13 @@
       "prim": "/World/Scene/storage_furniture_right_group_1",
       "aabb": [
         [
-          2.1302682767592724,
-          -2.2532854600584047,
+          2.2502682767592743,
+          -2.312387711522689,
           0.7219999999999996
         ],
         [
-          2.509731723240727,
-          -1.926714539941597,
+          2.6297317232407287,
+          -1.81361228847731,
           1.0431410621779662
         ]
       ]
@@ -149,5 +149,360 @@
     "right_arm_4": 1.3089969389957472,
     "right_arm_5": -1.1344640137963142,
     "right_arm_6": -0.08726646259971647
+  },
+  "layout_revisions": [
+    {
+      "date": "2026-09-29",
+      "reason": "T9: cabinet back/right so the open bottom drawer is reachable and closable",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.5738977485357155,
+            -0.12000000000000055
+          ],
+          "to_robot_xy": [
+            0.820000000000001,
+            -0.09999999999999742
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: cabinet face at x 0.68, centred, so the open bottom drawer lies in the arms' top-down workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.820000000000001,
+            -0.09999999999999742
+          ],
+          "to_robot_xy": [
+            0.7129999999999999,
+            -1.3322676295501878e-15
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: cabinet face at x 0.60 so pushing the bottom drawer shut stays in reach; bowl and wine bottle clear of the open drawer",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.7129999999999999,
+            -1.3322676295501878e-15
+          ],
+          "to_robot_xy": [
+            0.6329999999999989,
+            1.3322676295501878e-15
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 1
+        },
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5000000000000007,
+            0.23000000000000176
+          ],
+          "to_robot_xy": [
+            0.5000000000000007,
+            0.2999999999999985
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.6265352719431292,
+            0.13400705662573342
+          ],
+          "to_robot_xy": [
+            0.5199999999999987,
+            -0.42000000000000126
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.6329999999999989,
+            1.3322676295501878e-15
+          ],
+          "to_robot_xy": [
+            0.6329999999999998,
+            -1.3322676295501878e-15
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5000000000000007,
+            0.2999999999999985
+          ],
+          "to_robot_xy": [
+            0.5,
+            0.2999999999999994
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5199999999999987,
+            -0.42000000000000126
+          ],
+          "to_robot_xy": [
+            0.41156934486997043,
+            0.4260475253123719
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.6329999999999998,
+            -1.3322676295501878e-15
+          ],
+          "to_robot_xy": [
+            0.6329999999999998,
+            1.3322676295501878e-15
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.6329999999999998,
+            1.3322676295501878e-15
+          ],
+          "to_robot_xy": [
+            0.6329999999999998,
+            -1.3322676295501878e-15
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5,
+            0.2999999999999994
+          ],
+          "to_robot_xy": [
+            0.5,
+            0.30000000000000115
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.41156934486997043,
+            0.4260475253123719
+          ],
+          "to_robot_xy": [
+            1.0545506966514375,
+            0.42956083360528385
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: fixtures into RB-Y1 workspace",
+      "moves": [
+        {
+          "name": "storage_furniture",
+          "kind": "fixtures",
+          "from_robot_xy": [
+            0.6329999999999998,
+            -1.3322676295501878e-15
+          ],
+          "to_robot_xy": [
+            0.6329999999999998,
+            1.3322676295501878e-15
+          ],
+          "yaw_added_deg": 0,
+          "reanchored_joints": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "reason": "T9: authored layout = randomization sample (seed 0) with targets at nominal",
+      "moves": [
+        {
+          "name": "bowl",
+          "kind": "objects",
+          "from_robot_xy": [
+            0.5,
+            0.30000000000000115
+          ],
+          "to_robot_xy": [
+            0.5,
+            0.30000000000000027
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        },
+        {
+          "name": "wine_bottle",
+          "kind": "objects",
+          "from_robot_xy": [
+            1.0545506966514375,
+            0.42956083360528385
+          ],
+          "to_robot_xy": [
+            0.824645043037026,
+            0.31211532293823785
+          ],
+          "yaw_added_deg": 0.0,
+          "reanchored_joints": 0
+        }
+      ]
+    }
+  ],
+  "randomization": {
+    "frame": "robot base (x forward, y left); object AABB centre; yaw about vertical",
+    "min_gap_m": 0.03,
+    "objects": {
+      "bowl": {
+        "x": [
+          0.48,
+          0.56
+        ],
+        "y": [
+          0.27,
+          0.35
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ],
+        "target": true
+      },
+      "wine_bottle": {
+        "x": [
+          0.4,
+          1.1
+        ],
+        "y": [
+          -0.68,
+          0.68
+        ],
+        "yaw_deg": [
+          -180,
+          180
+        ]
+      }
+    },
+    "keep_out": [
+      {
+        "name": "drawer-closing hand",
+        "x": [
+          0.3,
+          0.45
+        ],
+        "y": [
+          -0.22,
+          0.22
+        ]
+      },
+      {
+        "name": "ready-pose left gripper",
+        "x": [
+          0.3,
+          0.47
+        ],
+        "y": [
+          0.19,
+          0.43
+        ],
+        "distractors_only": true
+      },
+      {
+        "name": "ready-pose right gripper",
+        "x": [
+          0.3,
+          0.47
+        ],
+        "y": [
+          -0.43,
+          -0.19
+        ],
+        "distractors_only": true
+      }
+    ],
+    "basis": "open bottom drawer (face x 0.60) inside the top-down workspace; bowl picked by the left arm; drawer pushed shut near-horizontally",
+    "table": {
+      "x": [
+        0.36,
+        1.15
+      ],
+      "y": [
+        -0.74,
+        0.74
+      ]
+    }
   }
 }

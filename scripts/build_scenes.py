@@ -70,7 +70,7 @@ def main():
   objects=[]
   def obj(name,asset,x,y,z=.72,scale=1):
    o=add_obj(s,name,asset,x,y,z,scale);objects.append(o);return o
-  if ti==1:obj('bowl','Bowl008',.53,.19);obj('plate','Plate012',.60,-.17)
+  if ti==1:obj('bowl','Bowl008',.55,.30);obj('plate','Plate012',.60,.03)  # left-arm reach: see reports/t1_layout_check
   elif ti==2:
    c=obj('cookie_box','Cookies002',.60,.18);obj('bowl','Bowl008',.60,.18,c['aabb'][1][2],scale=.6);obj('plate','Plate012',.54,-.20,scale=.8);obj('distractor_bowl','Bowl008',.83,-.15,scale=.6)
   elif ti==3:

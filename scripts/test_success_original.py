@@ -288,6 +288,26 @@ expect(
     ),
     False,
 )
+# RB-Y1 adapter v2 T1 condition (bowl resting flat on the plate), on top of upstream check_T1.
+# Positions mirror PhysX measurements on T01 (bowl-minus-plate COM: xy, dz).
+from success_original import RBY1_ADAPTATIONS, t1_bowl_on_plate
+
+for label, xy, dz, value in [
+    ("v2 bowl flat on plate", 0.03, 0.036, True),
+    ("v2 bowl leaning on plate rim", 0.077, 0.041, False),
+    ("v2 bowl on table beside plate", 0.13, 0.032, False),  # synthetic plate radius 0.141 m
+    ("v2 bowl at plate height but table level", 0.05, 0.027, False),
+]:
+    e, c = make("T1")
+    e.scene.rigid_objects["akita_black_bowl"].data.body_com_pos_w[0, 0] = torch.tensor(
+        [xy, 0, 1 + dz]
+    )
+    assert bool(original.check_T1(c, e).item()), (label, "upstream accepts")
+    actual = bool(
+        (original.check_T1(c, e) & t1_bowl_on_plate(e, RBY1_ADAPTATIONS["T1"])).item()
+    )
+    assert actual == value, (label, actual, value)
+    checks.append({"task": "T1", "case": label, "expected": value, "actual": actual})
 # Exact upstream latch: one true input after warmup starts a 50-call delay;
 # subsequent false inputs do not clear it. Pure status reads must not call this.
 e, c = make("T1")

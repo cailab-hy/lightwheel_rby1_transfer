@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np, pandas as pd
 from PIL import Image
 from lerobot.datasets.lerobot_dataset import LeRobotDataset
+import rby1_format as R
 
 
 def validate(root):
@@ -17,6 +18,8 @@ def validate(root):
     data = pd.read_parquet(root / "data")
     episodes = pd.read_parquet(root / "meta/episodes")
     camera_keys = ds.meta.video_keys
+    rby1 = ds.meta.robot_type == R.ROBOT_TYPE
+    to_raw_cam = {f"observation.images.{v}": k for k, v in R.CAMERA_KEYS.items()}
     details = []
     max_mse = 0.0
     assert len(history) == ds.meta.total_episodes == len(episodes)
@@ -28,21 +31,36 @@ def validate(root):
         df = data[data.episode_index == eid]
         n = len(df)
         assert n == entry["frames"]
-        for key, value in a.items():
-            assert np.array_equal(np.stack(df[key]).reshape(value.shape), value), key
+        if rby1:   # recompute the RB-Y1 layout from the raw journal and require exact equality
+            obs_idx, act_idx = R.resample_indices(len(a["observation.state"]), m["fps"])
+            assert n == len(obs_idx)
+            assert np.array_equal(np.stack(df["observation.state"]), R.state16(a["observation.state"], m["joint_names"])[obs_idx]), "observation.state"
+            assert np.array_equal(np.stack(df["action"]), R.action16(a["action"], m["joint_names"])[act_idx]), "action"
+        else:
+            obs_idx = np.arange(n)
+            for key, value in a.items():
+                assert np.array_equal(np.stack(df[key]).reshape(value.shape), value), key
         times = a["observation.sim_time"][:, 0]
-        assert np.allclose(np.diff(times), 1 / ds.fps, atol=1e-7)
+        assert np.allclose(np.diff(times), 1 / m["fps"], atol=1e-7)
         assert np.max(np.abs(a["observation.camera_time"] - times[:, None])) < 1e-5
-        assert np.allclose(np.diff(df.timestamp), 1 / ds.fps, atol=1e-6)
+        # LeRobot stores frame_index / fps as float32; allow only that rounding
+        # (a fixed 1e-6 step tolerance fails beyond ~20 s at 50 fps).
+        expected = df.frame_index.to_numpy() / ds.fps
+        assert np.max(
+            np.abs(df.timestamp.to_numpy(np.float64) - expected)
+        ) <= np.spacing(np.float32(max(expected.max(), 1.0)))
         for camera in m["cameras"]:
-            assert len(list((raw / camera).glob("*.png"))) == n
+            assert len(list((raw / camera).glob("*.png"))) == len(a["observation.state"])
         for i in [0, n // 2, n - 1]:
             item = ds[int(df.iloc[i]["index"])]
             for key in camera_keys:
-                assert tuple(item[key].shape) == (3, m["height"], m["width"])
-                cam = key.rsplit(".", 1)[-1]
-                with Image.open(raw / cam / f"{i:06d}.png") as im:
-                    reference = np.asarray(im, dtype=float)
+                cam = to_raw_cam[key] if rby1 else key.rsplit(".", 1)[-1]
+                with Image.open(raw / cam / f"{obs_idx[i]:06d}.png") as im:
+                    reference = np.asarray(im.convert("RGB"))
+                if rby1:
+                    reference = R.adapt_image(reference, cam, m.get("profile") == "rby1")
+                reference = reference.astype(float)
+                assert tuple(item[key].shape) == (3, *reference.shape[:2]), (key, tuple(item[key].shape))
                 got = item[key].permute(1, 2, 0).numpy() * 255
                 mse = float(np.mean((got - reference) ** 2))
                 max_mse = max(max_mse, mse)
@@ -103,9 +121,10 @@ def validate(root):
         "episodes": len(details),
         "frames": len(data),
         "fps": ds.fps,
+        "format": "rby1" if rby1 else "sim",
         "numeric_arrays_exact_to_raw": True,
         "all_video_frame_counts_match": True,
-        "max_raw_to_h264_mse": max_mse,
+        "max_raw_to_video_mse": max_mse,
         "episode_checks": details,
         "video_probes": probes,
     }

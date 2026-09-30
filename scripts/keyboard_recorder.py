@@ -40,10 +40,8 @@ class EpisodeRecorder:
             self.arrays.setdefault(k, []).append(v.copy())
         for c, img in images.items():
             img = np.asarray(img)
-            assert (
-                img.shape == (self.metadata["height"], self.metadata["width"], 3)
-                and img.dtype == np.uint8
-            )
+            h, w = self.metadata.get("camera_sizes", {}).get(c, (self.metadata["height"], self.metadata["width"]))
+            assert img.shape == (h, w, 3) and img.dtype == np.uint8, (c, img.shape)
             self.futures.append(
                 self.pool.submit(
                     Image.fromarray(img.copy()).save,
