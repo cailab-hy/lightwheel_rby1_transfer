@@ -1,0 +1,212 @@
+[
+  {
+    "task": "T1",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T01_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T01.usd",
+    "source_sha256": "54441d9ff5f0611aef631ba7d7078f14c31fedfed6d7242fe0e3008081ec8481",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T2",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T02_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T02.usd",
+    "source_sha256": "02ead0de3e274572c59b78483f374db43c28654154098d010661c32059a2ac2a",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T3",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T03_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T03.usd",
+    "source_sha256": "88b53bab1140e0aae7f99043823c642b175f7f2cb9cfbabae2e461100c402209",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T4",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T04_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T04.usd",
+    "source_sha256": "6fd26f9585d6a725e57e4b129d339d5fac9638afac2f6d1aa2bdf1096108cb23",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T5",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T05_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T05.usd",
+    "source_sha256": "30e88d42ca603dc8860ec6a5d4e18588ef7b3839a58a2cfe114b89e352d2c12d",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T6",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T06_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T06.usd",
+    "source_sha256": "5b2052df6223399e6a6c5c33ae826629ba41bfd8e651ce0ecbba9b3e7d8980d8",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T7",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T07_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T07.usd",
+    "source_sha256": "ce37bd345a7fc94917d7e53c92db1a3e86db791b90e0469a2ec9d81e5c60e121",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T8",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T08_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T08.usd",
+    "source_sha256": "194727d2bebe5d21a5fb428a580712d5656cf18b99c4b51edcd372683ae47e2a",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T9",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T09_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T09.usd",
+    "source_sha256": "fb4c1b9c2664a89037f66f68c361f31815b06a71e5ed6a47eda5cafd58f88c51",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  },
+  {
+    "task": "T10",
+    "image": "/home/cai/lightwheel_rby1_transfer/reports/front_views/T10_front.png",
+    "source": "/home/cai/lightwheel_rby1_transfer/environments/T10.usd",
+    "source_sha256": "5c59235c3d2c4f487556195d045b5f96b4ae881f55511445b580af973a6e7f7b",
+    "eye": [
+      2.44,
+      -4.0,
+      2.15
+    ],
+    "target": [
+      2.44,
+      -1.9,
+      1.02
+    ],
+    "resolution": [
+      1280,
+      800
+    ],
+    "physics": "authored initial scene; timeline not advanced"
+  }
+]

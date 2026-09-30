@@ -14,6 +14,8 @@ Lightwheel의 **Lightwheel-Tasks-X7S에서 선정한 LIBERO task 10개를 RB-Y1 
 
 아래는 각 환경의 초기 정면 뷰입니다. **윗줄 T1~T5, 아랫줄 T6~T10** 순서이며, 환경 실행과 키보드 수집의 기본 뷰도 이 카메라를 사용합니다.
 
+이 이미지는 토르소를 고정한 RB-Y1의 작업 영역에 맞춰 조정한 **기본(고정) 배치**입니다(2026-09-30 재촬영). 수집할 때는 초기화마다 물체 위치가 랜덤으로 바뀝니다. 배치를 바꾼 이유와 검증 결과는 [T1 보고서](reports/t1_layout_check/README.md)와 [T2~T10 보고서](reports/t2_t10_layout_check/README.md)에 있습니다.
+
 ![RB-Y1 T1~T10 초기 환경](docs/images/T1-T10_front_2x5.jpg)
 
 | Task | 작업 | LIBERO 레이아웃 | 개별 이미지 |
@@ -266,7 +268,7 @@ LeRobot 변환 형식은 두 가지입니다.
 | `scripts/front_camera.py` | 기본 정면 카메라 설정 |
 | `docs/images/` | README용 T1~T10 이미지 |
 
-이미지는 Isaac Sim의 초기 장면 렌더이며 성공 시연을 나타내지 않습니다. 다음 명령으로 원본 PNG와 합본을 다시 생성할 수 있습니다. 출력 위치는 `reports/front_views/`입니다.
+이미지는 Isaac Sim의 초기 장면(기본 배치) 렌더이며 성공 시연을 나타내지 않습니다. 다음 명령으로 원본 PNG와 합본을 다시 생성할 수 있습니다. 출력 위치는 `reports/front_views/`이며, README용 JPEG는 `docs/images/`에 둡니다(개별 1280×800, 합본 가로 3000px).
 
 ```bash
 ./run_python.sh scripts/render_front_views.py
