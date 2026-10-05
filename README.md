@@ -1,6 +1,6 @@
 # Lightwheel RB-Y1 Transfer
 
-Lightwheel의 **Lightwheel-Tasks-X7S에서 선정한 LIBERO task 10개를 RB-Y1 로봇용 Isaac Sim 환경으로 구성**한 프로젝트입니다. T1~T10 장면 실행, 양팔 키보드 조작, 원본 기준의 자동 성공 판정, LeRobot 형식의 시연 데이터 수집을 지원합니다.
+Lightwheel의 **Lightwheel-Tasks-X7S에서 선정한 LIBERO task 10개를 RB-Y1 로봇용 Isaac Sim 환경으로 구성**한 프로젝트입니다. T1\~T10 장면 실행, 양팔 키보드 조작, 원본 기준의 자동 성공 판정, LeRobot 형식의 시연 데이터 수집을 지원합니다.
 
 - RB-Y1 모델: `rby1_ready_reach_table.usd`
 - 작업대 높이: **0.72m**
@@ -10,13 +10,13 @@ Lightwheel의 **Lightwheel-Tasks-X7S에서 선정한 LIBERO task 10개를 RB-Y1 
 
 현재 장면은 원본 task의 의미를 유지하도록 구성한 고정 배치 환경입니다. 원본 X7S episode를 그대로 복원한 환경이나, X7S 시연을 RB-Y1으로 리매핑 완료한 데이터셋을 제공하는 것은 아닙니다. 자동 성공 라벨과 별개로 시연의 실제 파지·배치 품질은 확인해야 합니다.
 
-## T1~T10 환경
+## T1\~T10 환경
 
-아래는 각 환경의 초기 정면 뷰입니다. **윗줄 T1~T5, 아랫줄 T6~T10** 순서이며, 환경 실행과 키보드 수집의 기본 뷰도 이 카메라를 사용합니다.
+아래는 각 환경의 초기 정면 뷰입니다. **윗줄 T1\~T5, 아랫줄 T6\~T10** 순서이며, 환경 실행과 키보드 수집의 기본 뷰도 이 카메라를 사용합니다.
 
-이 이미지는 토르소를 고정한 RB-Y1의 작업 영역에 맞춰 조정한 **기본(고정) 배치**입니다(2026-09-30 재촬영). 수집할 때는 초기화마다 물체 위치가 랜덤으로 바뀝니다. 배치를 바꾼 이유와 검증 결과는 [T1 보고서](reports/t1_layout_check/README.md)와 [T2~T10 보고서](reports/t2_t10_layout_check/README.md)에 있습니다.
+이 이미지는 토르소를 고정한 RB-Y1의 작업 영역에 맞춰 조정한 **기본(고정) 배치**입니다(2026-09-30 재촬영). 수집할 때는 초기화마다 물체 위치가 랜덤으로 바뀝니다. 배치를 바꾼 이유와 검증 결과는 [T1 보고서](reports/t1_layout_check/README.md)와 [T2\~T10 보고서](reports/t2_t10_layout_check/README.md)에 있습니다.
 
-![RB-Y1 T1~T10 초기 환경](docs/images/T1-T10_front_2x5.jpg)
+![RB-Y1 T1\~T10 초기 환경](docs/images/T1-T10_front_2x5.jpg)
 
 | Task | 작업 | LIBERO 레이아웃 | 개별 이미지 |
 |---|---|---|---|
@@ -82,7 +82,7 @@ cd /path/to/lightwheel_rby1_transfer
 ./collect_keyboard.sh --task T1
 ```
 
-`--task`를 `T2`~`T10`으로 바꾸면 해당 환경을 실행합니다. 출력 위치나 프레임률을 지정할 수도 있습니다.
+`--task`를 `T2`\~`T10`으로 바꾸면 해당 환경을 실행합니다. 출력 위치나 프레임률을 지정할 수도 있습니다.
 
 ```bash
 ./collect_keyboard.sh --task T1 \
@@ -90,12 +90,12 @@ cd /path/to/lightwheel_rby1_transfer
   --fps 50
 ```
 
-장면을 초기화할 때마다 물체 위치와 방향이 `environments/Txx.json`의 `randomization` 범위 안에서 랜덤으로 바뀝니다(기본값 `--layout random`). T1~T10 모두 범위가 지정되어 있습니다. 목표 물체는 RB-Y1 작업 영역 안에서만 뽑고, 나머지 물체는 fixture 자리와 서랍·문이 움직이는 영역을 피해 테이블 위에 흩어 놓습니다. 수납장, 전자레인지, 스토브 같은 fixture는 고정입니다. T2~T10의 배치 변경 내용과 검증 결과는 [reports/t2_t10_layout_check](reports/t2_t10_layout_check/README.md)에 있습니다. 재현하려면 `--seed`를 지정하고, 고정 배치로 수집하려면 `--layout fixed`를 사용합니다. 각 episode의 초기 배치는 `meta/keyboard_episodes.json`의 `initial_layout`에 기록됩니다.
+장면을 초기화할 때마다 물체 위치와 방향이 `environments/Txx.json`의 `randomization` 범위 안에서 랜덤으로 바뀝니다(기본값 `--layout random`). T1\~T10 모두 범위가 지정되어 있습니다. 목표 물체는 RB-Y1 작업 영역 안에서만 뽑고, 나머지 물체는 fixture 자리와 서랍·문이 움직이는 영역을 피해 테이블 위에 흩어 놓습니다. 수납장, 전자레인지, 스토브 같은 fixture는 고정입니다. T2\~T10의 배치 변경 내용과 검증 결과는 [reports/t2_t10_layout_check](reports/t2_t10_layout_check/README.md)에 있습니다. 재현하려면 `--seed`를 지정하고, 고정 배치로 수집하려면 `--layout fixed`를 사용합니다. 각 episode의 초기 배치는 `meta/keyboard_episodes.json`의 `initial_layout`에 기록됩니다.
 
 | T1 (로봇 기준, 물체 중심) | x (앞) | y (왼쪽) | yaw |
 |---|---|---|---|
-| 그릇 | 0.52 ~ 0.58 m | 0.27 ~ 0.35 m | ±180° |
-| 접시 | 0.52 ~ 0.60 m | 0.01 ~ 0.09 m | ±180° |
+| 그릇 | 0.52 \~ 0.58 m | 0.27 \~ 0.35 m | ±180° |
+| 접시 | 0.52 \~ 0.60 m | 0.01 \~ 0.09 m | ±180° |
 
 두 물체 중심 사이는 0.25m 이상 떨어지도록 합니다. 이 범위는 토르소를 고정한 상태의 왼팔 작업 영역과 헤드 카메라 가시성을 기준으로 정했습니다(근거: [reports/t1_layout_check](reports/t1_layout_check/README.md)).
 
@@ -160,7 +160,7 @@ LeRobot 변환 형식은 두 가지입니다.
 | fps | 15 (다른 fps로 수집한 raw는 15fps로 재표본화) | 수집 fps |
 | `observation.state` | 16차원: `right_arm_0..6`, `left_arm_0..6`, `right_gripper_0`, `left_gripper_0` | 18차원: 시뮬레이터 관절 순서 (왼팔·오른팔 교대, 손가락 4개) |
 | `action` | 16차원, 같은 순서. 팔은 다음 스텝의 절대 관절 목표(rad), 그리퍼는 열기 1 / 닫기 0 명령 | 18차원: 시뮬레이터에 보낸 절대 관절 목표 (손가락은 m) |
-| 그리퍼 state | 열린 정도 0(닫힘)~1(열림) | 손가락 변위 (m) |
+| 그리퍼 state | 열린 정도 0(닫힘)\~1(열림) | 손가락 변위 (m) |
 | 영상 | `front` 640×480, `right`·`left` 480×640 세로, AV1 | `first_person`·`left_hand`·`right_hand`, H.264 |
 | 기타 feature | 없음 (실제 데이터셋과 동일) | 속도, 말단 자세, 키보드 입력, 성공 라벨, 시간 |
 | robot_type | `rby1` | `rby1_isaac_keyboard` |
@@ -245,6 +245,152 @@ LeRobot 변환 형식은 두 가지입니다.
   - 창 없이(`--headless`) 녹화하면 1분짜리 episode 기준 약 2분 걸립니다.
   - 창을 띄운 채로도 녹화할 수 있습니다.
 
+## VR(Meta Quest 2) 데이터 수집
+
+Meta Quest 2를 USB로 PC에 연결하고, 컨트롤러로 RB-Y1의 **양팔을 동시에** 조작해 데모를 수집합니다.
+- 그립을 쥐고 있는 동안 해당 팔이 손을 따라 움직입니다.
+- 트리거를 당기면 그리퍼가 닫힙니다.
+- 헤드셋 안에는 로봇 카메라 영상이 보입니다.
+
+기록, 성공 시 자동 저장, 랜덤 배치, LeRobot(RB-Y1 형식) 변환, replay는 키보드 수집과 같습니다. 저장되는 state/action도 키보드 데이터와 같은 형식입니다.
+
+| 문서 | 내용 |
+|---|---|
+| [docs/VR_QUICKSTART_KO.md](docs/VR_QUICKSTART_KO.md) | **요약 가이드**: PC·헤드셋 설정, 명령, 버튼, 문제 해결 |
+| [docs/VR_STEP1_QUEST2_SETUP_KO.md](docs/VR_STEP1_QUEST2_SETUP_KO.md) | 헤드셋 초기 설정(개발자 모드, adb, WebXR 확인) 상세 |
+| [docs/VR_COLLECTION_QUEST2_KO.md](docs/VR_COLLECTION_QUEST2_KO.md) | 설계와 검증 기록(좌표 변환, 클러치, IK, 영상, X7S 속도 비교) |
+
+### 1. PC 설정 (최초 1회)
+
+키보드 수집과 같은 `lerobot-arena` 환경을 씁니다. VR 기능용으로 추가할 Python 패키지는 없습니다. 헤드셋 연결에 필요한 adb와 USB 권한 규칙만 설치합니다.
+
+```bash
+sudo apt install -y adb android-sdk-platform-tools-common
+
+# Meta 기기(USB vendor 2833) 권한 규칙. 기본 규칙에는 없어서 반드시 추가합니다
+echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="2833", MODE="0660", GROUP="plugdev", TAG+="uaccess"' | sudo tee /etc/udev/rules.d/51-meta-quest.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+adb kill-server
+
+conda activate lerobot-arena
+python -m pytest -q scripts/vr        # VR 코드 단위 테스트
+```
+
+계정이 `plugdev` 그룹에 있어야 합니다(`id`로 확인).
+
+### 2. Quest 2 설정 (최초 1회)
+
+1. 헤드셋 소프트웨어와 **Meta Quest Browser**를 업데이트합니다.
+2. **개발자 모드**를 켭니다.
+   - developers.meta.com에서 조직(무료)을 만듭니다.
+   - 휴대폰 Meta Horizon 앱 → 기기 → 헤드셋 설정 → 개발자 모드를 켭니다.
+   - 헤드셋을 재부팅합니다.
+3. USB **데이터** 케이블로 PC에 연결합니다. 헤드셋 안 "USB 디버깅 허용" 창에서 **"이 컴퓨터에서 항상 허용"**을 체크합니다. `adb devices`가 `device`로 나오면 됩니다.
+4. 헤드셋 설정을 바꿉니다.
+   - **고정형(Stationary) 경계**
+   - **"컨트롤러에서 손으로 자동 전환" 끄기**
+   - 자동 절전 시간 늘리기
+
+연결 점검(시뮬레이터 없이, 처음 한 번):
+
+```bash
+./scripts/vr/quest_check.sh --teleop                  # 손 방향·버튼·트리거 확인
+./run_python.sh scripts/vr/vr_server.py --test-video  # 헤드셋 안 카메라 패널을 테스트 그림으로 확인
+```
+
+두 명령 모두 헤드셋 브라우저에 페이지를 자동으로 엽니다. **Enter VR**을 누르고 확인한 뒤, PC에서 Ctrl+C로 종료합니다.
+
+### 3. 실행
+
+```bash
+cd ~/lightwheel_rby1_transfer
+conda activate lerobot-arena
+adb devices                                                   # device 확인
+./collect_vr.sh --task T1 --joint-speed 1.5 --output ~/datasets/RBY1-T1-VR
+```
+
+`collect_vr.sh`가 하는 일:
+1. adb 연결(권한, 인증, 배터리)을 점검합니다.
+2. 포트 8012를 헤드셋으로 연결합니다(`adb reverse`).
+3. 수집기를 VR 모드(`collect_keyboard.py --input vr`)로 실행합니다.
+4. 헤드셋 브라우저에 수집 페이지를 엽니다.
+
+| 옵션 | 기본값 | 설명 |
+|---|---|---|
+| `--task` | T1 | T1부터 T10 |
+| `--output` | `~/datasets/Lightwheel-Tasks-RBY1-{task}-VR` | 데이터 폴더. raw episode는 `<output>_raw`에 저장됩니다 |
+| `--joint-speed` | 0.8 | 관절 속도 제한(rad/s). **X7S 원본과 비슷한 속도를 내려면 1.5 권장** |
+| `--motion-scale` | 1.0 | 손 이동 대비 로봇 손 이동 비율. 정밀 작업은 0.6\~0.8 |
+| `--vr-no-rotation` | 꺼짐 | 그리퍼 방향을 고정하고 위치만 따라감 |
+| `--vr-record FILE` | 없음 | 헤드셋 입력 전체를 JSONL로 저장(분석, `--vr-replay` 재생용) |
+| `--layout fixed` | random | 물체 배치 고정 |
+| `--vr-no-video` | 꺼짐 | 헤드셋 패널 영상 끄기 |
+
+### 4. 헤드셋 접속
+
+1. Isaac Sim 창이 뜨고 터미널에 `[vr] opened http://localhost:8012/?v=...`가 나오면, 헤드셋에 페이지가 열려 있습니다.
+   - 열리지 않았으면 헤드셋 브라우저에 `http://localhost:8012/?v=1`을 직접 입력합니다.
+2. 페이지에서 확인합니다.
+   - OK 3개(`secure context`, `navigator.xr`, `immersive-vr supported`)
+   - **connected to the collector**
+3. **Enter VR**을 누릅니다. 터미널에 `[vr] IDLE | VR page: in VR, ~80 reports/s ...`가 나오면 준비가 끝난 것입니다.
+
+### 5. 조작
+
+번호는 Quest 2 컨트롤러 그림 기준입니다(L1/R1 썸스틱, L2/R2 트리거, L3/R3 그립).
+
+| 입력 | 기능 |
+|---|---|
+| **그립** L3 / R3 (가운뎃손가락) 누르는 동안 | 해당 팔이 컨트롤러를 따라 움직임. 떼면 정지(손을 옮긴 뒤 다시 쥐면 이어서 조작) |
+| **트리거** L2 / R2 (검지) | 해당 그리퍼 닫기 (놓으면 열림) |
+| **A** | 기록 시작 |
+| **B** 1초 | 기록 폐기 + 장면 초기화 |
+| **X** | 일시정지 / 재개 |
+| **Y** 1초 | 정면 재보정: 지금 바라보는 방향이 로봇 정면이 되고, 카메라 패널도 앞으로 옮겨집니다 |
+| **오른쪽 스틱** 위아래 / 좌우 | 카메라 패널 거리 / 크기 |
+| 메뉴 / Meta 버튼 | 누르지 않음 (Meta 버튼은 VR에서 나감) |
+| PC 키보드 (Isaac Sim 화면 클릭 후) | ESC 종료, ENTER 저장(성공했을 때만), BACKSPACE 폐기, R 초기화 |
+
+### 6. 기록과 저장
+
+1. 정면을 보고 **Y 1초** → 기록 없이 잠깐 움직여 봅니다 → **A**로 기록을 시작합니다. 물체에 다가가기 전에 시작합니다.
+2. 작업을 수행합니다. T1은 왼팔로 그릇을 접시 위에 놓은 뒤, **그리퍼를 그릇에서 떼어 물러나야** 성공입니다.
+3. 성공 판정을 만족하면 **자동으로 저장되고 장면이 초기화됩니다.** 저장 버튼은 따로 없습니다. 다음 episode는 **A**로 시작합니다.
+4. 실패한 시도는 **B 1초**로 폐기합니다. 성공하지 못한 episode는 저장되지 않습니다.
+
+헤드셋 패널 위쪽의 상태 줄을 읽는 법(PC 터미널의 `[vr]` 줄에도 같은 정보가 나옵니다):
+
+| 줄 | 표시 |
+|---|---|
+| 1줄 | `IDLE - A: start recording`(회색) / `REC 12.3 s`(빨강) / `PAUSED`(노랑), 팔별 `GRIP`·`hold`·`LOST`, 그리퍼 `open`·`closed` |
+| 2줄 | `Task: not done | 조건별 OK/no`(T1) → `Task condition met - hold still...` → **`SUCCESS! Episode saved (N this session)`**(초록) / `DISCARDED (not saved)` |
+
+VR 데이터에는 키보드 데이터의 feature에 더해 다음이 저장됩니다.
+- `teleop.command`(20차원): 팔별 클러치, 트리거, 그리퍼, 목표 자세
+- `teleop.vr_input`(20차원): 컨트롤러 자세, 트리거, 그립
+
+메타데이터에는 `teleop_device: quest2_webxr`가 기록됩니다. 기본 RB-Y1 형식 변환에서는 이 항목들이 빠지므로, 키보드 데이터와 같은 16차원 state/action이 됩니다. 한 출력 폴더에는 같은 조작 장치, task, fps로 모은 episode만 넣을 수 있습니다.
+
+### 7. 변환·검증·replay
+
+```bash
+./export_dataset.sh --output ~/datasets/RBY1-T1-VR --validate          # --output 없이 수집했다면: --task T1 --input vr
+./replay_dataset.sh --root ~/datasets/RBY1-T1-VR --episode all --headless --video ~/vr_replay_videos/
+```
+
+### 8. 문제 해결
+
+| 증상 | 조치 |
+|---|---|
+| `adb devices`에 `no permissions` | 1장의 udev 규칙 추가 → `adb kill-server` → 케이블 다시 꽂기 |
+| `unauthorized` | 헤드셋을 쓰고 "USB 디버깅 허용"에서 "항상 허용" |
+| 헤드셋에 페이지가 안 열림, `old page` 경고 | 헤드셋 브라우저에 `http://localhost:8012/?v=2`처럼 숫자를 바꿔 직접 열기 |
+| `Port 8012 is busy` | 다른 터미널의 `quest_check.sh`, `vr_server.py`, 수집기 종료 |
+| 패널에 `LOST` | 컨트롤러를 헤드셋 시야 안으로, 배터리 확인, 손 추적 자동 전환 끄기 |
+| 팔이 다른 방향으로 감 | 정면을 보고 Y 1초 |
+| 팔이 느리게 따라옴 | `--joint-speed` 1.5\~2.0. 터미널 `sim speed`가 1.0보다 많이 낮으면 시뮬레이션 자체가 느린 것 |
+| 성공했는데 저장 안 됨 | `REC` 상태였는지 확인(IDLE이면 A 먼저). 패널 2줄의 `no` 조건 확인 |
+
 ## 장면만 실행하기
 
 ```bash
@@ -257,16 +403,22 @@ LeRobot 변환 형식은 두 가지입니다.
 
 | 경로 | 내용 |
 |---|---|
-| `environments/T01.usd`~`T10.usd` | RB-Y1 task 장면 |
-| `environments/T01.json`~`T10.json` | 물체, 배치, 로봇 자세 정보 |
-| `scripts/collect_keyboard.py` | 키보드 조작·기록·자동 저장 |
+| `environments/T01.usd`\~`T10.usd` | RB-Y1 task 장면 |
+| `environments/T01.json`\~`T10.json` | 물체, 배치, 로봇 자세 정보 |
+| `scripts/collect_keyboard.py` | 키보드/VR(`--input vr`) 조작·기록·자동 저장 |
+| `collect_vr.sh` | VR 수집 실행 (adb 점검, 포트 연결, `collect_keyboard.py --input vr`) |
+| `scripts/vr/vr_teleop.py` | VR 좌표 변환, 정면 재보정, 그립 클러치, 버튼 판정 |
+| `scripts/vr/vr_server.py` | 헤드셋 WebXR 페이지, 입력 수신·영상 전송(WebSocket) |
+| `scripts/vr/vr_video.py` | 헤드셋 카메라 패널 영상 합성·압축 |
+| `scripts/vr/quest_check.sh`, `quest_check.py` | 헤드셋 연결·입력 점검 도구 |
+| `scripts/vr/scripted_operator.py` | 헤드셋 없는 VR 시험용 자동 조작자와 입력 재생 |
 | `export_dataset.sh`, `scripts/export_dataset.py` | 저장된 raw episode 일괄 LeRobot 변환 |
 | `scripts/export_keyboard_episode.py` | episode 1개 LeRobot 변환 |
 | `replay_dataset.sh`, `scripts/replay_episode.py` | 수집 데이터 replay |
 | `scripts/rby1_format.py` | 실제 RB-Y1 데이터 형식과의 변환 규칙 |
 | `scripts/success_original.py` | 원본 성공 판정 어댑터 |
 | `scripts/front_camera.py` | 기본 정면 카메라 설정 |
-| `docs/images/` | README용 T1~T10 이미지 |
+| `docs/images/` | README용 T1\~T10 이미지 |
 
 이미지는 Isaac Sim의 초기 장면(기본 배치) 렌더이며 성공 시연을 나타내지 않습니다. 다음 명령으로 원본 PNG와 합본을 다시 생성할 수 있습니다. 출력 위치는 `reports/front_views/`이며, README용 JPEG는 `docs/images/`에 둡니다(개별 1280×800, 합본 가로 3000px).
 

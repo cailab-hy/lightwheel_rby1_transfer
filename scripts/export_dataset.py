@@ -1,4 +1,4 @@
-"""Convert saved raw keyboard episodes to LeRobot v3, separately from collection.
+"""Convert saved raw keyboard / VR episodes to LeRobot v3, separately from collection.
 
 Episodes already in the output (by raw episode id) are skipped, so this can be
 re-run at any time, including while the collector is still recording.
@@ -23,6 +23,12 @@ p.add_argument(
     "--raw-root", type=Path, help="raw episode folder (default: <output>_raw)"
 )
 p.add_argument(
+    "--input",
+    choices=["keyboard", "vr"],
+    default="keyboard",
+    help="with --task: which collector default output (keyboard: ...-Keyboard-Original, vr: ...-VR)",
+)
+p.add_argument(
     "--format",
     choices=["rby1", "sim"],
     default="rby1",
@@ -38,7 +44,8 @@ a = p.parse_args()
 output = (
     a.output
     if a.output is not None
-    else paths.DATASETS / f"Lightwheel-Tasks-RBY1-{a.task}-Keyboard-Original"
+    else paths.DATASETS
+    / (f"Lightwheel-Tasks-RBY1-{a.task}-Keyboard-Original" if a.input == "keyboard" else f"Lightwheel-Tasks-RBY1-{a.task}-VR")
 )
 output = output.expanduser().resolve()
 raw_root = (a.raw_root or output.with_name(output.name + "_raw")).expanduser().resolve()

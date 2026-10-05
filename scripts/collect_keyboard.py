@@ -1,10 +1,12 @@
-"""Keyboard teleoperation + lossless raw journal + LeRobot v3 export for RB-Y1 T1-T10.
+"""Keyboard or Meta Quest 2 (VR) teleoperation + lossless raw journal + LeRobot v3 export for RB-Y1 T1-T10.
 Uses the installed IsaacLab 2.3.0 Se3Keyboard and DifferentialIKController.
 Uses pinned LW-BenchHub success_original for automatic task success.
+--input vr: both arms follow the Touch controllers while grip is held (scripts/vr: WebXR page served
+on --vr-port and reached through adb reverse; vr_teleop clutch; absolute-pose IK per arm).
 """
 import project_paths as paths
 
-import argparse, os, sys, json, time, hashlib, subprocess, fcntl
+import argparse, os, sys, json, time, hashlib, subprocess, fcntl, math
 from pathlib import Path
 from collections import deque
 from types import SimpleNamespace
@@ -44,6 +46,17 @@ p.add_argument(
     help="also convert to LeRobot in the background while collecting (default: raw only; use export_dataset.sh)",
 )
 p.add_argument("--seed", type=int, help="layout RNG seed (default: random; 0 for smoke tests)")
+p.add_argument("--input", choices=["keyboard", "vr"], default="keyboard", help="vr: Meta Quest 2 controllers (see docs/VR_COLLECTION_QUEST2_KO.md)")
+p.add_argument("--vr-port", type=int, default=8012)
+p.add_argument("--motion-scale", type=float, default=1.0, help="VR: robot hand displacement per controller displacement")
+p.add_argument("--vr-no-rotation", action="store_true", help="VR: follow controller position only (keep the gripper orientation)")
+p.add_argument("--vr-no-open", action="store_true", help="VR: do not open the page in the headset browser over adb")
+p.add_argument("--vr-record", type=Path, help="VR: also append every headset report to this JSONL file")
+p.add_argument("--vr-replay", type=Path, help="VR smoke test: replay a --vr-record JSONL (last page session) instead of the scripted T1 operator")
+p.add_argument("--vr-replay-session", type=int, default=-1, help="with --vr-replay: page session index in the file (-1 = last)")
+p.add_argument("--vr-replay-log", type=Path, help="with --vr-replay: save per-step gripper (TCP) positions to this .npz")
+p.add_argument("--vr-no-video", action="store_true", help="VR: do not stream the robot cameras to the headset panel")
+p.add_argument("--vr-video-quality", type=int, default=80, help="VR: JPEG quality of the headset camera panel")
 p.add_argument("--width", type=int, default=640)
 p.add_argument("--height", type=int, default=480)
 a = p.parse_args()
@@ -61,6 +74,14 @@ if min(a.pos_speed, a.rot_speed, a.joint_speed) <= 0:
     p.error("Speeds must be positive")
 if a.width % 2 or a.height % 2 or min(a.width, a.height) < 64:
     p.error("Image dimensions must be even and >=64")
+if a.motion_scale <= 0:
+    p.error("--motion-scale must be positive")
+if a.input == "vr" and a.smoke_success_test:
+    p.error("--smoke-success-test is keyboard-only; --input vr --smoke-test runs a scripted VR T1 demonstration")
+if a.vr_replay and not (a.input == "vr" and a.smoke_test):
+    p.error("--vr-replay needs --input vr --smoke-test")
+if a.input == "vr" and a.smoke_test and a.task != "T1" and not a.vr_replay:
+    p.error("--input vr --smoke-test supports T1 only")
 if a.headless and not a.smoke_test:
     p.error("Headless mode is only supported with --smoke-test")
 a.headless = a.headless or a.smoke_test
@@ -69,10 +90,10 @@ if a.output is None:
     a.output = (
         ROOT
         / "reports"
-        / ("keyboard_smoke_" + time.strftime("%Y%m%d_%H%M%S"))
+        / (f"{a.input}_smoke_" + time.strftime("%Y%m%d_%H%M%S"))
         / "dataset"
         if a.smoke_test
-        else paths.DATASETS / f"Lightwheel-Tasks-RBY1-{a.task}-Keyboard-Original"
+        else paths.DATASETS / (f"Lightwheel-Tasks-RBY1-{a.task}-Keyboard-Original" if a.input == "keyboard" else f"Lightwheel-Tasks-RBY1-{a.task}-VR")
     )
 a.output = a.output.expanduser().resolve()
 rawroot = a.output.with_name(a.output.name + "_raw")
@@ -110,13 +131,14 @@ if a.output.exists():
         p.error("Output uses a different/manual success schema; choose a new --output")
     if json.loads(collection.read_text()).get("task") != a.task:
         p.error("Existing dataset task mismatch")
+TELEOP_DEVICE = "keyboard" if a.input == "keyboard" else "quest2_webxr"
 # Raw episodes already in this folder must match (the exporter converts them together).
 previous = next(iter(sorted(rawroot.glob("episode-*/episode.json"))), None)
 if previous is not None:
     prev = json.loads(previous.read_text())
     mismatch = [
-        k for k, mine in (("task", a.task), ("fps", a.fps), ("profile", a.profile))
-        if prev.get(k, "sim" if k == "profile" else None) != mine
+        k for k, mine in (("task", a.task), ("fps", a.fps), ("profile", a.profile), ("teleop_device", TELEOP_DEVICE))
+        if prev.get(k, {"profile": "sim", "teleop_device": "keyboard"}.get(k)) != mine
     ]
     if mismatch:
         p.error(f"Raw episodes in {rawroot} were recorded with a different {', '.join(mismatch)}; choose a new --output")
@@ -151,6 +173,9 @@ from keyboard_recorder import EpisodeRecorder
 from success_original import OriginalSuccess
 import layout_randomization
 import rby1_format
+
+sys.path.insert(0, str(ROOT / "scripts/vr"))
+from vr_teleop import VRTeleop, mat_to_quat, quat_to_mat, rot_z
 
 
 class Keyboard(Se3Keyboard):
@@ -251,6 +276,30 @@ class Collector:
             num_envs=1,
             device="cpu",
         )
+        # VR: absolute pose targets, one controller per arm (both arms move in the same step)
+        self.ik_abs = {
+            side: DifferentialIKController(
+                DifferentialIKControllerCfg(
+                    command_type="pose",
+                    use_relative_mode=False,
+                    ik_method="dls",
+                    ik_params={"lambda_val": 0.03},
+                ),
+                num_envs=1,
+                device="cpu",
+            )
+            for side in ["left", "right"]
+        }
+        self.vr = None
+        self.vr_video = None
+        self.vr_images = None  # newest camera images (the headset panel while paused)
+        self.vr_flash = ("", 0.0)  # short panel message (text, until wall time)
+        self.vr_operator = None
+        self.reset_count = 0
+        self.vr_step = None
+        self.vr_message = ""
+        self.vr_printed = (None, 0.0)  # (state key, wall time) of the last terminal status line
+        self.speed = None  # simulated seconds per wall-clock second (EMA)
         self.layout_spec = (
             self.meta.get("randomization") if a.layout == "random" else None
         )
@@ -335,7 +384,24 @@ class Collector:
                 "rz",
                 "active_arm_0left_1right",
                 "gripper_open_1_closed_0",
+            ]
+            if a.input == "keyboard"
+            else [
+                f"{side}.{v}"
+                for side in ["right", "left"]
+                for v in ["clutch", "trigger", "gripper_open", "x", "y", "z", "qw", "qx", "qy", "qz"]
             ],
+            **(
+                {
+                    "teleop.vr_input": [
+                        f"{side}.{v}"
+                        for side in ["right", "left"]
+                        for v in ["tracked", "x", "y", "z", "qw", "qx", "qy", "qz", "trigger", "squeeze"]
+                    ]
+                }
+                if a.input == "vr"
+                else {}
+            ),
             "success_original": ["success_original"],
             "observation.sim_time": ["seconds"],
             "observation.camera_time": list(self.camera_paths),
@@ -364,16 +430,29 @@ class Collector:
             .read_text()
             .strip(),
             "layout_randomization": self.layout_spec,
+            "teleop_device": TELEOP_DEVICE,
         }
+        if a.input == "vr":
+            metadata["vr"] = {
+                "page": "scripts/vr/vr_server.py (WebXR, WebSocket, one report per XR frame)",
+                "teleop": "scripts/vr/vr_teleop.py",
+                "motion_scale": a.motion_scale,
+                "rotation": not a.vr_no_rotation,
+                "stale_s": 0.2,
+                "teleop_command": "target gripper pose (robot base frame) from the grip clutch, held arm = current commanded pose",
+                "vr_input": "controller grip pose in recentred robot axes (x forward, y left, z up)",
+            }
         self.rec = EpisodeRecorder(rawroot, metadata)
         self.window = ui.Window(
-            f"RB-Y1 {a.task} keyboard collector", width=900, height=330
+            f"RB-Y1 {a.task} {'keyboard' if a.input == 'keyboard' else 'VR'} collector", width=900, height=330 if a.input == "keyboard" else 430
         )
         with self.window.frame:
             with ui.VStack():
                 self.label = ui.Label("Initializing...", word_wrap=True)
                 ui.Label(
-                    "W/S forward/back | A/D left/right | Q/E up/down\nZ/X roll | T/G pitch | C/V yaw | K gripper | TAB arm\nB record | ENTER save only if success_original | P pause | BACKSPACE discard + reset\nR reset (discards pending) | L stop input | ESC exit",
+                    "W/S forward/back | A/D left/right | Q/E up/down\nZ/X roll | T/G pitch | C/V yaw | K gripper | TAB arm\nB record | ENTER save only if success_original | P pause | BACKSPACE discard + reset\nR reset (discards pending) | L stop input | ESC exit"
+                    if a.input == "keyboard"
+                    else "Quest 2: hold GRIP (middle finger) = that arm follows the controller | TRIGGER (index) = close gripper\nA = start recording | B held 1 s = discard + reset | X = pause/resume | Y held 1 s = recenter (face forward first)\nKeyboard: ENTER save | BACKSPACE discard | R reset | ESC exit",
                     word_wrap=True,
                 )
                 ui.Label(
@@ -382,6 +461,30 @@ class Collector:
                 )
         for key in ["ENTER", "TAB", "ESCAPE", "BACKSPACE"]:
             assert hasattr(carb.input.KeyboardInput, key), key
+        if a.input == "vr":
+            from vr_server import VRServer, open_in_headset
+
+            self.teleop = VRTeleop(scale=a.motion_scale, rotation=not a.vr_no_rotation, stale_s=0.2)
+            try:
+                self.vr = VRServer(a.vr_port, record=a.vr_record, log=lambda m: print(m, flush=True)).start()
+            except OSError as e:
+                raise SystemExit(f"Port {a.vr_port} is busy ({e.strerror}): stop quest_check.sh or another collector, or use --vr-port") from None
+            print(f"[vr] collector page on http://localhost:{a.vr_port}", flush=True)
+            if not a.vr_no_video:
+                from vr_video import VideoStreamer
+
+                self.vr_video = VideoStreamer(self.vr, quality=a.vr_video_quality)
+            if not a.vr_no_open and not a.smoke_test:
+                open_in_headset(a.vr_port, log=lambda m: print(m, flush=True))
+            if a.smoke_test:  # scripted operator, sent through a real WebSocket like the headset page
+                from vr_server import WSClient, PAGE_VERSION
+                from scripted_operator import InputReplay, T1Operator
+
+                self.vr_page_version = PAGE_VERSION
+                self.vr_operator = InputReplay(a.vr_replay, a.vr_replay_session) if a.vr_replay else T1Operator(a.fps)
+                self.vr_steps = 0
+                self.vr_client = WSClient(a.vr_port, read_video=True)
+                self.vr_client.send({"kind": "session", "v": PAGE_VERSION, "started": True})
         self.reset()
         activate_front_camera()
         print(self.keyboard)
@@ -391,6 +494,7 @@ class Collector:
         return np.asarray(self.robot.get_joint_positions(), dtype=float)
 
     def reset(self):
+        self.reset_count += 1
         self.keyboard.reset()
         self.paused = False
         self.world.reset()
@@ -413,6 +517,8 @@ class Collector:
         self.time_origin = float(self.world.current_time)
         self.time = 0.0
         self.ik.reset()
+        if self.vr is not None:
+            self.teleop.reset()
 
     def ee(self, q):
         mq = self.model.q_from_dict(dict(zip(self.names, q)))
@@ -425,24 +531,43 @@ class Collector:
             poses.extend([*t.translation, quat[3], *quat[:3]])
         return np.array(poses, dtype=np.float32)
 
-    def action(self, delta, q):
-        if np.any(delta):
-            pose = self.model.pose(self.side)
+    def target_poses(self):
+        """Gripper poses (robot base frame) of the commanded joint targets; the VR clutch anchors on these."""
+        pin.framesForwardKinematics(
+            self.model.model, self.model.data, self.model.q_from_dict(dict(zip(self.names, self.target)))
+        )
+        return {
+            side: (self.model.pose(side).translation.copy(), self.model.pose(side).rotation.copy())
+            for side in ["left", "right"]
+        }
+
+    def action(self, delta, q, vr_targets=None):
+        """Keyboard: delta pose for the active arm. VR: vr_targets side -> absolute (p, R) or None (hold).
+        Needs the model at the measured q (self.ee(q))."""
+        if vr_targets is not None:
+            moves = [(side, goal) for side, goal in vr_targets.items() if goal is not None]
+        else:
+            moves = [(self.side, None)] if np.any(delta) else []
+        for side, goal in moves:
+            pose = self.model.pose(side)
             quat = pin.Quaternion(pose.rotation).coeffs()
             pos = torch.tensor(pose.translation, dtype=torch.float32)[None]
             rot = torch.tensor(np.r_[quat[3], quat[:3]], dtype=torch.float32)[None]
-            ids = self.arms[self.side]
+            ids = self.arms[side]
             mids = self.qidx[ids]
             jac = pin.getFrameJacobian(
                 self.model.model,
                 self.model.data,
-                self.model.frame[self.side],
+                self.model.frame[side],
                 pin.LOCAL_WORLD_ALIGNED,
             )[:, mids]
-            self.ik.set_command(
-                torch.tensor(delta, dtype=torch.float32)[None], pos, rot
-            )
-            candidate = self.ik.compute(
+            if goal is None:
+                ik = self.ik
+                ik.set_command(torch.tensor(delta, dtype=torch.float32)[None], pos, rot)
+            else:
+                ik = self.ik_abs[side]
+                ik.set_command(torch.tensor(np.r_[goal[0], mat_to_quat(goal[1])], dtype=torch.float32)[None])
+            candidate = ik.compute(
                 pos,
                 rot,
                 torch.tensor(jac, dtype=torch.float32)[None],
@@ -461,6 +586,109 @@ class Collector:
             )
         self.target = np.clip(self.target, self.limits[:, 0], self.limits[:, 1])
         return self.target.copy()
+
+    def object_center(self, name):
+        """Live AABB centre of a scene-JSON object in the robot base frame, plus its top z."""
+        e = next(o for o in self.meta["objects"] if o["name"] == name)
+        key = e.get("source_name", e["name"])
+        (p0, q0), _, _ = self.success.initial_bodies[key][0]
+        p, q = self.success.bodies[key][0].get_world_pose()
+        c = np.asarray(p) + quat_to_mat(q) @ quat_to_mat(q0).T @ (np.asarray(e["center"]) - np.asarray(p0))
+        c = rot_z(self.meta["robot_yaw_rad"]).T @ (c - np.asarray(self.meta["robot_base_world"]))
+        return np.r_[c, c[2] + (e["aabb"][1][2] - e["aabb"][0][2]) / 2]
+
+    def vr_poll(self, operator=True):
+        """Read the headset (or the scripted operator), run the clutch, queue button commands."""
+        current = self.target_poses()
+        if self.vr_operator is not None and operator:
+            pin.framesForwardKinematics(self.model.model, self.model.data, self.model.q_from_dict(dict(zip(self.names, self.get_q()))))
+            if a.vr_replay:
+                report = self.vr_operator.step(self.vr_steps / a.fps)
+                engaged = [self.vr_step.status[s]["engaged"] if self.vr_step else False for s in ["left", "right"]]
+                self.vr_operator.log.append([self.vr_steps / a.fps, *self.model.pose("left").translation,
+                                             *self.model.pose("right").translation, *engaged, float(self.paused)])
+                self.vr_steps += 1
+                if report is None:
+                    self.running = False
+                    return
+            else:
+                report = self.vr_operator.step(
+                    time.monotonic(), current["left"], self.model.pose("left").translation.copy(),
+                    self.object_center("bowl"), self.object_center("plate"),
+                )
+            before = self.vr.status()["reports"]
+            self.vr_client.send({**report, "v": self.vr_page_version, "vseq": self.vr_client.video_seq})
+            deadline = time.monotonic() + 2.0
+            while self.vr.status()["reports"] == before and time.monotonic() < deadline:
+                time.sleep(0.001)
+        step = self.teleop.update(self.vr.take(), time.monotonic(), current)
+        if self.paused:  # re-anchor every paused step: resuming must not jump
+            for arm in self.teleop.arms.values():
+                arm.release()
+        for side in ["left", "right"]:
+            self.grip_open[side] = not step.gripper_closed[side]
+        self.vr_step, self.vr_current, self.vr_reset_mark = step, current, self.reset_count
+        for name in step.events:
+            if name == "recenter":
+                self.vr_message = f"Recentered: your facing direction ({math.degrees(self.teleop.yaw):+.0f} deg) is now robot forward"
+                print(self.vr_message, flush=True)
+            else:
+                print(f"[vr] button -> {name}", flush=True)
+                self.commands.append(name)  # start / discard / pause
+
+    def vr_overlay(self):
+        """(text, tone) of the headset panel status strip."""
+        if self.paused:
+            head, tone = "PAUSED (X: resume)", "pause"
+        elif self.rec.active:
+            head, tone = f"REC {self.rec.count / a.fps:5.1f} s", "rec"
+        else:
+            head, tone = "IDLE - A: start recording", "idle"
+        arms = []
+        for side in ["left", "right"]:
+            s = self.vr_step.status[side] if self.vr_step else {"tracked": False, "engaged": False}
+            mode = "GRIP" if s["engaged"] else ("hold" if s["tracked"] else "LOST")
+            arms.append(f"{side[0].upper()} {mode} {'open' if self.grip_open[side] else 'closed'}")
+        parts = [head, *arms]
+        # line 2: task success
+        flash, until = self.vr_flash
+        if flash and time.monotonic() < until:
+            task = flash
+            tone = "ok" if flash.startswith("SUCCESS") else tone
+        elif self.success.success_original:
+            task, tone = "SUCCESS - saving", "ok"
+        elif self.success.raw_predicate:
+            task = "Task condition met - hold still..." + (" (press A first: not recording)" if not self.rec.active else "")
+        else:
+            rows = self.success.conditions()
+            task = "Task: not done" + (
+                "  |  " + "  ".join(f"{name}: {'OK' if ok else 'no'}" for name, ok, _ in rows) if rows else ""
+            )
+        return "  |  ".join(parts) + "\n" + task, tone
+
+    def vr_status(self):
+        st = self.vr.status()
+        arms = []
+        for side in ["left", "right"]:
+            s = self.vr_step.status[side] if self.vr_step else {"tracked": False, "reason": "no data", "engaged": False}
+            mode = "GRIP" if s["engaged"] else ("hold" if s["tracked"] else f"LOST ({s['reason']})")
+            arms.append(f"{side[0].upper()}: {mode}, gripper {'open' if self.grip_open[side] else 'CLOSED'}")
+        page = "NOT connected (open http://localhost:%d in the headset)" % a.vr_port if not st["clients"] else (
+            "in VR" if st["session"] else "connected, press Enter VR")
+        rate = f", {st['rate_hz']} reports/s" if st["clients"] else ""
+        speed = f" | sim speed x{self.speed:.2f}" if self.speed else ""
+        video = ""
+        if self.vr_video is not None and st["clients"]:
+            lat = st["video_latency_ms"]
+            video = f" | video {st['video_fps']} fps {st['video_kb']:.0f} KB" + (f" {lat:.0f} ms" if lat is not None else "")
+        return f"VR page: {page}{rate} | " + " | ".join(arms) + speed + video, (page, *arms)
+
+    def print_vr_status(self, line, key, status):
+        """Terminal copy of the VR status: on every change, else every 5 s."""
+        now = time.monotonic()
+        if key + (status,) != self.vr_printed[0] or now - self.vr_printed[1] > 5:
+            self.vr_printed = (key + (status,), now)
+            print(f"[vr] {status}{f' {self.rec.count} frames' if self.rec.active else ''} | {line}", flush=True)
 
     def initial_state(self):
         return {
@@ -522,6 +750,7 @@ class Collector:
         else:
             self.message = f"Saved raw episode {self.saved_this_session}: {raw.name}; scene reset (convert later with export_dataset.sh)"
         print(self.message, flush=True)
+        self.vr_flash = (f"SUCCESS!  Episode saved ({self.saved_this_session} this session) - scene reset, press A for the next", time.monotonic() + 5)
         self.commands.clear()
         self.reset()
 
@@ -615,6 +844,7 @@ class Collector:
             self.rec.discard()
             self.reset()
             self.message = "Discarded pending episode; scene reset"
+            self.vr_flash = ("DISCARDED (not saved) - scene reset", time.monotonic() + 3)
         elif c == "pause":
             self.paused = not self.paused
             self.keyboard.reset()
@@ -701,23 +931,42 @@ class Collector:
                     raise AssertionError(
                         "Synthetic successful placement did not auto-save"
                     )
-            if a.smoke_test:
+            if a.smoke_test and self.vr is not None and not a.vr_replay:
+                if self.saved_this_session and not self.exports_pending():
+                    self.running = False
+                    break
+                if iteration > 3000:
+                    raise AssertionError(f"Scripted VR T1 demonstration did not succeed: {self.vr_operator.log}")
+            if a.smoke_test and self.vr is None:
                 for key, pressed in schedule.get(iteration, []):
                     self.inject(key, pressed)
             self.poll_exports()
+            if self.vr is not None:
+                self.vr_poll()
+            if not self.running:  # --vr-replay finished
+                break
             while self.commands:
                 self.command(self.commands.popleft())
             if not self.running:
                 break
+            if self.vr is not None and self.reset_count != self.vr_reset_mark:
+                self.vr_poll(operator=False)  # scene was reset: re-anchor on the new targets
             if self.paused:
                 self.world.render()
+                if self.vr_video is not None and self.vr_images is not None:
+                    self.vr_video.submit(self.vr_images, *self.vr_overlay())
             else:
                 self.success.update()
                 q = self.get_q()
                 ee = self.ee(q)
                 delta = self.keyboard.advance().cpu().numpy()
-                act = self.action(delta, q)
+                if self.vr is not None:
+                    delta = np.zeros_like(delta)  # keyboard motion keys are off in VR mode
+                    act = self.action(delta, q, self.vr_step.targets)
+                else:
+                    act = self.action(delta, q)
                 auto_save = False
+                images = None
                 if self.rec.active:
                     images, camera_times = self.capture()
                     numeric = {
@@ -734,17 +983,25 @@ class Collector:
                             delta,
                             float(self.side == "right"),
                             float(self.grip_open[self.side]),
-                        ].astype(np.float32),
+                        ].astype(np.float32)
+                        if self.vr is None
+                        else self.vr_step.vector(self.vr_current),
+                        **({"teleop.vr_input": self.vr_step.vr_input()} if self.vr is not None else {}),
                         "observation.sim_time": np.array([self.time], dtype=np.float64),
                         "observation.camera_time": camera_times,
                     }
                     self.rec.append(numeric, images, self.success.snapshot())
                     if (
                         self.success.success_original
-                        and (not a.smoke_test or a.smoke_success_test)
+                        and (not a.smoke_test or a.smoke_success_test or self.vr is not None)
                         and self.rec.count >= 2
                     ):
                         auto_save = True
+                elif self.vr_video is not None and self.vr.status()["session"]:
+                    images, _ = self.capture()  # headset panel only (not recorded)
+                if images is not None and self.vr_video is not None:
+                    self.vr_images = images
+                    self.vr_video.submit(images, *self.vr_overlay())
                 self.robot.apply_action(ArticulationAction(joint_positions=act))
                 for sub in range(SUBSTEPS):
                     self.world.step(render=False)
@@ -787,26 +1044,60 @@ class Collector:
                 and not self.message.startswith("Task condition met")
             ):
                 self.message = "Task condition met but NOT recording (IDLE): press B before the demonstration"
-            self.label.text = f"success_original={self.success.success_original} (predicate={self.success.raw_predicate}) | {status} | ARM {self.side.upper()} | gripper {'OPEN' if self.grip_open[self.side] else 'CLOSED'}\nFrames: {self.rec.count} | {self.message}\n{checks}\nLeRobot export: {export_status}\nOutput: {a.output}"
+            if self.vr is None:
+                arm_status = f" | ARM {self.side.upper()} | gripper {'OPEN' if self.grip_open[self.side] else 'CLOSED'}"
+                vr_lines = ""
+            else:
+                vr_line, vr_key = self.vr_status()
+                self.print_vr_status(vr_line, vr_key, status)
+                arm_status = ""
+                vr_lines = vr_line + "\n" + (f"{self.vr_message}\n" if self.vr_message else "")
+            self.label.text = f"{vr_lines}success_original={self.success.success_original} (predicate={self.success.raw_predicate}) | {status}{arm_status}\nFrames: {self.rec.count} | {self.message}\n{checks}\nLeRobot export: {export_status}\nOutput: {a.output}"
             if not a.smoke_test:
                 delay = 1 / a.fps - (time.monotonic() - last)
                 if delay > 0:
                     time.sleep(delay)
-            last = time.monotonic()
+            now = time.monotonic()
+            if not self.paused:  # simulated seconds per wall second (1.0 = real time)
+                ratio = (1 / a.fps) / max(now - last, 1e-6)
+                self.speed = ratio if self.speed is None else 0.9 * self.speed + 0.1 * ratio
+            last = now
             iteration += 1
         self.drain_exports()
+        if a.vr_replay:
+            log = np.array(self.vr_operator.log, dtype=np.float64)
+            out = a.vr_replay_log or a.output.parent / "vr_replay_tcp.npz"
+            np.savez(out, t=log[:, 0], left=log[:, 1:4], right=log[:, 4:7], engaged=log[:, 7:9], paused=log[:, 9], fps=a.fps,
+                     joint_speed=a.joint_speed, motion_scale=a.motion_scale)
+            print(f"VR_REPLAY_DONE {len(log)} steps ({log[-1, 0]:.1f} s) -> {out}", flush=True)
+            return
         if a.smoke_test:
             info = json.loads((a.output / "meta/info.json").read_text())
             assert info["total_episodes"] == saved_before + (
-                1 if a.smoke_success_test else 2
+                1 if a.smoke_success_test or self.vr is not None else 2
             )
+            if self.vr_video is not None:
+                assert self.vr_client.video_frames > 0, "no headset video frames reached the WebSocket client"
             report = {
                 "output": str(a.output),
                 "saved_episodes": info["total_episodes"],
                 "total_frames": info["total_frames"],
                 "discard_test_passed": not any(rawroot.glob("pending-*")),
-                "keyboard_events": "injected into actual IsaacLab Se3Keyboard callback; physical GUI focus not tested",
-                "task_success_verified": False,
+                "keyboard_events": "injected into actual IsaacLab Se3Keyboard callback; physical GUI focus not tested"
+                if self.vr is None
+                else "none (VR input)",
+                **(
+                    {
+                        "vr_input": "scripted T1 operator sending headset-format reports through the collector's WebSocket server",
+                        "vr_operator_waypoints": self.vr_operator.log,
+                        "vr_video_frames_received": self.vr_client.video_frames,
+                        "vr_video_latency_ms": self.vr.status()["video_latency_ms"],
+                        "saved_success_original": True,
+                    }
+                    if self.vr is not None
+                    else {}
+                ),
+                "task_success_verified": self.vr is not None,
                 "synthetic_success_test": a.smoke_success_test,
             }
             (a.output.parent / "smoke_result.json").write_text(
@@ -829,6 +1120,14 @@ class Collector:
                 flush=True,
             )
         self.rec.close()
+        if self.vr is not None:
+            if self.vr_operator is not None:
+                if self.vr_client.video_jpeg:  # newest headset panel frame, for a visual check
+                    (a.output.parent / "vr_panel_last.jpg").write_bytes(self.vr_client.video_jpeg)
+                self.vr_client.close()
+            if self.vr_video is not None:
+                self.vr_video.close()
+            self.vr.close()
         # Let SimulationApp close the stage and shared Replicator graphs together.
         self.world.pause()
         self.keyboard.close()

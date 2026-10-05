@@ -76,6 +76,14 @@ def validate(root):
             if "success_original" not in m:
                 assert not entry["success"]
             assert np.max(np.abs(a["observation.state"] - a["action"])) > 1e-5
+        if m.get("is_smoke_test") and m.get("teleop_device") == "quest2_webxr":
+            # VR: while an arm's clutch is held its gripper must have moved; while released it is held
+            commands, ee = a["teleop.command"], a["observation.ee_pose"]
+            for side, col, pos in (("right", 0, slice(7, 10)), ("left", 10, slice(0, 3))):
+                if np.any(commands[:, col] > 0):
+                    assert np.max(np.ptp(ee[commands[:, col] > 0, pos], axis=0)) > 0.01, side
+            assert np.all(a["teleop.vr_input"][:, [0, 10]] >= 0)
+        if m.get("is_smoke_test") and m.get("teleop_device", "keyboard") == "keyboard":
             commands = a["teleop.command"]
             if np.any(commands[:, 0] > 0):
                 assert np.ptp(a["observation.ee_pose"][:, 0]) > 0.001

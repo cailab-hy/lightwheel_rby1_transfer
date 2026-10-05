@@ -87,9 +87,10 @@ def export(raw, root, fmt="rby1"):
     assert len(a["observation.state"]) == m["frames"] and m["frames"] > 1
     features, n, frames, conv = (rby1_frames if fmt == "rby1" else sim_frames)(raw, m, a)
     fps = R.FPS if fmt == "rby1" else m["fps"]
-    robot_type = R.ROBOT_TYPE if fmt == "rby1" else "rby1_isaac_keyboard"
+    vr = m.get("teleop_device", "keyboard") == "quest2_webxr"
+    robot_type = R.ROBOT_TYPE if fmt == "rby1" else ("rby1_isaac_vr" if vr else "rby1_isaac_keyboard")
     kwargs = dict(
-        repo_id=f"local/RBY1-{m['task']}-Sim" if fmt == "rby1" else f"local/RBY1-{m['task']}-Keyboard-Original",
+        repo_id=f"local/RBY1-{m['task']}-Sim" if fmt == "rby1" else f"local/RBY1-{m['task']}-{'VR' if vr else 'Keyboard-Original'}",
         root=root,
         video_backend="pyav",
         vcodec="libsvtav1" if fmt == "rby1" else "h264",   # the real RB-Y1 dataset uses AV1
@@ -188,7 +189,8 @@ def export(raw, root, fmt="rby1"):
                     ]
                 }
                 | {"layout_randomization": m.get("layout_randomization"), "export_format": fmt, "profile": m.get("profile", "sim"),
-                   "physics_dt": m.get("physics_dt", 0.01)}
+                   "physics_dt": m.get("physics_dt", 0.01), "teleop_device": m.get("teleop_device", "keyboard"),
+                   **({"vr": m["vr"]} if "vr" in m else {})}
                 | ({"rby1_format": {"fps": R.FPS, "names": R.NAMES, "gripper": "opening normalised 0 (closed) .. 1 (open); action = binary open/close command recovered from the finger targets",
                                     "arm_action": "absolute joint position targets (a_t ~ s_t+1), rad", "cameras": R.CAMERA_KEYS,
                                     "reference": "rainbowrobotics/icra_0526_compound_rel"}} if fmt == "rby1" else {}),
@@ -196,9 +198,9 @@ def export(raw, root, fmt="rby1"):
             )
         )
         (root / "README.md").write_text(
-            f"# RB-Y1 {m['task']} simulated demonstrations (RB-Y1 LeRobot format)\n\nSame layout as rainbowrobotics/icra_0526_compound_rel: {R.FPS} fps; state/action 16-D {R.NAMES}; arm values are absolute joint positions (rad), action = target for the next step; gripper = opening 0 (closed)..1 (open), action binary. Images: front (head camera 480x640), right/left (wrist cameras, 640x480 portrait, fingers at the bottom); AV1.\nCollected in Isaac Sim (keyboard teleoperation). Success is computed by the pinned LW-BenchHub success_original predicates through the RB-Y1 adapter. Provenance: meta/keyboard_episodes.json (raw journal paths), meta/keyboard_collection.json.\n"
+            f"# RB-Y1 {m['task']} simulated demonstrations (RB-Y1 LeRobot format)\n\nSame layout as rainbowrobotics/icra_0526_compound_rel: {R.FPS} fps; state/action 16-D {R.NAMES}; arm values are absolute joint positions (rad), action = target for the next step; gripper = opening 0 (closed)..1 (open), action binary. Images: front (head camera 480x640), right/left (wrist cameras, 640x480 portrait, fingers at the bottom); AV1.\nCollected in Isaac Sim ({'Meta Quest 2 VR teleoperation (WebXR, grip clutch, absolute-pose IK for both arms)' if vr else 'keyboard teleoperation'}). Success is computed by the pinned LW-BenchHub success_original predicates through the RB-Y1 adapter. Provenance: meta/keyboard_episodes.json (raw journal paths), meta/keyboard_collection.json.\n"
             if fmt == "rby1" else
-            f"# RB-Y1 {m['task']} keyboard demonstrations\n\nCollected in Isaac Sim with IsaacLab 2.3.0 Se3Keyboard and DifferentialIKController.\nState: 18 measured simulated joints (14 arm angles in rad + 4 finger displacements in m).\nAction: absolute target positions actually sent to those same 18 joints, NOT a real-RB-Y1 driver action format.\nImages/state precede action; action is applied over the next 1/fps simulation seconds.\nSuccess is computed by the pinned LW-BenchHub success_original predicates through the RB-Y1 adapter; task-specific RB-Y1 adaptations (e.g. T1 bowl resting on the plate) are recorded in meta/keyboard_collection.json success_evaluator.rby1_adaptations. The compatibility success field mirrors success_original.\nProvenance: meta/keyboard_episodes.json. Smoke-test episodes are explicitly marked and must not be used as demonstrations, regardless of success_original.\nNo data is uploaded automatically.\n"
+            f"# RB-Y1 {m['task']} {'VR' if vr else 'keyboard'} demonstrations\n\nCollected in Isaac Sim with IsaacLab 2.3.0 {'Meta Quest 2 controllers (scripts/vr)' if vr else 'Se3Keyboard'} and DifferentialIKController.\nState: 18 measured simulated joints (14 arm angles in rad + 4 finger displacements in m).\nAction: absolute target positions actually sent to those same 18 joints, NOT a real-RB-Y1 driver action format.\nImages/state precede action; action is applied over the next 1/fps simulation seconds.\nSuccess is computed by the pinned LW-BenchHub success_original predicates through the RB-Y1 adapter; task-specific RB-Y1 adaptations (e.g. T1 bowl resting on the plate) are recorded in meta/keyboard_collection.json success_evaluator.rby1_adaptations. The compatibility success field mirrors success_original.\nProvenance: meta/keyboard_episodes.json. Smoke-test episodes are explicitly marked and must not be used as demonstrations, regardless of success_original.\nNo data is uploaded automatically.\n"
         )
         pending.unlink()
         print("EXPORTED", idx, n, flush=True)
