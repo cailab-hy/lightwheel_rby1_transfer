@@ -46,7 +46,7 @@ p.add_argument(
     help="also convert to LeRobot in the background while collecting (default: raw only; use export_dataset.sh)",
 )
 p.add_argument("--seed", type=int, help="layout RNG seed (default: random; 0 for smoke tests)")
-p.add_argument("--input", choices=["keyboard", "vr"], default="keyboard", help="vr: Meta Quest 2 controllers (see docs/VR_COLLECTION_QUEST2_KO.md)")
+p.add_argument("--input", choices=["keyboard", "vr"], default="keyboard", help="vr: Meta Quest 2 controllers (see README: VR 데이터 수집)")
 p.add_argument("--vr-port", type=int, default=8012)
 p.add_argument("--motion-scale", type=float, default=1.0, help="VR: robot hand displacement per controller displacement")
 p.add_argument("--vr-no-rotation", action="store_true", help="VR: follow controller position only (keep the gripper orientation)")
@@ -115,7 +115,7 @@ if a.output.exists():
                     "A LeRobot export from a previous session is still running; retry when it finishes"
                 )
         p.error(
-            "Interrupted export detected; raw episodes are preserved. See KEYBOARD_COLLECTION_KO.md recovery instructions."
+            "Interrupted export detected; raw episodes are preserved. See README (LeRobot 변환) for recovery."
         )
     if not info.exists():
         p.error("Output exists and is not a LeRobot dataset; choose a new --output")

@@ -254,11 +254,13 @@ Meta Quest 2를 USB로 PC에 연결하고, 컨트롤러로 RB-Y1의 **양팔을 
 
 기록, 성공 시 자동 저장, 랜덤 배치, LeRobot(RB-Y1 형식) 변환, replay는 키보드 수집과 같습니다. 저장되는 state/action도 키보드 데이터와 같은 형식입니다.
 
-| 문서 | 내용 |
-|---|---|
-| [docs/VR_QUICKSTART_KO.md](docs/VR_QUICKSTART_KO.md) | **요약 가이드**: PC·헤드셋 설정, 명령, 버튼, 문제 해결 |
-| [docs/VR_STEP1_QUEST2_SETUP_KO.md](docs/VR_STEP1_QUEST2_SETUP_KO.md) | 헤드셋 초기 설정(개발자 모드, adb, WebXR 확인) 상세 |
-| [docs/VR_COLLECTION_QUEST2_KO.md](docs/VR_COLLECTION_QUEST2_KO.md) | 설계와 검증 기록(좌표 변환, 클러치, IK, 영상, X7S 속도 비교) |
+동작 방식:
+1. 헤드셋 브라우저(Meta Quest Browser)가 수집기가 띄운 WebXR 페이지(`http://localhost:8012`)를 엽니다.
+2. 이 페이지가 컨트롤러 자세와 버튼 상태를 XR 프레임마다(약 80\~90 Hz) WebSocket으로 보냅니다.
+3. 수집기는 제어 스텝(15 fps)마다 그립을 누른 팔의 목표 자세를 계산합니다. 그립을 누른 순간을 기준으로 한 **손의 상대 이동량**을 쓰며, 이를 클러치 방식이라고 합니다. 이 목표를 팔별 IK로 관절 목표로 바꿉니다.
+4. 같은 WebSocket으로 로봇 카메라 영상을 헤드셋에 보냅니다.
+
+PC와 헤드셋은 **USB 케이블**과 `adb reverse`로 연결합니다. WebXR은 보안 주소(HTTPS 또는 `localhost`)에서만 동작하는데, `adb reverse`를 쓰면 헤드셋의 `localhost`가 PC로 연결되므로 인증서가 필요 없습니다. 지연이 적고 수집 중 충전도 됩니다. Wi-Fi 연결은 지원하지 않습니다.
 
 ### 1. PC 설정 (최초 1회)
 
@@ -281,11 +283,16 @@ python -m pytest -q scripts/vr        # VR 코드 단위 테스트
 ### 2. Quest 2 설정 (최초 1회)
 
 1. 헤드셋 소프트웨어와 **Meta Quest Browser**를 업데이트합니다.
-2. **개발자 모드**를 켭니다.
-   - developers.meta.com에서 조직(무료)을 만듭니다.
+2. **개발자 모드**를 켭니다. USB로 adb를 쓰려면 필요합니다.
+   - <https://developers.meta.com/horizon/>에 **헤드셋과 같은 Meta 계정**으로 로그인하고, 조직(Organization)을 만듭니다(무료).
+     - 계정 인증으로 휴대전화 번호 확인이나 결제 수단 등록을 요구할 수 있습니다. 요금은 발생하지 않습니다.
    - 휴대폰 Meta Horizon 앱 → 기기 → 헤드셋 설정 → 개발자 모드를 켭니다.
+     - 토글이 보이지 않으면 앱에서 로그아웃했다가 다시 로그인하거나, 몇 분 뒤 다시 확인합니다.
    - 헤드셋을 재부팅합니다.
-3. USB **데이터** 케이블로 PC에 연결합니다. 헤드셋 안 "USB 디버깅 허용" 창에서 **"이 컴퓨터에서 항상 허용"**을 체크합니다. `adb devices`가 `device`로 나오면 됩니다.
+3. USB **데이터** 케이블로 PC에 연결합니다. 충전 전용 케이블은 인식되지 않습니다.
+   - 헤드셋 안 "USB 디버깅 허용" 창에서 **"이 컴퓨터에서 항상 허용"**을 체크하고 허용합니다.
+   - "데이터 접근 허용(파일 전송)" 창은 거부해도 됩니다.
+   - `adb devices -l`이 `... device ... model:Quest_2`로 나오면 됩니다.
 4. 헤드셋 설정을 바꿉니다.
    - **고정형(Stationary) 경계**
    - **"컨트롤러에서 손으로 자동 전환" 끄기**
@@ -299,6 +306,14 @@ python -m pytest -q scripts/vr        # VR 코드 단위 테스트
 ```
 
 두 명령 모두 헤드셋 브라우저에 페이지를 자동으로 엽니다. **Enter VR**을 누르고 확인한 뒤, PC에서 Ctrl+C로 종료합니다.
+- `quest_check.sh --teleop`
+  - 정면을 보고 Y를 1초 누릅니다.
+  - 그립을 쥔 채 손을 앞, 왼쪽, 위로 15cm씩 옮기고 그립을 놓습니다. 매번 터미널에 `CLUTCH off ... -> mostly +forward / +left / +up`이 나오면 방향이 맞습니다.
+  - 트리거를 당기면 `trigger pressed`와 `gripper CLOSED`가 나옵니다.
+- `vr_server.py --test-video`
+  - 패널 글자가 잘 읽히고 흰 막대가 부드럽게 움직이면 됩니다.
+  - 터미널의 `latency`는 100ms 미만이어야 합니다.
+  - 오른쪽 스틱으로 패널 거리와 크기를 미리 맞춰 둡니다. 설정은 헤드셋 브라우저에 저장됩니다.
 
 ### 3. 실행
 
@@ -319,12 +334,17 @@ adb devices                                                   # device 확인
 |---|---|---|
 | `--task` | T1 | T1부터 T10 |
 | `--output` | `~/datasets/Lightwheel-Tasks-RBY1-{task}-VR` | 데이터 폴더. raw episode는 `<output>_raw`에 저장됩니다 |
-| `--joint-speed` | 0.8 | 관절 속도 제한(rad/s). **X7S 원본과 비슷한 속도를 내려면 1.5 권장** |
+| `--joint-speed` | 0.8 | 관절 속도 제한(rad/s). **1.5 권장** (아래 참고) |
 | `--motion-scale` | 1.0 | 손 이동 대비 로봇 손 이동 비율. 정밀 작업은 0.6\~0.8 |
 | `--vr-no-rotation` | 꺼짐 | 그리퍼 방향을 고정하고 위치만 따라감 |
 | `--vr-record FILE` | 없음 | 헤드셋 입력 전체를 JSONL로 저장(분석, `--vr-replay` 재생용) |
 | `--layout fixed` | random | 물체 배치 고정 |
 | `--vr-no-video` | 꺼짐 | 헤드셋 패널 영상 끄기 |
+
+`--joint-speed` 권장값의 근거:
+- 그리퍼 방향을 유지한 채 직선으로 움직일 때, 그리퍼 끝 최고 속도는 T1 작업 영역에서 0.8 rad/s일 때 0.16\~0.24 m/s, 1.5 rad/s일 때 0.34\~0.43 m/s입니다.
+- X7S 원본 T1 데이터(50개)의 그리퍼 끝 속도는 움직이는 구간 기준으로 중앙값 0.12, 상위 10% 0.38, 상위 1% 0.61 m/s입니다.
+- 1.5 rad/s는 시뮬레이터 관절 한계(어깨\~팔꿈치 3.1 rad/s, 손목 6.3 rad/s) 안입니다.
 
 ### 4. 헤드셋 접속
 
@@ -350,6 +370,14 @@ adb devices                                                   # device 확인
 | **오른쪽 스틱** 위아래 / 좌우 | 카메라 패널 거리 / 크기 |
 | 메뉴 / Meta 버튼 | 누르지 않음 (Meta 버튼은 VR에서 나감) |
 | PC 키보드 (Isaac Sim 화면 클릭 후) | ESC 종료, ENTER 저장(성공했을 때만), BACKSPACE 폐기, R 초기화 |
+
+헤드셋 안 카메라 패널(왼손 손목 | 헤드 | 오른손 손목)은 Enter VR 순간 바라보던 방향으로 약 1.1m 앞에 고정됩니다. 머리를 돌려도 따라오지 않습니다. 손목 영상은 기록 데이터와 같이 손가락이 아래로 오는 방향입니다.
+
+패널 대신 헤드셋을 이마에 올리고 모니터를 보며 조작할 수도 있습니다(`--vr-no-video`). 이때는 근접 센서를 꺼야 화면이 꺼지지 않습니다.
+```bash
+adb shell am broadcast -a com.oculus.vrpowermanager.prox_close          # 근접 센서 끄기 (재부팅하면 원래대로)
+adb shell am broadcast -a com.oculus.vrpowermanager.automation_disable  # 되돌리기
+```
 
 ### 6. 기록과 저장
 
@@ -378,11 +406,24 @@ VR 데이터에는 키보드 데이터의 feature에 더해 다음이 저장됩�
 ./replay_dataset.sh --root ~/datasets/RBY1-T1-VR --episode all --headless --video ~/vr_replay_videos/
 ```
 
-### 8. 문제 해결
+### 8. 헤드셋 없이 시험하기
+
+```bash
+# 스크립트 조작자가 헤드셋과 같은 형식의 입력을 WebSocket으로 보내 T1을 수행합니다
+# (성공 → 자동 저장 → 변환까지 확인, 헤드리스)
+./collect_keyboard.sh --task T1 --input vr --smoke-test --vr-port 8013
+
+# --vr-record로 녹화한 실제 손동작을 재생하고, 그리퍼 끝 궤적을 .npz로 저장합니다
+./collect_keyboard.sh --task T1 --input vr --smoke-test --vr-port 8013 \
+    --vr-replay ~/vr_T1_input.jsonl --vr-replay-log ~/vr_T1_replay.npz
+```
+
+### 9. 문제 해결
 
 | 증상 | 조치 |
 |---|---|
-| `adb devices`에 `no permissions` | 1장의 udev 규칙 추가 → `adb kill-server` → 케이블 다시 꽂기 |
+| `adb devices`에 `no permissions` | "1. PC 설정"의 udev 규칙 추가 → `adb kill-server` → 케이블 다시 꽂기 |
+| `adb devices`에 아무것도 없음 | 데이터 케이블인지, 헤드셋이 켜져 있는지, 개발자 모드인지 확인. `lsusb \| grep 2833`으로 USB 인식부터 확인 |
 | `unauthorized` | 헤드셋을 쓰고 "USB 디버깅 허용"에서 "항상 허용" |
 | 헤드셋에 페이지가 안 열림, `old page` 경고 | 헤드셋 브라우저에 `http://localhost:8012/?v=2`처럼 숫자를 바꿔 직접 열기 |
 | `Port 8012 is busy` | 다른 터미널의 `quest_check.sh`, `vr_server.py`, 수집기 종료 |
