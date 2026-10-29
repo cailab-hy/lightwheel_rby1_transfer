@@ -1,0 +1,32 @@
+========== Python ==========
+Python 3.11.16
+
+========== PyTorch ==========
+PyTorch: 2.7.0+cu128
+CUDA: 12.8
+GPU: NVIDIA GeForce RTX 3090
+
+========== Isaac Sim ==========
+isaacsim: 5.1.0.0
+isaacsim-core: 5.1.0.0
+isaacsim-app: 5.1.0.0
+
+========== IsaacLab ==========
+Path: /home/cai/IsaacLab_RS
+VERSION: 2.3.0
+e83a5d2 Update play_one_episode.py
+
+========== LeRobot ==========
+LeRobot: 0.4.3
+Path: /home/cai/lerobot/src/lerobot/__init__.py
+
+========== Repositories ==========
+lightwheel_rby1_transfer: 1178454 (vla-lab-v1)
+rby1-sim-isaac: ba52496 (main)
+
+========== SmolVLA weights (HF cache) ==========
+lerobot/smolvla_base: OK
+HuggingFaceTB/SmolVLM2-500M-Video-Instruct: OK
+
+========== GPU / driver ==========
+NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
