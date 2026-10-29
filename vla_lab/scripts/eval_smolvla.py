@@ -28,6 +28,7 @@ p.add_argument("--seeds-dir", type=Path, default=paths.ROOT / "vla_lab/eval_seed
 p.add_argument("--horizons", type=Path, default=paths.ROOT / "vla_lab/eval_horizons.json")
 p.add_argument("--device", default="cuda")
 p.add_argument("--no-video", action="store_true", help="do not keep one success and one failure video")
+p.add_argument("--n-action-steps", type=int, help="execute this many actions of each 50-step chunk before re-planning (default: checkpoint config)")
 a = p.parse_args()
 
 seeds = json.loads((a.seeds_dir / f"{a.task}.json").read_text())["seeds"][: a.episodes]
@@ -54,6 +55,8 @@ arm_idx, _ = R._idx(env.names)
 t_load = time.monotonic()
 policy = SmolVLAPolicy.from_pretrained(str(a.policy_path))
 policy.to(a.device).eval()
+if a.n_action_steps:
+    policy.config.n_action_steps = a.n_action_steps
 pre, post = make_pre_post_processors(policy.config, pretrained_path=str(a.policy_path),
                                      preprocessor_overrides={"device_processor": {"device": a.device}})
 print(f"POLICY {a.policy_path} loaded in {time.monotonic() - t_load:.1f} s; chunk {policy.config.chunk_size}, "

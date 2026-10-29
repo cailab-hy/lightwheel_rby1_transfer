@@ -48,6 +48,12 @@ from video import Mp4Writer
 video_on = bool(a.video or a.video_all)
 env = sim_env.TaskEnv(app, a.task, joint_speed=a.joint_speed, front_video_size=(1280, 720) if video_on else None)
 rawroot.mkdir(parents=True, exist_ok=True)
+import fcntl
+lock = (rawroot / ".collection.lock").open("w")
+try:
+    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except BlockingIOError:
+    p.error(f"Another collector is using {rawroot}")
 log_path = rawroot / "oracle_attempts.jsonl"
 previous = [json.loads(l) for l in log_path.read_text().splitlines()] if log_path.exists() else []
 if previous and any(r["task"] != a.task for r in previous):
