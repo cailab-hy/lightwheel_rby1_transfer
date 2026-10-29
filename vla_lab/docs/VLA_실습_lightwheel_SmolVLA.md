@@ -41,7 +41,38 @@
     조교 PC 출력:
 
     ```text
-    ⟪ENV_CHECK⟫
+    ========== Python ==========
+Python 3.11.16
+
+========== PyTorch ==========
+PyTorch: 2.7.0+cu128
+CUDA: 12.8
+GPU: NVIDIA GeForce RTX 3090
+
+========== Isaac Sim ==========
+isaacsim: 5.1.0.0
+isaacsim-core: 5.1.0.0
+isaacsim-app: 5.1.0.0
+
+========== IsaacLab ==========
+Path: /home/cai/IsaacLab_RS
+VERSION: 2.3.0
+e83a5d2 Update play_one_episode.py
+
+========== LeRobot ==========
+LeRobot: 0.4.3
+Path: /home/cai/lerobot/src/lerobot/__init__.py
+
+========== Repositories ==========
+lightwheel_rby1_transfer: <commit> (vla-lab-v1)
+rby1-sim-isaac: ba52496 (main)
+
+========== SmolVLA weights (HF cache) ==========
+lerobot/smolvla_base: OK
+HuggingFaceTB/SmolVLM2-500M-Video-Instruct: OK
+
+========== GPU / driver ==========
+NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
     ```
 
     - GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
@@ -59,7 +90,18 @@
 
 # 추가 설치
 
-⟪EXTRA_INSTALL⟫
+**조교 PC: 없음.** 기본 환경(`lerobot-arena`)에 필요한 패키지가 모두 있었고, `lerobot/smolvla_base`와 `HuggingFaceTB/SmolVLM2-500M-Video-Instruct`도 HF 캐시(`~/.cache/huggingface`)에 이미 있었습니다. pip 설치, LeRobot extra 설치, HF 로그인은 하지 않았습니다.
+
+환경 확인에서 `SmolVLA weights: MISSING`이 나오면 모델만 내려받습니다(로그인 불필요, 처음 한 번).
+
+```bash
+conda activate lerobot-arena
+hf download lerobot/smolvla_base
+hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
+```
+
+- 조교가 빈 캐시(`HF_HOME`을 새 폴더로 지정)에서 위 두 명령을 실행해 확인했습니다. huggingface_hub 0.36.2 기준 `smolvla_base`는 약 1분, SmolVLM2는 9분 이상 걸렸고 캐시는 합계 7.6GB였습니다(네트워크에 따라 다름).
+- 학습·평가 스크립트는 `HF_HUB_OFFLINE=1`로 실행되므로, 모델이 캐시에 없으면 다운로드하지 않고 에러를 냅니다.
 
 ---
 
@@ -154,7 +196,11 @@ done
 ## (3) 출력 예시
 
 ```text
-⟪ORACLE_LOG⟫
+[T9] attempt 1 seed 0: SAVED (494 frames, 110.4 s) | saved 1/3
+[T9] attempt 2 seed 1: SAVED (502 frames, 113.0 s) | saved 2/3
+[T9] attempt 3 seed 2: FAILED at hold (750 frames, 171.7 s) | saved 2/3
+[T9] attempt 4 seed 3: SAVED (497 frames, 112.2 s) | saved 3/3
+SUMMARY {"task": "T9", "attempts": 4, "saved": 3, "oracle_success_rate": 0.75, "seeds": [0, 3], "failures_by_stage": {"hold": 1}, "mean_seconds_saved": 33.18, ...}
 ```
 
 - `<output>_raw/oracle_attempts.jsonl`: 시도마다 seed, 저장 여부, 길이, 실패한 하위 동작.
@@ -162,9 +208,47 @@ done
 
 ## (4) 오라클 결과 (조교 PC)
 
-⟪ORACLE_RESULTS⟫
+| Task | 시도 | 저장 | 오라클 성공률 | 실패 원인 | 평균 길이(초) | 수집 시간(분) | 최대 VRAM |
+|---|---|---|---|---|---|---|---|
+| T1 | 50 | 50 | 100.0% | - | 17.23 | 52.7 | 2.91 GB |
+| T2 | 51 | 50 | 98.0% | 확정 후 조건 깨짐 1 | 16.96 | 53.8 | 3.11 GB |
+| T3 | 54 | 50 | 92.6% | 시간 초과(하위 동작 실패) 4 | 23.82 | 71.0 | 3.20 GB |
+| T4 | 50 | 50 | 100.0% | - | 17.07 | 35.0 | 2.94 GB |
+| T5 | 50 | 50 | 100.0% | - | 13.73 | 26.2 | 2.92 GB |
+| T6 | 50 | 50 | 100.0% | - | 14.27 | 28.0 | 3.11 GB |
+| T7 | 62 | 50 | 80.7% | 시간 초과(하위 동작 실패) 8, 확정 후 조건 깨짐 4 | 38.19 | 87.4 | 3.29 GB |
+| T8 | 52 | 50 | 96.2% | 시간 초과(하위 동작 실패) 2 | 18.85 | 41.8 | 2.94 GB |
+| T9 | 64 | 50 | 78.1% ⚠️ | 시간 초과(하위 동작 실패) 14 | 34.92 | 69.6 | 3.22 GB |
+| T10 | 51 | 50 | 98.0% | 시간 초과(하위 동작 실패) 1 | 48.18 | 84.2 | 3.28 GB |
+| 합계 | 534 | 500 | 93.6% | | | 550 | |
 
-⟪ORACLE_VIDEOS⟫
+- 수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 **task 3개를 동시에** 수집하며 잰 값입니다(시범 저장 시 PNG 3장/step을 쓰므로 CPU가 병목). 혼자 돌린 T1 축소판은 시범 하나에 약 56~59초(시뮬레이션 17초)였습니다.
+- 최대 VRAM은 `vram_monitor.py`로 잰 수집 프로세스 하나의 값입니다. 모든 task가 3.4GB 이하입니다.
+- **T9 오라클 성공률은 78.1%로 목표(80%)보다 조금 낮습니다.** 실패 14회 중 11회는 그릇은 서랍에 들어갔지만 서랍이 끝까지(관절 0.00115m 이하) 닫히지 않은 경우, 3회는 그릇이 서랍 밖에 놓인 경우입니다. 손끝으로 손잡이를 미는 접촉이 미끄러지거나, 다 닫은 뒤 손을 뺄 때 서랍이 조금 다시 열립니다. 저장된 시범 50개는 모두 성공 판정을 통과한 것이라 데이터 품질에는 영향이 없고, 수집에 seed를 더 쓸 뿐입니다.
+- 같은 seed는 항상 같은 결과입니다. 새 폴더에 다시 clone해 T1·T9를 수집했을 때 seed별 성공 여부, 길이, 초기 배치, 기록된 관절 값이 모두 처음 수집과 같았습니다(최대 차이 0).
+
+각 task의 첫 번째 저장 시범을 `replay_dataset.sh --mode action --video`로 정면 카메라에서 녹화한 영상입니다.
+
+[▶ T1 오라클 시범](assets/oracle/oracle_T1.mp4)
+
+[▶ T2 오라클 시범](assets/oracle/oracle_T2.mp4)
+
+[▶ T3 오라클 시범](assets/oracle/oracle_T3.mp4)
+
+[▶ T4 오라클 시범](assets/oracle/oracle_T4.mp4)
+
+[▶ T5 오라클 시범](assets/oracle/oracle_T5.mp4)
+
+[▶ T6 오라클 시범](assets/oracle/oracle_T6.mp4)
+
+[▶ T7 오라클 시범](assets/oracle/oracle_T7.mp4)
+
+[▶ T8 오라클 시범](assets/oracle/oracle_T8.mp4)
+
+[▶ T9 오라클 시범](assets/oracle/oracle_T9.mp4)
+
+[▶ T10 오라클 시범](assets/oracle/oracle_T10.mp4)
+
 
 
 ---
@@ -186,10 +270,18 @@ done
 - `--validate`는 LeRobot 로딩, raw 기록과 숫자 완전 일치, 영상 프레임 수, 성공 판정 재계산을 확인합니다. 마지막에 다음과 같이 나오면 됩니다(T1 예시).
 
 ```text
-⟪VALIDATE_T1⟫
+{
+  "episodes": 50,
+  "frames": 12924,
+  "fps": 15,
+  "format": "rby1",
+  "numeric_arrays_exact_to_raw": true,
+  "all_video_frame_counts_match": true,
+  "max_raw_to_video_mse": 8.822860243055555
+}
 ```
 
-- 변환 시간: ⟪EXPORT_TIME⟫
+- 변환 시간: task당 30~87분(시범 50개). 조교 PC에서 2~5개 task를 동시에 변환하며 잰 값이라, 혼자 돌리면 더 빠릅니다. 1분짜리 에피소드 기준 약 1분이라는 README 안내와 비슷합니다.
 - 검증 결과는 `~/datasets/vla_lab/<task>/validation.json`에 저장됩니다.
 
 ## (2) 10개 task를 데이터셋 하나로 합치기
@@ -205,7 +297,18 @@ cd ~/lightwheel_rby1_transfer
 ```
 
 ```text
-⟪MERGE_LOG⟫
+~/datasets/vla_lab/T1/oracle: 50 episodes, task ['T1']
+~/datasets/vla_lab/T2/oracle: 50 episodes, task ['T2']
+~/datasets/vla_lab/T3/oracle: 50 episodes, task ['T3']
+~/datasets/vla_lab/T4/oracle: 50 episodes, task ['T4']
+~/datasets/vla_lab/T5/oracle: 50 episodes, task ['T5']
+~/datasets/vla_lab/T6/oracle: 50 episodes, task ['T6']
+~/datasets/vla_lab/T7/oracle: 50 episodes, task ['T7']
+~/datasets/vla_lab/T8/oracle: 50 episodes, task ['T8']
+~/datasets/vla_lab/T9/oracle: 50 episodes, task ['T9']
+~/datasets/vla_lab/T10/oracle: 50 episodes, task ['T10']
+MERGED ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle: 500 episodes, 182419 frames, 10 tasks
+(소요 약 9분)
 ```
 
 ## (3) 데이터 요약
@@ -219,7 +322,18 @@ cd ~/lightwheel_rby1_transfer
 ```
 
 ```text
-⟪SUMMARY_TABLE⟫
+task   eps  len mean   min   max  sec mean    min    max  switch   idle
+T1      50     258.5   252   268      17.2   16.8   17.9     2.0  26.7%
+T2      50     254.3   249   263      17.0   16.6   17.5     2.0  27.2%
+T3      50     357.4   340   397      23.8   22.7   26.5     2.0   9.3%
+T4      50     256.0   256   256      17.1   17.1   17.1     2.0  24.3%
+T5      50     206.0   206   206      13.7   13.7   13.7     2.0  10.2%
+T6      50     214.0   214   214      14.3   14.3   14.3     2.0  27.2%
+T7      50     572.8   425   609      38.2   28.3   40.6     3.9  13.0%
+T8      50     282.8   272   307      18.9   18.1   20.5     2.0  25.4%
+T9      50     523.8   493   606      34.9   32.9   40.4     3.0   7.0%
+T10     50     722.7   664   781      48.2   44.3   52.1     4.0   8.9%
+total: 500 episodes, 182419 steps (202.7 min)
 ```
 
 - `len` — 시범 길이(step 수). `sec`는 15fps 기준 초(len / 15).
@@ -237,7 +351,10 @@ cd ~/lightwheel_rby1_transfer
 ```
 
 ```text
-⟪REPLAY_LOG⟫
+REPLAY episode 0: task T1, 256 frames at 15 fps, mode action
+VIDEO ~/vla_lab_runs/replay/T1_episode_0_action.mp4 (286 frames, 19.1 s)
+RESULT {"episode": "episode 0", "frames": 256, "recorded_success": true, "replayed_success_original": true, "max_joint_drift_rad": 0.0017, "final_joint_drift_rad": 0.0, ...}
+RESULT {"episode": "episode 1", "frames": 265, "recorded_success": true, "replayed_success_original": true, "max_joint_drift_rad": 0.0009, "final_joint_drift_rad": 0.0, ...}
 ```
 
 `replayed_success_original: true`이면 재현된 것입니다. `--headless`를 빼면 창으로 볼 수 있습니다.
@@ -269,12 +386,31 @@ cd ~/lightwheel_rby1_transfer
 - `--output_dir`이 이미 있으면 LeRobot이 에러를 냅니다. 다른 이름을 쓰십시오.
 - 데이터셋 위치가 다르면 `VLA_DATASET_ROOT=/path/to/RBY1-T1-T10-Oracle`를 앞에 붙입니다.
 
-⟪TRAIN_TIME⟫
+**소요 시간과 VRAM (조교 PC, RTX 3090 24GB)**
+
+| 항목 | 값 |
+|---|---|
+| step당 시간 | `updt_s` 0.455초 + `data_s` 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,301초) |
+| 25,000 step | 약 3시간 25분 (다른 작업과 함께 돌린 이번 실행은 3시간 46분) |
+| 최대 VRAM | 프로세스 **6.62GB** (`nvidia-smi`), PyTorch 예약 6.15GB |
+| 체크포인트 | 하나당 1.3GB (optimizer 상태 포함), 6개 저장 |
+
+- 8GB GPU에서는 직접 재지 못했습니다. RTX 3090 대비 연산 성능(FP32 35.6 TFLOPS)과 메모리 대역폭(936GB/s)으로 비교하면 RTX 4060(15.1 TFLOPS, 272GB/s)은 약 2.4~3.4배, RTX 3070(20.3 TFLOPS, 448GB/s)은 약 1.8~2.1배 느릴 것으로 **추정**합니다. 25,000 step 기준 약 6~11.6시간입니다(12시간 목표 안이지만 RTX 4060급에서는 여유가 적습니다).
+- 시간이 부족하면 `--steps`와 `--policy.scheduler_decay_steps`를 같이 줄이십시오.
 
 ## (2) 학습 결과 폴더
 
 ```text
-⟪RUN_TREE⟫
+~/vla_lab_runs/smolvla_t1_t10/
+└── checkpoints/
+    ├── 005000/
+    │   ├── pretrained_model/      # config.json, model.safetensors, 전처리·후처리(정규화) 설정
+    │   └── training_state/        # optimizer, scheduler, RNG 상태 (이어서 학습할 때 사용)
+    ├── 010000/
+    ├── 015000/
+    ├── 020000/
+    ├── 025000/
+    └── last -> 025000
 ```
 
 - `checkpoints/last`는 마지막 체크포인트를 가리키는 링크입니다. **평가는 `checkpoints/last/pretrained_model`로 합니다.**
@@ -285,7 +421,18 @@ cd ~/lightwheel_rby1_transfer
 로그는 터미널에 100 step마다 나옵니다. 파일로 남기려면 명령 뒤에 `2>&1 | tee ~/vla_lab_runs/train.log`를 붙입니다.
 
 ```text
-⟪TRAIN_LOG⟫
+INFO ... cfg.steps=25000 (25K)
+INFO ... dataset.num_frames=182419 (182K)
+INFO ... dataset.num_episodes=500
+INFO ... num_learnable_params=99880992 (100M)
+INFO ... num_total_params=450046176 (450M)
+INFO ... step:2K smpl:40K ep:110 epch:0.22 loss:0.056 grdn:0.685 lr:9.8e-05 updt_s:0.467 data_s:0.018
+INFO ... step:10K smpl:160K ep:439 epch:0.88 loss:0.019 grdn:0.345 lr:6.7e-05 updt_s:0.456 data_s:0.017
+INFO ... step:20K smpl:320K ep:877 epch:1.75 loss:0.010 grdn:0.229 lr:1.2e-05 updt_s:0.454 data_s:0.017
+INFO ... step:25K smpl:400K ep:1K epch:2.19 loss:0.008 grdn:0.194 lr:2.5e-06 updt_s:0.456 data_s:0.017
+INFO ... Checkpoint policy after step 25000
+INFO ... End of training
+PEAK torch reserved 6.15 GB, allocated 5.98 GB
 ```
 
 | 항목 | 의미 |
@@ -300,7 +447,36 @@ W&B를 쓰려면 `--wandb.enable=true --wandb.project=<프로젝트>`를 붙입�
 
 ## (4) 하이퍼파라미터
 
-⟪HPARAM_TABLE⟫
+기본값은 설치된 LeRobot 0.4.3의 코드(`policies/smolvla/configuration_smolvla.py`, `configs/train.py`)와 `lerobot/smolvla_base`의 `config.json`에서 확인한 값입니다.
+
+| 구분 | 파라미터 | 값 | 의미 | 기본값과 다르면 바꾼 이유 |
+|---|---|---|---|---|
+| 데이터 | `dataset.root` | `~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle` | 10개 task 합친 데이터셋 (500 에피소드, 182,419 step) | |
+| 데이터 | `rename_map` | front→camera1, left→camera2, right→camera3 | 우리 카메라 이름을 smolvla_base의 입력 이름에 맞춤 | smolvla_base는 `camera1~3`으로 사전학습됨 |
+| 데이터 | `dataset.image_transforms` | 끔 | 이미지 증강 | 기본값 그대로 |
+| 정책 | `policy.path` | `lerobot/smolvla_base` | 사전학습 가중치에서 시작 | |
+| 정책 | `chunk_size` / `n_action_steps` | 50 / 50 | 한 번에 예측하는 step 수 / 그중 실행하는 step 수 | 기본값 그대로 |
+| 정책 | `resize_imgs_with_padding` | 512×512 | 비율을 유지한 채 패딩해 512로 맞춤 | 기본값 그대로 |
+| 정책 | `freeze_vision_encoder` | true | 이미지 인코더 동결 | 기본값 그대로 |
+| 정책 | `train_expert_only` | true | VLM 동결, action expert만 학습 (학습 파라미터 1억 / 전체 4.5억) | 기본값 그대로. VLM까지 학습하면 8GB를 넘음 |
+| 정책 | `train_state_proj` | true | 상태 입력층 학습 | 기본값 그대로 |
+| 정책 | `num_vlm_layers` | 16 | SmolVLM2의 앞 16층만 사용 | 기본값 그대로 |
+| 정책 | `max_state_dim` / `max_action_dim` | 32 / 32 | 16차원 상태·action을 32로 0 패딩 | 기본값 그대로 |
+| 정책 | `num_steps` | 10 | 추론 시 flow matching 적분 step 수 | 기본값 그대로 |
+| 정책 | `tokenizer_max_length` | 48 | 지시문 토큰 최대 길이 (가장 긴 T2·T10 지시문이 18 토큰) | 기본값 그대로 |
+| 정규화 | `STATE` / `ACTION` | MEAN_STD | 데이터셋 평균·표준편차로 정규화 | 기본값 그대로 |
+| 최적화 | `optimizer_lr` | 1e-4 | AdamW 학습률 | 기본값 그대로 |
+| 최적화 | `optimizer_betas` / `weight_decay` | (0.9, 0.95) / 1e-10 | AdamW | 기본값 그대로 |
+| 최적화 | `optimizer_grad_clip_norm` | 10 | gradient clipping | 기본값 그대로 |
+| 스케줄 | `scheduler_warmup_steps` | 1000 | 선형 warmup | 기본값 그대로 |
+| 스케줄 | `scheduler_decay_steps` | **25000** | cosine 감소 길이 (→ 2.5e-6) | 기본 30000. 학습 step 수에 맞춤 |
+| 학습 | `batch_size` | **16** | 배치 크기 | 기본 8. VRAM 실측: batch 16 → 프로세스 6.6GB, batch 32 → 7.0GB 상한 초과(OOM) |
+| 학습 | `steps` | **25000** | 학습 step 수 (≈ 2.2 epoch) | 기본 100000. 8GB급 GPU에서 12시간 이내가 되도록 (아래 학습 시간 참고) |
+| 학습 | `save_freq` | **5000** | 체크포인트 간격 | 기본 20000. 5개 체크포인트 비교 가능 |
+| 학습 | `num_workers` | 4 | 데이터 로딩 프로세스 | 기본값 그대로 (6코어 CPU) |
+| 학습 | `seed` | 1000 | 학습 seed (초기화, 셔플) | 기본값 그대로 |
+| 학습 | 혼합정밀도 | 끔 (fp32) | | 기본값 그대로. bf16(`ACCELERATE_MIXED_PRECISION=bf16`)도 시험했으나 메모리 0.35GB 감소, 속도 차이 없음 |
+| 학습 | VRAM 상한 | **7.0GB** | `torch.cuda.set_per_process_memory_fraction` | 이 실습에서 추가. CUDA 컨텍스트 포함 프로세스 7.5GB 이하가 되도록 |
 
 ## (5) CLI에서 바로 바꿀 수 있는 주요 인자
 
@@ -433,7 +609,19 @@ python vla_lab/scripts/vram_monitor.py --out ~/vla_lab_runs/vram_train.csv -- \
 
 # 7️⃣ 문제 해결 FAQ
 
-⟪SECTION_FAQ⟫
+조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다.
+
+| 증상 | 원인과 해결 |
+|---|---|
+| `ModuleNotFoundError: No module named 'lerobot'` | `lerobot-arena`에 LeRobot이 `~/lerobot`(editable)로 설치돼 있는데 그 폴더가 지워진 경우. `cd ~ && git clone --branch v0.4.3 https://github.com/huggingface/lerobot.git` 로 같은 위치에 되돌리면 재설치 없이 import됩니다. |
+| `FileNotFoundError: Missing external asset directory: .../rby1-sim-isaac` | 로봇 USD 레포가 없음. `cd ~ && git clone https://github.com/cailab-hy/rby1-sim-isaac` 또는 이미 있는 위치를 `export RBY1_SIM_ROOT=/path/to/rby1-sim-isaac`로 지정. |
+| 레포를 `~/lightwheel_rby1_transfer`가 아닌 곳에 clone함 | `IsaacLab_RS`, `rby1-sim-isaac`를 레포의 상위 폴더에서 찾습니다. `export RBY1_ISAACLAB_ROOT=~/IsaacLab_RS`, `export RBY1_SIM_ROOT=~/rby1-sim-isaac`를 설정하십시오(조교가 7단계 재현에서 이 방법으로 확인). |
+| 환경 확인에서 `SmolVLA weights: MISSING`, 학습 시작 시 Hub 관련 에러 | 위 **추가 설치**의 `hf download` 두 줄을 실행. 학습 스크립트는 오프라인 모드라 자동으로 받지 않습니다. |
+| 학습 중 `torch.OutOfMemoryError: CUDA out of memory ... 7.00 GiB allowed` | 래퍼가 건 7.0GB 상한을 넘은 것. `--batch_size`를 줄이십시오. 조교 PC에서 batch 32는 bf16 혼합정밀도로도 이 에러가 났고, batch 16은 PyTorch 6.1GB(프로세스 6.6GB)였습니다. |
+| 데이터셋 합치기 끝에 `terminate called without an active exception` | 영상 처리 스레드가 종료 순서 때문에 내는 메시지입니다. 바로 앞에 `MERGED ... 500 episodes`가 나왔으면 정상이며, 데이터셋은 그대로 로딩됩니다. |
+| Isaac Sim 로그에 `[Warning]`, `[Error] ... torch_dtype is deprecated` 등이 많이 나옴 | 정상입니다. 수집기는 `[T1] attempt ...`, 평가는 `[T1] episode ...` 줄만 보면 됩니다. |
+| T3 시범을 `replay_dataset.sh --mode action`으로 재생했는데 `replayed_success_original: false` | 관절은 기록과 같게 움직이지만(최대 0.002 rad 차이), 케첩을 바구니 안에 떨어뜨리는 순간의 접촉이 민감해서 넘어지는 방향이 달라질 수 있습니다. 조교 PC에서 10개 task 중 T3 하나만 재생 성공이 재현되지 않았습니다. 같은 seed로 **다시 수집**하면 결과가 완전히 같습니다. |
+| `FileExistsError: Output directory ... already exists` (학습) | LeRobot은 기존 결과 폴더를 덮어쓰지 않습니다. `--output_dir`을 새 이름으로 바꾸거나, 이어서 학습하려면 `--resume=true --config_path=...`를 쓰십시오. |
 
 ---
 

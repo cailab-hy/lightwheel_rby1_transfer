@@ -43,17 +43,19 @@ def gripper_far(tr, key, th=0.25):
 def pick_place(tr, obj, goal_fn, goal_xy):
     """goal_fn(row) -> goal xy; goal_xy: success radius."""
     p = np.array([r[obj] for r in tr])
-    if min_tcp_dist(tr, lambda r: np.array(r[obj])) > APPROACH_M:
-        return "approach", f"{obj}: TCP min distance > {APPROACH_M} m"
     lift = p[:, 2].max() - p[0, 2]
     shift = np.linalg.norm(p[:, :2] - p[0, :2], axis=1).max()
-    if lift < 0.03 and shift < 0.03:
-        return "grasp", f"{obj}: never lifted (max lift {lift:.3f} m)"
+    if min_tcp_dist(tr, lambda r: np.array(r[obj])) > APPROACH_M and lift < 0.02 and shift < 0.02:
+        return "approach", f"{obj}: never reached (TCP > {APPROACH_M} m, object untouched)"
+    if lift < 0.03:
+        return "grasp", f"{obj}: never lifted (max lift {lift:.3f} m" + (f", pushed {shift:.2f} m)" if shift >= 0.03 else ")")
     d = float(np.linalg.norm(p[-1, :2] - goal_fn(tr[-1])))
     if p[-1, 2] < TABLE_Z - 0.05 or d > 1.5 * goal_xy:
-        return "transport", f"{obj}: ends {d:.3f} m from the goal" + (" (fell off)" if p[-1, 2] < TABLE_Z - 0.05 else "")
-    if d > goal_xy or not gripper_far(tr, obj):
-        return ("place", f"{obj}: {d:.3f} m from the goal (needs < {goal_xy})") if d > goal_xy else ("timeout", f"{obj} placed; gripper not withdrawn")
+        return "transport", f"{obj}: lifted but ends {d:.3f} m from the goal" + (" (fell off the table)" if p[-1, 2] < TABLE_Z - 0.05 else "")
+    if d > goal_xy:
+        return "place", f"{obj}: {d:.3f} m from the goal (needs < {goal_xy})"
+    if not gripper_far(tr, obj):
+        return "timeout", f"{obj} placed; gripper not withdrawn"
     return "timeout", f"{obj} placed at the end; success did not latch in time"
 
 
@@ -100,8 +102,7 @@ def classify(task, tr, marks):
         b = np.array([r["bowl"] for r in tr])
         in_drawer = b[-1, 2] < 0.80 and abs(b[-1, 1]) < 0.15 and b[-1, 0] > 0.40
         if not in_drawer:
-            c = pick_place(tr, "bowl", lambda r: np.array([0.50, 0.0]), 0.12)
-            return c[0], "bowl: " + c[1]
+            return pick_place(tr, "bowl", lambda r: np.array([0.50, 0.0]), 0.12)
         c = articulated(tr, marks, "handle", "StorageFurniture136_Drawer003_joint", 0.005 * 0.2296, closing=True)
         return c[0], "drawer close: " + c[1]
     return "unknown", ""
