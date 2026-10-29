@@ -11,12 +11,12 @@ exec "$RBY_PROJECT_DIR/run_python.sh" "$RBY_PROJECT_DIR/vla_lab/scripts/train_sm
     --policy.path=lerobot/smolvla_base \
     --policy.device=cuda \
     --policy.push_to_hub=false \
-    --policy.scheduler_decay_steps=20000 \
+    --policy.scheduler_decay_steps=25000 \
     --dataset.repo_id=local/RBY1-T1-T10-Oracle \
     --dataset.root="$DATASET_ROOT" \
     --rename_map='{"observation.images.front": "observation.images.camera1", "observation.images.left": "observation.images.camera2", "observation.images.right": "observation.images.camera3"}' \
     --batch_size=16 \
-    --steps=20000 \
+    --steps=25000 \
     --save_freq=5000 \
     --log_freq=100 \
     --num_workers=4 \

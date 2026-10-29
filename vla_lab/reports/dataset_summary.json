@@ -1,0 +1,122 @@
+[
+  {
+    "task": "T1",
+    "episodes": 50,
+    "steps_mean": 258.5,
+    "steps_min": 252,
+    "steps_max": 268,
+    "sec_mean": 17.2,
+    "sec_min": 16.8,
+    "sec_max": 17.9,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.267
+  },
+  {
+    "task": "T2",
+    "episodes": 50,
+    "steps_mean": 254.3,
+    "steps_min": 249,
+    "steps_max": 263,
+    "sec_mean": 17.0,
+    "sec_min": 16.6,
+    "sec_max": 17.5,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.272
+  },
+  {
+    "task": "T3",
+    "episodes": 50,
+    "steps_mean": 357.4,
+    "steps_min": 340,
+    "steps_max": 397,
+    "sec_mean": 23.8,
+    "sec_min": 22.7,
+    "sec_max": 26.5,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.093
+  },
+  {
+    "task": "T4",
+    "episodes": 50,
+    "steps_mean": 256.0,
+    "steps_min": 256,
+    "steps_max": 256,
+    "sec_mean": 17.1,
+    "sec_min": 17.1,
+    "sec_max": 17.1,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.243
+  },
+  {
+    "task": "T5",
+    "episodes": 50,
+    "steps_mean": 206.0,
+    "steps_min": 206,
+    "steps_max": 206,
+    "sec_mean": 13.7,
+    "sec_min": 13.7,
+    "sec_max": 13.7,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.102
+  },
+  {
+    "task": "T6",
+    "episodes": 50,
+    "steps_mean": 214.0,
+    "steps_min": 214,
+    "steps_max": 214,
+    "sec_mean": 14.3,
+    "sec_min": 14.3,
+    "sec_max": 14.3,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.272
+  },
+  {
+    "task": "T7",
+    "episodes": 50,
+    "steps_mean": 572.8,
+    "steps_min": 425,
+    "steps_max": 609,
+    "sec_mean": 38.2,
+    "sec_min": 28.3,
+    "sec_max": 40.6,
+    "gripper_switches_mean": 3.9,
+    "idle_ratio_mean": 0.13
+  },
+  {
+    "task": "T8",
+    "episodes": 50,
+    "steps_mean": 282.8,
+    "steps_min": 272,
+    "steps_max": 307,
+    "sec_mean": 18.9,
+    "sec_min": 18.1,
+    "sec_max": 20.5,
+    "gripper_switches_mean": 2.0,
+    "idle_ratio_mean": 0.254
+  },
+  {
+    "task": "T9",
+    "episodes": 50,
+    "steps_mean": 523.8,
+    "steps_min": 493,
+    "steps_max": 606,
+    "sec_mean": 34.9,
+    "sec_min": 32.9,
+    "sec_max": 40.4,
+    "gripper_switches_mean": 3.0,
+    "idle_ratio_mean": 0.07
+  },
+  {
+    "task": "T10",
+    "episodes": 50,
+    "steps_mean": 722.7,
+    "steps_min": 664,
+    "steps_max": 781,
+    "sec_mean": 48.2,
+    "sec_min": 44.3,
+    "sec_max": 52.1,
+    "gripper_switches_mean": 4.0,
+    "idle_ratio_mean": 0.089
+  }
+]
