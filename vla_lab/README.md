@@ -14,5 +14,6 @@
 | `scripts/vram_monitor.py`, `check_env.sh` | VRAM 측정, 버전 확인 |
 | `reports/` | 환경, 데이터 요약, 평가 결과, 실패 분석, 평가 결정성 |
 | `PLAN.md` | 작업 계획과 결과 요약 |
+| `lecture_kit/` | 강의자료 제작용 브리핑(`LECTURE_BRIEF.md`/`.html`)과 차트·장면 모음·GIF (`make_assets.py`로 재생성) |
 
 조교 baseline: 시범 500개(오라클 성공률 93.6%) → SmolVLA 25,000 step → 253/500 성공, 10개 task 평균 50.6%.
