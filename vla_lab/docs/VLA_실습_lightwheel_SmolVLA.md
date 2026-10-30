@@ -29,19 +29,19 @@
 
 # 0️⃣ 환경 확인
 
-1. **Course version이 고정되었는가?**
+**1. Course version이 고정되었는가?**
 
-    ```bash
-    conda activate lerobot-arena
-    cd ~/lightwheel_rby1_transfer
-    git checkout vla-lab-v1
-    ./vla_lab/check_env.sh
-    ```
+```bash
+conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+git checkout vla-lab-v1
+./vla_lab/check_env.sh
+```
 
-    조교 PC 출력:
+조교 PC 출력:
 
-    ```text
-    ========== Python ==========
+```text
+========== Python ==========
 Python 3.11.16
 
 ========== PyTorch ==========
@@ -73,20 +73,21 @@ HuggingFaceTB/SmolVLM2-500M-Video-Instruct: OK
 
 ========== GPU / driver ==========
 NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
-    ```
+```
 
-    - GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
-    - `SmolVLA weights`가 `MISSING`이면 아래 **추가 설치**를 먼저 하십시오.
+- GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
+- `<commit>` 자리에는 `vla-lab-v1` 브랜치의 commit 해시(7자리)가 나옵니다.
+- `SmolVLA weights`가 `MISSING`이면 아래 **추가 설치**를 먼저 하십시오.
 
-2. **경로 설정 확인**
+**2. 경로 설정 확인**
 
-    ```bash
-    conda activate lerobot-arena
-    cd ~/lightwheel_rby1_transfer
-    ./run_python.sh scripts/project_paths.py
-    ```
+```bash
+conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./run_python.sh scripts/project_paths.py
+```
 
-    `RBY_USD`, `LIGHTWHEEL_CACHE`가 실제 있는 경로로 나오면 됩니다. 레포 위치가 다르면 README의 `RBY1_*` 환경변수를 설정합니다.
+`RBY_USD`, `LIGHTWHEEL_CACHE`가 실제 있는 경로로 나오면 됩니다. 레포 위치가 다르면 README의 `RBY1_*` 환경변수를 설정합니다.
 
 # 추가 설치
 
@@ -222,8 +223,8 @@ SUMMARY {"task": "T9", "attempts": 4, "saved": 3, "oracle_success_rate": 0.75, "
 | T10 | 51 | 50 | 98.0% | 시간 초과(하위 동작 실패) 1 | 48.18 | 84.2 | 3.28 GB |
 | 합계 | 534 | 500 | 93.6% | | | 550 | |
 
-- 수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 **task 3개를 동시에** 수집하며 잰 값입니다(시범 저장 시 PNG 3장/step을 쓰므로 CPU가 병목). 혼자 돌린 T1 축소판은 시범 하나에 약 56~59초(시뮬레이션 17초)였습니다.
-- 최대 VRAM은 `vram_monitor.py`로 잰 수집 프로세스 하나의 값입니다. 모든 task가 3.4GB 이하입니다.
+- 수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 **task 3개를 동시에** 수집하며 잰 값입니다(시범 저장 시 PNG 3장/step을 쓰므로 CPU가 병목). 학습과 함께 돌린 T1 축소판은 시범 하나에 약 56~59초(시뮬레이션 17초)였습니다.
+- 최대 VRAM은 `vram_monitor.py`로 잰 수집 프로세스 하나의 값입니다(MiB ÷ 1024). 모든 task가 3.3GB 이하입니다.
 - **T9 오라클 성공률은 78.1%로 목표(80%)보다 조금 낮습니다.** 실패 14회 중 11회는 그릇은 서랍에 들어갔지만 서랍이 끝까지(관절 0.00115m 이하) 닫히지 않은 경우, 3회는 그릇이 서랍 밖에 놓인 경우입니다. 손끝으로 손잡이를 미는 접촉이 미끄러지거나, 다 닫은 뒤 손을 뺄 때 서랍이 조금 다시 열립니다. 저장된 시범 50개는 모두 성공 판정을 통과한 것이라 데이터 품질에는 영향이 없고, 수집에 seed를 더 쓸 뿐입니다.
 - 같은 seed는 항상 같은 결과입니다. 새 폴더에 다시 clone해 T1·T9를 수집했을 때 seed별 성공 여부, 길이, 초기 배치, 기록된 관절 값이 모두 처음 수집과 같았습니다(최대 차이 0).
 
@@ -281,7 +282,7 @@ done
 }
 ```
 
-- 변환 시간: task당 30~87분(시범 50개). 조교 PC에서 2~5개 task를 동시에 변환하며 잰 값이라, 혼자 돌리면 더 빠릅니다. 1분짜리 에피소드 기준 약 1분이라는 README 안내와 비슷합니다.
+- 변환 시간: task당 30~87분(시범 50개, 합계 약 8.5시간). 조교 PC에서 2~5개 task를 동시에 변환하며 잰 값입니다. 긴 시범이 많은 T7·T9·T10이 오래 걸립니다.
 - 검증 결과는 `~/datasets/vla_lab/<task>/validation.json`에 저장됩니다.
 
 ## (2) 10개 task를 데이터셋 하나로 합치기
@@ -391,8 +392,8 @@ cd ~/lightwheel_rby1_transfer
 | 항목 | 값 |
 |---|---|
 | step당 시간 | `updt_s` 0.455초 + `data_s` 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,301초) |
-| 25,000 step | 약 3시간 25분 (다른 작업과 함께 돌린 이번 실행은 3시간 46분) |
-| 최대 VRAM | 프로세스 **6.62GB** (`nvidia-smi`), PyTorch 예약 6.15GB |
+| 25,000 step | 약 3시간 23분 (0.488초 × 25,000. 다른 작업과 함께 돌린 이번 실행은 3시간 46분) |
+| 최대 VRAM | 프로세스 **6.47GB** (`nvidia-smi` 6,624MiB), PyTorch 예약 6.15GB |
 | 체크포인트 | 하나당 1.3GB (optimizer 상태 포함), 6개 저장 |
 
 - 8GB GPU에서는 직접 재지 못했습니다. RTX 3090 대비 연산 성능(FP32 35.6 TFLOPS)과 메모리 대역폭(936GB/s)으로 비교하면 RTX 4060(15.1 TFLOPS, 272GB/s)은 약 2.4~3.4배, RTX 3070(20.3 TFLOPS, 448GB/s)은 약 1.8~2.1배 느릴 것으로 **추정**합니다. 25,000 step 기준 약 6~11.6시간입니다(12시간 목표 안이지만 RTX 4060급에서는 여유가 적습니다).
@@ -470,8 +471,8 @@ W&B를 쓰려면 `--wandb.enable=true --wandb.project=<프로젝트>`를 붙입�
 | 최적화 | `optimizer_grad_clip_norm` | 10 | gradient clipping | 기본값 그대로 |
 | 스케줄 | `scheduler_warmup_steps` | 1000 | 선형 warmup | 기본값 그대로 |
 | 스케줄 | `scheduler_decay_steps` | **25000** | cosine 감소 길이 (→ 2.5e-6) | 기본 30000. 학습 step 수에 맞춤 |
-| 학습 | `batch_size` | **16** | 배치 크기 | 기본 8. VRAM 실측: batch 16 → 프로세스 6.6GB, batch 32 → 7.0GB 상한 초과(OOM) |
-| 학습 | `steps` | **25000** | 학습 step 수 (≈ 2.2 epoch) | 기본 100000. 8GB급 GPU에서 12시간 이내가 되도록 (아래 학습 시간 참고) |
+| 학습 | `batch_size` | **16** | 배치 크기 | 기본 8. VRAM 실측: batch 16 → 프로세스 6.4GB, batch 32 → 상한 초과(OOM) |
+| 학습 | `steps` | **25000** | 학습 step 수 (≈ 2.2 epoch) | 기본 100000. 8GB급 GPU에서 12시간 이내가 되도록 (위 소요 시간 참고) |
 | 학습 | `save_freq` | **5000** | 체크포인트 간격 | 기본 20000. 5개 체크포인트 비교 가능 |
 | 학습 | `num_workers` | 4 | 데이터 로딩 프로세스 | 기본값 그대로 (6코어 CPU) |
 | 학습 | `seed` | 1000 | 학습 seed (초기화, 셔플) | 기본값 그대로 |
@@ -542,26 +543,85 @@ cd ~/lightwheel_rby1_transfer
 | `--no-video` | 꺼짐 | 성공·실패 영상을 남기지 않음 (조금 빨라짐) |
 | `--n-action-steps` | 체크포인트 설정(50) | chunk 50개 중 몇 step을 실행하고 다시 추론할지 |
 
-⟪EVAL_TIME⟫
+**소요 시간과 VRAM (조교 PC, RTX 3090)**
+
+| 항목 | 값 |
+|---|---|
+| 속도 | 평가 프로세스 1~3개가 함께 돌 때 프로세스당 약 7~10 step/s (실시간 15 step/s보다 느림) |
+| 전체 평가 (500회, 311,580 step) | 순서대로 돌리면 **약 9~13시간**(위 속도로 추정). 조교는 4~5개를 동시에 돌려 약 9시간 40분 |
+| task 하나 | 성공이 많은 T5·T6은 약 25분, 실패가 많고 긴 T10은 수 시간 |
+| 최대 VRAM | 프로세스 하나(시뮬레이터 + 정책) **5.3GB** 이하 (5,439MiB) |
+
+- 실패한 에피소드는 최대 step까지 돌기 때문에 성공률이 낮을수록 오래 걸립니다.
+- 빨리 확인할 때는 `--episodes 5`, `--tasks "T1 T6"`처럼 줄이십시오.
+- GPU 메모리가 넉넉하면 다른 터미널에서 `--tasks`를 나눠 동시에 돌려도 됩니다(같은 `--output` 사용 가능, 마지막에 `./run_python.sh vla_lab/scripts/eval_summary.py --output <EVAL_DIR>`로 표를 다시 만듦). 8GB GPU에서는 하나씩 돌리십시오.
 
 ## (2) 출력 예시
 
 ```text
-⟪EVAL_LOG⟫
+POLICY ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model loaded in 6.6 s; chunk 50, n_action_steps 50; horizon 412 steps
+[T5] episode 1/50 seed 100000: SUCCESS (213 steps, 45 s) | 1/1
+[T5] episode 2/50 seed 100001: fail (412 steps, 49 s) | 1/2
+[T5] episode 3/50 seed 100002: SUCCESS (203 steps, 22 s) | 2/3
+...
+TASK_SUMMARY {"task": "T5", "instruction": "Open the microwave.", ..., "episodes": 50, "successes": 38, "horizon_steps": 412, ...}
+task    success    rate            95% CI
+T5      38/50     76.0% [ 61.8,  86.9]
 ```
 
 ## (3) 결과 (조교 baseline)
 
-⟪EVAL_TABLE⟫
+**조교 baseline** — `checkpoints/last`(25,000 step), task당 50회, seed 100000~100049.
+
+| Task | 지시문 | 성공 | 성공률 | 95% 신뢰구간 | 최대 step |
+|---|---|---|---|---|---|
+| T1 | `put the black bowl on the plate.` | 45/50 | **90%** | 78.2 ~ 96.7% | 536 |
+| T2 | `Pick the akita black bowl on the cookies box and place it on the plate.` | 31/50 | **62%** | 47.2 ~ 75.3% | 526 |
+| T3 | `Pick up the ketchup, and put it in the basket.` | 4/50 | **8%** | 2.2 ~ 19.2% | 794 |
+| T4 | `Open the top drawer of the cabinet.` | 18/50 | **36%** | 22.9 ~ 50.8% | 512 |
+| T5 | `Open the microwave.` | 38/50 | **76%** | 61.8 ~ 86.9% | 412 |
+| T6 | `Turn on the stove.` | 50/50 | **100%** | 92.9 ~ 100.0% | 428 |
+| T7 | `Open the top layer of the drawer and put the bowl inside.` | 9/50 | **18%** | 8.6 ~ 31.4% | 1218 |
+| T8 | `Stack the black bowl in the middle on the black bowl at the back.` | 35/50 | **70%** | 55.4 ~ 82.1% | 614 |
+| T9 | `Put the black bowl in the bottom drawer of the cabinet and close it.` | 17/50 | **34%** | 21.2 ~ 48.8% | 1212 |
+| T10 | `Pick up the alphabet soup and the tomato sauce, and put them in the basket.` | 6/50 | **12%** | 4.5 ~ 24.3% | 1562 |
+| **평균** | 10개 task 단순 평균 | 253/500 | **50.6%** | | |
+
+- 짧고 접촉이 한 번인 task(T6 스토브, T1 그릇, T5 전자레인지, T8 쌓기)는 잘 되고, 물체를 정확히 집어야 하는 T3(케첩), T10(캔 두 개), T7(서랍+그릇)이 어렵습니다.
+- 실패의 57%(140/247)는 **파지 실패**(물체를 밀거나 넘어뜨리고 들지 못함)입니다. 단계별 분석은 `vla_lab/reports/failure_analysis.md`에 있습니다.
+- 신뢰구간이 넓습니다(50회 기준 ±10~15%p). 두 설정을 비교할 때는 구간이 겹치는지 보십시오.
+- **같은 명령을 다시 돌리면 결과가 조금 다를 수 있습니다.** 정책 추론은 같은 입력·seed에서 완전히 같지만, 시뮬레이터의 RTX 렌더링이 같은 장면에서도 픽셀을 조금씩 다르게 그립니다(평균 2~3/255). 이 차이 때문에 같은 seed라도 에피소드 결과가 바뀔 수 있습니다. 조교가 T1·T5를 두 번 평가했을 때 성공 수는 45→46, 38→39로 거의 같았지만, seed별 결과는 T1 5개, T5 11개가 서로 달랐습니다(`vla_lab/reports/eval_determinism.md`). 오라클 수집과 물리는 결정적이라 같은 seed면 시범이 완전히 같습니다.
 
 ## (4) 성공·실패 영상
 
-⟪EVAL_VIDEOS⟫
+task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장합니다(T6은 실패가 없음).
+
+- T1: [▶ 성공 (seed 100000)](assets/eval/T1_success_seed100000.mp4) · [▶ 실패 (seed 100002)](assets/eval/T1_failure_seed100002.mp4)
+- T2: [▶ 성공 (seed 100000)](assets/eval/T2_success_seed100000.mp4) · [▶ 실패 (seed 100001)](assets/eval/T2_failure_seed100001.mp4)
+- T3: [▶ 성공 (seed 100027)](assets/eval/T3_success_seed100027.mp4) · [▶ 실패 (seed 100000)](assets/eval/T3_failure_seed100000.mp4)
+- T4: [▶ 성공 (seed 100008)](assets/eval/T4_success_seed100008.mp4) · [▶ 실패 (seed 100000)](assets/eval/T4_failure_seed100000.mp4)
+- T5: [▶ 성공 (seed 100000)](assets/eval/T5_success_seed100000.mp4) · [▶ 실패 (seed 100001)](assets/eval/T5_failure_seed100001.mp4)
+- T6: [▶ 성공 (seed 100000)](assets/eval/T6_success_seed100000.mp4)
+- T7: [▶ 성공 (seed 100006)](assets/eval/T7_success_seed100006.mp4) · [▶ 실패 (seed 100000)](assets/eval/T7_failure_seed100000.mp4)
+- T8: [▶ 성공 (seed 100001)](assets/eval/T8_success_seed100001.mp4) · [▶ 실패 (seed 100000)](assets/eval/T8_failure_seed100000.mp4)
+- T9: [▶ 성공 (seed 100004)](assets/eval/T9_success_seed100004.mp4) · [▶ 실패 (seed 100000)](assets/eval/T9_failure_seed100000.mp4)
+- T10: [▶ 성공 (seed 100003)](assets/eval/T10_success_seed100003.mp4) · [▶ 실패 (seed 100000)](assets/eval/T10_failure_seed100000.mp4)
 
 ## (5) 결과 파일 위치
 
 ```text
-⟪EVAL_TREE⟫
+~/vla_lab_runs/eval_smolvla_t1_t10/
+├── results.json                     # 10개 task 표 + 평균
+├── failure_analysis.json            # failure_analysis.py 실행 시 생성
+├── T1/
+│   ├── summary.json                 # 성공 수, 최대 step, 걸린 시간, 영상 이름
+│   ├── episodes.json                # 에피소드별 seed, success, steps, 시간
+│   ├── episode_seed100000.npz       # 에피소드별 action과 관측 신호
+│   ├── ...
+│   ├── T1_success_seed100000.mp4
+│   └── T1_failure_seed100002.mp4
+├── T2/
+└── ...
 ```
 
 - `results.json`: task별 성공 수, 성공률, 95% 신뢰구간(Clopper-Pearson), 10개 task 평균.
@@ -588,12 +648,17 @@ nvidia-smi --query-compute-apps=pid,used_memory --format=csv -l 1
 ```bash
 conda activate lerobot-arena
 cd ~/lightwheel_rby1_transfer
-python vla_lab/scripts/vram_monitor.py --out ~/vla_lab_runs/vram_train.csv -- \
+python vla_lab/scripts/vram_monitor.py --out ~/vla_lab_runs/vram_test.csv -- \
     ./vla_lab/train_smolvla.sh --output_dir ~/vla_lab_runs/vram_test --steps=200
 ```
 
 ```text
-⟪VRAM_LOG⟫
+VRAM_MONITOR child pid 435718
+VRAM cap: 7.0 GB of 23.6 GB (fraction 0.297)
+...
+INFO ... step:200 smpl:3K ep:9 epch:0.02 loss:0.163 grdn:1.049 lr:2.0e-05 updt_s:0.448 data_s:0.017
+PEAK torch reserved 6.10 GB, allocated 5.97 GB
+VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time': '2026-10-30 10:12:20', 'peak_mib_per_pid': {'435718': 6578}}
 ```
 
 - `peak_total_mib`: 1초 간격으로 잰 **모든 GPU 프로세스 합계**의 최대값. 다른 프로그램(다른 시뮬레이터, 브라우저 등)이 GPU를 쓰면 함께 더해지므로 측정할 때는 끄십시오.
@@ -602,7 +667,16 @@ python vla_lab/scripts/vram_monitor.py --out ~/vla_lab_runs/vram_train.csv -- \
 
 ## (3) 조교 PC 측정값
 
-⟪VRAM_TABLE⟫
+| 단계 | 프로세스 | 최대 VRAM (`nvidia-smi`) | 비고 |
+|---|---|---|---|
+| 오라클 수집 | Isaac Sim (카메라 3대) | **2.9~3.3GB** (T1 2.91, T7 3.29) | task마다 측정 |
+| 변환·병합 | CPU 위주 | GPU 거의 사용 안 함 | |
+| 학습 | lerobot-train | **6.47GB** (PyTorch 예약 6.15GB) | batch 16, fp32, 상한 7.0GB |
+| 평가 | 시뮬레이터 + 정책 한 프로세스 | **4.8~5.3GB** | task마다 측정, 최대는 T10 |
+
+- 단위는 GB = MiB ÷ 1024 입니다. 모든 단계가 8GB 아래이고, 학습도 7.5GB 목표 아래입니다.
+- 학습 batch를 바꿀 때 참고: batch 8 → 4.0GB, batch 16 → 6.4GB, batch 32 → OOM (fp32는 7.5GB 상한, bf16은 7.0GB 상한에서 모두 초과, 조교 PC 측정).
+- 평가와 학습을 동시에 돌리면 합계가 8GB를 넘습니다. 8GB GPU에서는 한 번에 하나만 실행하십시오.
 
 
 ---
@@ -617,7 +691,7 @@ python vla_lab/scripts/vram_monitor.py --out ~/vla_lab_runs/vram_train.csv -- \
 | `FileNotFoundError: Missing external asset directory: .../rby1-sim-isaac` | 로봇 USD 레포가 없음. `cd ~ && git clone https://github.com/cailab-hy/rby1-sim-isaac` 또는 이미 있는 위치를 `export RBY1_SIM_ROOT=/path/to/rby1-sim-isaac`로 지정. |
 | 레포를 `~/lightwheel_rby1_transfer`가 아닌 곳에 clone함 | `IsaacLab_RS`, `rby1-sim-isaac`를 레포의 상위 폴더에서 찾습니다. `export RBY1_ISAACLAB_ROOT=~/IsaacLab_RS`, `export RBY1_SIM_ROOT=~/rby1-sim-isaac`를 설정하십시오(조교가 7단계 재현에서 이 방법으로 확인). |
 | 환경 확인에서 `SmolVLA weights: MISSING`, 학습 시작 시 Hub 관련 에러 | 위 **추가 설치**의 `hf download` 두 줄을 실행. 학습 스크립트는 오프라인 모드라 자동으로 받지 않습니다. |
-| 학습 중 `torch.OutOfMemoryError: CUDA out of memory ... 7.00 GiB allowed` | 래퍼가 건 7.0GB 상한을 넘은 것. `--batch_size`를 줄이십시오. 조교 PC에서 batch 32는 bf16 혼합정밀도로도 이 에러가 났고, batch 16은 PyTorch 6.1GB(프로세스 6.6GB)였습니다. |
+| 학습 중 `torch.OutOfMemoryError: CUDA out of memory ... 7.00 GiB allowed` | 래퍼가 건 7.0GB 상한을 넘은 것. `--batch_size`를 줄이십시오. 조교 PC에서 batch 32는 bf16 혼합정밀도로도 이 에러가 났고, batch 16은 PyTorch 6.1GB(프로세스 6.4GB)였습니다. |
 | 데이터셋 합치기 끝에 `terminate called without an active exception` | 영상 처리 스레드가 종료 순서 때문에 내는 메시지입니다. 바로 앞에 `MERGED ... 500 episodes`가 나왔으면 정상이며, 데이터셋은 그대로 로딩됩니다. |
 | Isaac Sim 로그에 `[Warning]`, `[Error] ... torch_dtype is deprecated` 등이 많이 나옴 | 정상입니다. 수집기는 `[T1] attempt ...`, 평가는 `[T1] episode ...` 줄만 보면 됩니다. |
 | T3 시범을 `replay_dataset.sh --mode action`으로 재생했는데 `replayed_success_original: false` | 관절은 기록과 같게 움직이지만(최대 0.002 rad 차이), 케첩을 바구니 안에 떨어뜨리는 순간의 접촉이 민감해서 넘어지는 방향이 달라질 수 있습니다. 조교 PC에서 10개 task 중 T3 하나만 재생 성공이 재현되지 않았습니다. 같은 seed로 **다시 수집**하면 결과가 완전히 같습니다. |

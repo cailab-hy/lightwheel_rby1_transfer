@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>RB-Y1 T1~T10에서 SmolVLA 학습 및 평가</title><style>
+html { -webkit-print-color-adjust: exact; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body { margin: 2em auto; max-width: 900px; padding: 0 16px; color: rgb(55, 53, 47); line-height: 1.5; background: #fff;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica,
+  "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+h1 { font-size: 1.875rem; margin-top: 1.875rem; margin-bottom: 4px; font-weight: 600; }
+h1.page-title { font-size: 2.5rem; font-weight: 700; margin-top: 0; margin-bottom: 0.75em; }
+h2 { font-size: 1.5rem; margin-top: 1.4rem; margin-bottom: 4px; font-weight: 600; }
+h3 { font-size: 1.25rem; margin-top: 1rem; margin-bottom: 4px; font-weight: 600; }
+p { margin-top: 0.5em; margin-bottom: 0.5em; }
+hr { background: transparent; display: block; width: 100%; height: 1px; visibility: visible; border: none;
+  border-bottom: 1px solid rgba(55, 53, 47, 0.09); margin: 1em 0; }
+a { color: inherit; text-decoration: underline; }
+code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace;
+  line-height: normal; background: rgba(135, 131, 120, 0.15); color: #eb5757; border-radius: 4px; font-size: 85%; padding: 0.2em 0.4em; }
+pre { padding: 2em 1.25em; font-size: 0.85em; background: rgb(247, 246, 243); border-radius: 4px; overflow-x: auto;
+  white-space: pre-wrap; word-break: break-all; tab-size: 2; }
+pre code { background: none; color: rgb(55, 53, 47); padding: 0; font-size: 100%; }
+table { border-collapse: collapse; margin: 0.6em 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid rgb(233, 233, 231); padding: 0.25em 0.5em; vertical-align: top; text-align: left; }
+th { color: rgba(55, 53, 47, 0.6); background: rgb(247, 246, 243); font-weight: 500; }
+img, video { max-width: 100%; border-radius: 4px; }
+figure { margin: 1.25em 0; }
+blockquote { margin: 1em 0; padding: 0.8em 1em; background: rgba(241, 241, 239, 1); border-radius: 4px; border: none; }
+blockquote p { margin: 0.2em 0; }
+ul, ol { margin: 0.2em 0; padding-inline-start: 1.7em; }
+li { margin: 0.15em 0; }
+</style></head><body><article class="page sans"><header><h1 class="page-title">RB-Y1 T1~T10에서 SmolVLA 학습 및 평가</h1></header><div class="page-body"><hr />
+<h1>0️⃣ VLA와 SmolVLA란?</h1>
+<p><a href="https://huggingface.co/blog/smolvla">https://huggingface.co/blog/smolvla</a>
+<a href="https://huggingface.co/lerobot/smolvla_base">https://huggingface.co/lerobot/smolvla_base</a>
+<a href="https://github.com/huggingface/lerobot">https://github.com/huggingface/lerobot</a></p>
+<p><strong>VLA(Vision-Language-Action) 모델</strong>은 카메라 영상(Vision)과 언어 지시문(Language)을 함께 보고 로봇 동작(Action)을 바로 출력하는 정책입니다. IL 실습의 BC 정책은 task 하나만 배웠지만, VLA는 지시문을 바꿔 가며 <strong>모델 하나로 여러 task</strong>를 수행합니다.</p>
+<p><strong>SmolVLA</strong>는 Hugging Face LeRobot 팀이 공개한 작은 VLA입니다(전체 4.5억 파라미터). 영상·언어를 이해하는 VLM(SmolVLM2-500M의 앞 16층)과, 그 정보를 받아 로봇 동작을 만드는 <strong>action expert</strong>로 이루어져 있습니다. action expert는 flow matching으로 한 번에 50 step 분량의 동작 묶음(<strong>action chunk</strong>)을 만듭니다. <code>lerobot/smolvla_base</code>는 커뮤니티 로봇 데이터로 미리 학습된 가중치이고, 이번 실습에서는 이것을 우리 RB-Y1 시뮬레이션 데이터로 <strong>미세조정(fine-tuning)</strong> 합니다.</p>
+<p>이번 실습의 입력과 출력은 다음과 같습니다.</p>
+<p><img alt="SmolVLA 입력과 출력" src="assets/smolvla_io.png" /></p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>입력 영상</td>
+<td><code>front</code>(머리 카메라 480×640), <code>left</code>·<code>right</code>(손목 카메라 640×480 세로)</td>
+</tr>
+<tr>
+<td>입력 상태</td>
+<td>16차원: 오른팔 관절 7, 왼팔 관절 7, 오른손·왼손 그리퍼 열림 정도(0~1)</td>
+</tr>
+<tr>
+<td>입력 언어</td>
+<td>task의 지시문 (예: <code>put the black bowl on the plate.</code>)</td>
+</tr>
+<tr>
+<td>출력</td>
+<td>16차원 action × 50 step. 팔은 다음 step의 절대 관절 목표(rad), 그리퍼는 열기 1 / 닫기 0</td>
+</tr>
+</tbody>
+</table>
+<p>전체 흐름: <strong>오라클로 시범 수집 → LeRobot 데이터셋 변환·검증 → SmolVLA 학습 → task마다 50회 평가</strong></p>
+<hr />
+<h1>0️⃣ 환경 확인</h1>
+<p><strong>1. Course version이 고정되었는가?</strong></p>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+git checkout vla-lab-v1
+./vla_lab/check_env.sh
+</code></pre>
+<p>조교 PC 출력:</p>
+<pre><code class="language-text">========== Python ==========
+Python 3.11.16
+
+========== PyTorch ==========
+PyTorch: 2.7.0+cu128
+CUDA: 12.8
+GPU: NVIDIA GeForce RTX 3090
+
+========== Isaac Sim ==========
+isaacsim: 5.1.0.0
+isaacsim-core: 5.1.0.0
+isaacsim-app: 5.1.0.0
+
+========== IsaacLab ==========
+Path: /home/cai/IsaacLab_RS
+VERSION: 2.3.0
+e83a5d2 Update play_one_episode.py
+
+========== LeRobot ==========
+LeRobot: 0.4.3
+Path: /home/cai/lerobot/src/lerobot/__init__.py
+
+========== Repositories ==========
+lightwheel_rby1_transfer: &lt;commit&gt; (vla-lab-v1)
+rby1-sim-isaac: ba52496 (main)
+
+========== SmolVLA weights (HF cache) ==========
+lerobot/smolvla_base: OK
+HuggingFaceTB/SmolVLM2-500M-Video-Instruct: OK
+
+========== GPU / driver ==========
+NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
+</code></pre>
+<ul>
+<li>GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.</li>
+<li><code>&lt;commit&gt;</code> 자리에는 <code>vla-lab-v1</code> 브랜치의 commit 해시(7자리)가 나옵니다.</li>
+<li><code>SmolVLA weights</code>가 <code>MISSING</code>이면 아래 <strong>추가 설치</strong>를 먼저 하십시오.</li>
+</ul>
+<p><strong>2. 경로 설정 확인</strong></p>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./run_python.sh scripts/project_paths.py
+</code></pre>
+<p><code>RBY_USD</code>, <code>LIGHTWHEEL_CACHE</code>가 실제 있는 경로로 나오면 됩니다. 레포 위치가 다르면 README의 <code>RBY1_*</code> 환경변수를 설정합니다.</p>
+<h1>추가 설치</h1>
+<p><strong>조교 PC: 없음.</strong> 기본 환경(<code>lerobot-arena</code>)에 필요한 패키지가 모두 있었고, <code>lerobot/smolvla_base</code>와 <code>HuggingFaceTB/SmolVLM2-500M-Video-Instruct</code>도 HF 캐시(<code>~/.cache/huggingface</code>)에 이미 있었습니다. pip 설치, LeRobot extra 설치, HF 로그인은 하지 않았습니다.</p>
+<p>환경 확인에서 <code>SmolVLA weights: MISSING</code>이 나오면 모델만 내려받습니다(로그인 불필요, 처음 한 번).</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+hf download lerobot/smolvla_base
+hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
+</code></pre>
+<ul>
+<li>조교가 빈 캐시(<code>HF_HOME</code>을 새 폴더로 지정)에서 위 두 명령을 실행해 확인했습니다. huggingface_hub 0.36.2 기준 <code>smolvla_base</code>는 약 1분, SmolVLM2는 9분 이상 걸렸고 캐시는 합계 7.6GB였습니다(네트워크에 따라 다름).</li>
+<li>학습·평가 스크립트는 <code>HF_HUB_OFFLINE=1</code>로 실행되므로, 모델이 캐시에 없으면 다운로드하지 않고 에러를 냅니다.</li>
+</ul>
+<hr />
+<h1>1️⃣ Task 소개</h1>
+<p>10개 task를 <strong>모델 하나</strong>로 학습합니다. 모델은 지시문을 보고 어떤 task인지 구분합니다.</p>
+<p><img alt="T1~T10 초기 장면" src="assets/T1-T10_front_2x5.jpg" /></p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>지시문 (모델 입력)</th>
+<th>작업</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td><code>put the black bowl on the plate.</code></td>
+<td>검은 그릇을 접시에 놓기</td>
+<td>Basic Pick-and-Place</td>
+</tr>
+<tr>
+<td>T2</td>
+<td><code>Pick the akita black bowl on the cookies box and place it on the plate.</code></td>
+<td>쿠키 상자 위의 그릇을 접시에 놓기</td>
+<td>Spatial Relational Pick-and-Place</td>
+</tr>
+<tr>
+<td>T3</td>
+<td><code>Pick up the ketchup, and put it in the basket.</code></td>
+<td>케첩을 바구니에 넣기</td>
+<td>Object-Variation Pick-and-Place</td>
+</tr>
+<tr>
+<td>T4</td>
+<td><code>Open the top drawer of the cabinet.</code></td>
+<td>수납장 위 서랍 열기</td>
+<td>Single-Step Articulated Manipulation</td>
+</tr>
+<tr>
+<td>T5</td>
+<td><code>Open the microwave.</code></td>
+<td>전자레인지 문 열기</td>
+<td>Articulated Appliance Manipulation</td>
+</tr>
+<tr>
+<td>T6</td>
+<td><code>Turn on the stove.</code></td>
+<td>스토브 켜기</td>
+<td>Contact / Actuation</td>
+</tr>
+<tr>
+<td>T7</td>
+<td><code>Open the top layer of the drawer and put the bowl inside.</code></td>
+<td>위 서랍을 열고 그릇 넣기</td>
+<td>Compositional Manipulation</td>
+</tr>
+<tr>
+<td>T8</td>
+<td><code>Stack the black bowl in the middle on the black bowl at the back.</code></td>
+<td>가운데 그릇을 뒤쪽 그릇 위에 쌓기</td>
+<td>Precision Stacking</td>
+</tr>
+<tr>
+<td>T9</td>
+<td><code>Put the black bowl in the bottom drawer of the cabinet and close it.</code></td>
+<td>그릇을 아래 서랍에 넣고 닫기</td>
+<td>Long-Horizon Sequential Manipulation</td>
+</tr>
+<tr>
+<td>T10</td>
+<td><code>Pick up the alphabet soup and the tomato sauce, and put them in the basket.</code></td>
+<td>알파벳 수프와 토마토 소스를 바구니에 넣기</td>
+<td>Multi-Object Sequential Manipulation</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>물체 위치와 방향은 에피소드마다 <code>environments/Txx.json</code>의 <code>randomization</code> 범위 안에서 바뀝니다. 같은 seed는 항상 같은 배치입니다.</li>
+<li>성공 판정은 레포의 <code>success_original</code>(LW-BenchHub 원본 판정)입니다. 조건을 만족한 뒤 약 3.5초(52 step)가 지나야 성공으로 확정됩니다. 대부분의 task는 <strong>그리퍼가 물체에서 멀어져야</strong> 성공입니다.</li>
+</ul>
+<hr />
+<h1>2️⃣ 오라클 데이터 수집</h1>
+<p>사람이 키보드로 500개 시범을 모으기는 어렵습니다. 그래서 시뮬레이터의 <strong>정답 상태</strong>(물체·손잡이·서랍의 실제 위치)를 읽어 움직이는 스크립트, 즉 <strong>오라클(oracle)</strong>로 시범을 모읍니다.</p>
+<h2>(1) 동작 원리</h2>
+<ul>
+<li>시범 하나 = 하위 동작의 고정된 순서입니다. 예: T1은 <code>접근 → 파지 전 자세 → 파지 → 들기 → 운반 → 놓기 → 놓은 뒤 위로 → 준비 자세로 복귀</code>.</li>
+<li>각 하위 동작을 시작할 때 정답 상태로 목표 위치를 계산하고, 그리퍼 끝(TCP)을 부드러운 직선 경로로 움직입니다.</li>
+<li>제어 경로는 키보드/VR 수집기와 같습니다: <strong>Differential IK(DLS) → 18개 관절 절대 목표</strong>, 관절 속도 제한 0.8 rad/s, 15fps(물리 1/105초 × 7).</li>
+<li>기록 형식도 키보드 수집기와 같은 raw 형식(<code>&lt;output&gt;_raw/episode-*/</code>)입니다. 그래서 기존 <code>export_dataset.sh</code>, <code>--validate</code>, <code>replay_dataset.sh</code>가 그대로 동작합니다.</li>
+<li><strong>복구 동작은 없습니다.</strong> 재파지, 노이즈, 재시도를 하지 않습니다. 첫 시도가 실패한 seed는 저장하지 않고 다음 seed로 넘어갑니다(실패 수와 원인만 기록).</li>
+<li>오라클 자체에는 무작위성이 없습니다. 물체 배치만 seed(<code>numpy.random.default_rng(seed)</code>)로 정해집니다.</li>
+<li>성공 판정 후 저장 직전에 원래 조건이 아직 성립하는지 한 번 더 확인합니다. <code>success_original</code>은 조건이 한 번 성립하면 3.5초 뒤 확정되므로, 그사이 물체가 미끄러져 조건이 깨진 시범도 성공으로 남을 수 있기 때문입니다(실패 원인 <code>latched_then_undone</code>).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>사용하는 팔</th>
+<th>하위 동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>왼팔</td>
+<td>그릇의 로봇 쪽 테두리 집기 → 들기 → 접시 위로 운반 → 놓기 → 위로 → 준비 자세</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>왼팔</td>
+<td>T1과 같음 (쿠키 상자 위 그릇, 더 얕게 집기)</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>왼팔</td>
+<td>케첩 위에서 수직으로 집기 → 바구니 테두리 위로 들기 → 바구니 안에 놓기 → 준비 자세</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>왼팔</td>
+<td>손잡이에 접근 → 손가락 하나를 손잡이 뒤 틈에 걸어 잡기 → 14cm 당기기 → 놓고 위·뒤로 → 준비 자세</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>오른팔</td>
+<td>손잡이(세로 막대) 잡기 → 경첩 중심으로 원호를 따라 68° 열기 → 놓고 뒤로 → 준비 자세</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>왼팔</td>
+<td>손잡이 능선을 위에서 집기 → 수직축으로 0.9 rad 돌리기 → 놓고 위로 → 준비 자세</td>
+</tr>
+<tr>
+<td>T7</td>
+<td>왼팔</td>
+<td>위 서랍 끝까지 당기기 → 그릇 테두리 집기 → 높이 들어 서랍 위로 → 서랍 앞쪽에 놓기 → 서랍에서 떨어진 자세</td>
+</tr>
+<tr>
+<td>T8</td>
+<td>왼팔</td>
+<td>가운데 그릇 테두리 집기 → 뒤쪽 그릇 위로 운반 → 놓기 → 준비 자세</td>
+</tr>
+<tr>
+<td>T9</td>
+<td>왼팔</td>
+<td>그릇을 열린 아래 서랍에 넣기 → 손끝으로 손잡이를 밀어 닫기(2단계) → 준비 자세</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>왼팔 → 오른팔</td>
+<td>수프(왼팔)를 바구니에 넣고 복귀 → 토마토 소스(오른팔)를 바구니에 넣고 복귀</td>
+</tr>
+</tbody>
+</table>
+<h2>(2) 수집 명령어</h2>
+<p>conda 환경 활성화</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+</code></pre>
+<p>task 하나 수집 (T1, 성공 시범 50개, seed 0부터)</p>
+<pre><code class="language-bash">cd ~/lightwheel_rby1_transfer
+./vla_lab/collect_oracle.sh --task T1 --num-demos 50 --seed-start 0
+</code></pre>
+<p>T1~T10 전부 순서대로 수집</p>
+<pre><code class="language-bash">cd ~/lightwheel_rby1_transfer
+for T in T1 T2 T3 T4 T5 T6 T7 T8 T9 T10; do
+    ./vla_lab/collect_oracle.sh --task $T --num-demos 50 --seed-start 0
+done
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>인자</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--task</code></td>
+<td>(필수)</td>
+<td>T1~T10</td>
+</tr>
+<tr>
+<td><code>--num-demos</code></td>
+<td>50</td>
+<td>저장할 <strong>성공</strong> 시범 수</td>
+</tr>
+<tr>
+<td><code>--seed-start</code></td>
+<td>0</td>
+<td>첫 시도의 배치 seed. 시도 k는 seed <code>seed-start + k</code></td>
+</tr>
+<tr>
+<td><code>--max-attempts</code></td>
+<td>3 × num-demos</td>
+<td>이 횟수만큼 시도하면 멈춤</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td><code>~/datasets/vla_lab/&lt;task&gt;/oracle</code></td>
+<td>LeRobot 데이터셋 폴더. raw는 <code>&lt;output&gt;_raw</code></td>
+</tr>
+<tr>
+<td><code>--joint-speed</code></td>
+<td>0.8</td>
+<td>관절 속도 제한(rad/s), 수집기 기본값과 같음</td>
+</tr>
+<tr>
+<td><code>--video</code></td>
+<td>없음</td>
+<td>첫 성공 시범을 정면 카메라 mp4로 저장</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>학습 seed는 0~9999 범위만 씁니다. 평가 seed는 100000번대라 겹치지 않습니다.</li>
+<li>수집이 중간에 끊기면 같은 명령을 다시 실행하십시오. <code>&lt;output&gt;_raw/oracle_attempts.jsonl</code>을 읽고 마지막 seed 다음부터 이어서 수집합니다.</li>
+</ul>
+<h2>(3) 출력 예시</h2>
+<pre><code class="language-text">[T9] attempt 1 seed 0: SAVED (494 frames, 110.4 s) | saved 1/3
+[T9] attempt 2 seed 1: SAVED (502 frames, 113.0 s) | saved 2/3
+[T9] attempt 3 seed 2: FAILED at hold (750 frames, 171.7 s) | saved 2/3
+[T9] attempt 4 seed 3: SAVED (497 frames, 112.2 s) | saved 3/3
+SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&quot;: 3, &quot;oracle_success_rate&quot;: 0.75, &quot;seeds&quot;: [0, 3], &quot;failures_by_stage&quot;: {&quot;hold&quot;: 1}, &quot;mean_seconds_saved&quot;: 33.18, ...}
+</code></pre>
+<ul>
+<li><code>&lt;output&gt;_raw/oracle_attempts.jsonl</code>: 시도마다 seed, 저장 여부, 길이, 실패한 하위 동작.</li>
+<li><code>&lt;output&gt;_raw/oracle_summary.json</code>: 시도 수, 성공 수, 오라클 성공률, 실패 원인별 횟수.</li>
+</ul>
+<h2>(4) 오라클 결과 (조교 PC)</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>시도</th>
+<th>저장</th>
+<th>오라클 성공률</th>
+<th>실패 원인</th>
+<th>평균 길이(초)</th>
+<th>수집 시간(분)</th>
+<th>최대 VRAM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>50</td>
+<td>50</td>
+<td>100.0%</td>
+<td>-</td>
+<td>17.23</td>
+<td>52.7</td>
+<td>2.91 GB</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>51</td>
+<td>50</td>
+<td>98.0%</td>
+<td>확정 후 조건 깨짐 1</td>
+<td>16.96</td>
+<td>53.8</td>
+<td>3.11 GB</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>54</td>
+<td>50</td>
+<td>92.6%</td>
+<td>시간 초과(하위 동작 실패) 4</td>
+<td>23.82</td>
+<td>71.0</td>
+<td>3.20 GB</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>50</td>
+<td>50</td>
+<td>100.0%</td>
+<td>-</td>
+<td>17.07</td>
+<td>35.0</td>
+<td>2.94 GB</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>50</td>
+<td>50</td>
+<td>100.0%</td>
+<td>-</td>
+<td>13.73</td>
+<td>26.2</td>
+<td>2.92 GB</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>50</td>
+<td>50</td>
+<td>100.0%</td>
+<td>-</td>
+<td>14.27</td>
+<td>28.0</td>
+<td>3.11 GB</td>
+</tr>
+<tr>
+<td>T7</td>
+<td>62</td>
+<td>50</td>
+<td>80.7%</td>
+<td>시간 초과(하위 동작 실패) 8, 확정 후 조건 깨짐 4</td>
+<td>38.19</td>
+<td>87.4</td>
+<td>3.29 GB</td>
+</tr>
+<tr>
+<td>T8</td>
+<td>52</td>
+<td>50</td>
+<td>96.2%</td>
+<td>시간 초과(하위 동작 실패) 2</td>
+<td>18.85</td>
+<td>41.8</td>
+<td>2.94 GB</td>
+</tr>
+<tr>
+<td>T9</td>
+<td>64</td>
+<td>50</td>
+<td>78.1% ⚠️</td>
+<td>시간 초과(하위 동작 실패) 14</td>
+<td>34.92</td>
+<td>69.6</td>
+<td>3.22 GB</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>51</td>
+<td>50</td>
+<td>98.0%</td>
+<td>시간 초과(하위 동작 실패) 1</td>
+<td>48.18</td>
+<td>84.2</td>
+<td>3.28 GB</td>
+</tr>
+<tr>
+<td>합계</td>
+<td>534</td>
+<td>500</td>
+<td>93.6%</td>
+<td></td>
+<td></td>
+<td>550</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 <strong>task 3개를 동시에</strong> 수집하며 잰 값입니다(시범 저장 시 PNG 3장/step을 쓰므로 CPU가 병목). 학습과 함께 돌린 T1 축소판은 시범 하나에 약 56~59초(시뮬레이션 17초)였습니다.</li>
+<li>최대 VRAM은 <code>vram_monitor.py</code>로 잰 수집 프로세스 하나의 값입니다(MiB ÷ 1024). 모든 task가 3.3GB 이하입니다.</li>
+<li><strong>T9 오라클 성공률은 78.1%로 목표(80%)보다 조금 낮습니다.</strong> 실패 14회 중 11회는 그릇은 서랍에 들어갔지만 서랍이 끝까지(관절 0.00115m 이하) 닫히지 않은 경우, 3회는 그릇이 서랍 밖에 놓인 경우입니다. 손끝으로 손잡이를 미는 접촉이 미끄러지거나, 다 닫은 뒤 손을 뺄 때 서랍이 조금 다시 열립니다. 저장된 시범 50개는 모두 성공 판정을 통과한 것이라 데이터 품질에는 영향이 없고, 수집에 seed를 더 쓸 뿐입니다.</li>
+<li>같은 seed는 항상 같은 결과입니다. 새 폴더에 다시 clone해 T1·T9를 수집했을 때 seed별 성공 여부, 길이, 초기 배치, 기록된 관절 값이 모두 처음 수집과 같았습니다(최대 차이 0).</li>
+</ul>
+<p>각 task의 첫 번째 저장 시범을 <code>replay_dataset.sh --mode action --video</code>로 정면 카메라에서 녹화한 영상입니다.</p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T1.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T1 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T2.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T2 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T3.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T3 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T4.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T4 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T5.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T5 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T6.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T6 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T7.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T7 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T8.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T8 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T9.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T9 오라클 시범</figcaption></figure></p>
+<p><figure><video controls preload="metadata" src="assets/oracle/oracle_T10.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T10 오라클 시범</figcaption></figure></p>
+<hr />
+<h1>3️⃣ 변환·검증·재생</h1>
+<p>수집기는 raw 기록만 저장합니다. 학습에 쓰려면 레포의 기존 도구로 <strong>LeRobot v3 데이터셋</strong>으로 바꾸고, 원본과 일치하는지 검증합니다. 변환 형식은 실제 RB-Y1 데이터셋과 같은 <code>rby1</code> 형식입니다(15fps, state/action 16차원, 카메라 3대 AV1 영상).</p>
+<h2>(1) task별 변환 + 검증</h2>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+for T in T1 T2 T3 T4 T5 T6 T7 T8 T9 T10; do
+    ./export_dataset.sh --output ~/datasets/vla_lab/$T/oracle --format rby1 --validate
+done
+</code></pre>
+<ul>
+<li><code>--validate</code>는 LeRobot 로딩, raw 기록과 숫자 완전 일치, 영상 프레임 수, 성공 판정 재계산을 확인합니다. 마지막에 다음과 같이 나오면 됩니다(T1 예시).</li>
+</ul>
+<pre><code class="language-text">{
+  &quot;episodes&quot;: 50,
+  &quot;frames&quot;: 12924,
+  &quot;fps&quot;: 15,
+  &quot;format&quot;: &quot;rby1&quot;,
+  &quot;numeric_arrays_exact_to_raw&quot;: true,
+  &quot;all_video_frame_counts_match&quot;: true,
+  &quot;max_raw_to_video_mse&quot;: 8.822860243055555
+}
+</code></pre>
+<ul>
+<li>변환 시간: task당 30~87분(시범 50개, 합계 약 8.5시간). 조교 PC에서 2~5개 task를 동시에 변환하며 잰 값입니다. 긴 시범이 많은 T7·T9·T10이 오래 걸립니다.</li>
+<li>검증 결과는 <code>~/datasets/vla_lab/&lt;task&gt;/validation.json</code>에 저장됩니다.</li>
+</ul>
+<h2>(2) 10개 task를 데이터셋 하나로 합치기</h2>
+<p>SmolVLA를 <strong>모델 하나</strong>로 학습하려면 10개 데이터셋을 하나로 합칩니다. 에피소드마다 원래 지시문이 그대로 task 문자열로 남고, 스크립트가 <code>selected_tasks.csv</code>의 지시문과 같은지 확인합니다.</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./run_python.sh vla_lab/scripts/merge_datasets.py \
+    --inputs ~/datasets/vla_lab/T{1,2,3,4,5,6,7,8,9,10}/oracle \
+    --output ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle
+</code></pre>
+<pre><code class="language-text">~/datasets/vla_lab/T1/oracle: 50 episodes, task ['T1']
+~/datasets/vla_lab/T2/oracle: 50 episodes, task ['T2']
+~/datasets/vla_lab/T3/oracle: 50 episodes, task ['T3']
+~/datasets/vla_lab/T4/oracle: 50 episodes, task ['T4']
+~/datasets/vla_lab/T5/oracle: 50 episodes, task ['T5']
+~/datasets/vla_lab/T6/oracle: 50 episodes, task ['T6']
+~/datasets/vla_lab/T7/oracle: 50 episodes, task ['T7']
+~/datasets/vla_lab/T8/oracle: 50 episodes, task ['T8']
+~/datasets/vla_lab/T9/oracle: 50 episodes, task ['T9']
+~/datasets/vla_lab/T10/oracle: 50 episodes, task ['T10']
+MERGED ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle: 500 episodes, 182419 frames, 10 tasks
+(소요 약 9분)
+</code></pre>
+<h2>(3) 데이터 요약</h2>
+<p>IL 실습의 <code>summarize_demos.py</code>처럼 task별로 시범 길이와 그리퍼 사용을 확인합니다.</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./run_python.sh vla_lab/scripts/summarize_dataset.py --root ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle
+</code></pre>
+<pre><code class="language-text">task   eps  len mean   min   max  sec mean    min    max  switch   idle
+T1      50     258.5   252   268      17.2   16.8   17.9     2.0  26.7%
+T2      50     254.3   249   263      17.0   16.6   17.5     2.0  27.2%
+T3      50     357.4   340   397      23.8   22.7   26.5     2.0   9.3%
+T4      50     256.0   256   256      17.1   17.1   17.1     2.0  24.3%
+T5      50     206.0   206   206      13.7   13.7   13.7     2.0  10.2%
+T6      50     214.0   214   214      14.3   14.3   14.3     2.0  27.2%
+T7      50     572.8   425   609      38.2   28.3   40.6     3.9  13.0%
+T8      50     282.8   272   307      18.9   18.1   20.5     2.0  25.4%
+T9      50     523.8   493   606      34.9   32.9   40.4     3.0   7.0%
+T10     50     722.7   664   781      48.2   44.3   52.1     4.0   8.9%
+total: 500 episodes, 182419 steps (202.7 min)
+</code></pre>
+<ul>
+<li><code>len</code> — 시범 길이(step 수). <code>sec</code>는 15fps 기준 초(len / 15).</li>
+<li><code>switch</code> — 그리퍼 열기/닫기 전환 횟수(두 손 합).</li>
+<li><code>idle</code> — 팔 관절 목표가 모든 관절에서 0.001 rad 미만으로 바뀐 step의 비율. 파지·놓기 대기와, 마지막에 성공 판정이 확정되기까지 기다리는 약 3.5초가 포함됩니다.</li>
+</ul>
+<h2>(4) 재생으로 확인</h2>
+<p>변환한 시범을 시뮬레이터에서 다시 실행해 성공이 재현되는지 봅니다. <code>--mode action</code>은 기록된 관절 목표를 수집 때와 같은 물리 step으로 다시 실행합니다.</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./replay_dataset.sh --root ~/datasets/vla_lab/T1/oracle --episode 0,1 --mode action --headless --video ~/vla_lab_runs/replay/
+</code></pre>
+<pre><code class="language-text">REPLAY episode 0: task T1, 256 frames at 15 fps, mode action
+VIDEO ~/vla_lab_runs/replay/T1_episode_0_action.mp4 (286 frames, 19.1 s)
+RESULT {&quot;episode&quot;: &quot;episode 0&quot;, &quot;frames&quot;: 256, &quot;recorded_success&quot;: true, &quot;replayed_success_original&quot;: true, &quot;max_joint_drift_rad&quot;: 0.0017, &quot;final_joint_drift_rad&quot;: 0.0, ...}
+RESULT {&quot;episode&quot;: &quot;episode 1&quot;, &quot;frames&quot;: 265, &quot;recorded_success&quot;: true, &quot;replayed_success_original&quot;: true, &quot;max_joint_drift_rad&quot;: 0.0009, &quot;final_joint_drift_rad&quot;: 0.0, ...}
+</code></pre>
+<p><code>replayed_success_original: true</code>이면 재현된 것입니다. <code>--headless</code>를 빼면 창으로 볼 수 있습니다.</p>
+<p><figure><video controls preload="metadata" src="assets/replay/T1_episode_0_action.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T1 시범 재생 (episode 0, action 모드)</figcaption></figure></p>
+<hr />
+<h1>4️⃣ SmolVLA 학습</h1>
+<h2>(1) 학습 명령어</h2>
+<p>conda 환경 활성화</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+</code></pre>
+<p>학습 실행 (T1~T10 멀티태스크 모델 1개)</p>
+<pre><code class="language-bash">cd ~/lightwheel_rby1_transfer
+./vla_lab/train_smolvla.sh --output_dir ~/vla_lab_runs/smolvla_t1_t10
+</code></pre>
+<ul>
+<li><code>vla_lab/train_smolvla.sh</code>는 LeRobot의 <code>lerobot-train</code>을 그대로 부르는 래퍼입니다. 아래 표의 값을 넣고, PyTorch가 GPU 메모리를 <strong>7.0GB까지만</strong> 쓰도록 막습니다(<code>torch.cuda.set_per_process_memory_fraction</code>). 넘으면 학습이 OOM으로 멈추므로, 끝까지 돌면 8GB GPU에서도 돈다는 뜻입니다.</li>
+<li>뒤에 붙인 인자는 기본값을 덮어씁니다. 예: <code>--steps=300</code>(짧은 시험), <code>--batch_size=8</code>.</li>
+<li><code>--output_dir</code>이 이미 있으면 LeRobot이 에러를 냅니다. 다른 이름을 쓰십시오.</li>
+<li>데이터셋 위치가 다르면 <code>VLA_DATASET_ROOT=/path/to/RBY1-T1-T10-Oracle</code>를 앞에 붙입니다.</li>
+</ul>
+<p><strong>소요 시간과 VRAM (조교 PC, RTX 3090 24GB)</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>step당 시간</td>
+<td><code>updt_s</code> 0.455초 + <code>data_s</code> 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,301초)</td>
+</tr>
+<tr>
+<td>25,000 step</td>
+<td>약 3시간 23분 (0.488초 × 25,000. 다른 작업과 함께 돌린 이번 실행은 3시간 46분)</td>
+</tr>
+<tr>
+<td>최대 VRAM</td>
+<td>프로세스 <strong>6.47GB</strong> (<code>nvidia-smi</code> 6,624MiB), PyTorch 예약 6.15GB</td>
+</tr>
+<tr>
+<td>체크포인트</td>
+<td>하나당 1.3GB (optimizer 상태 포함), 6개 저장</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>8GB GPU에서는 직접 재지 못했습니다. RTX 3090 대비 연산 성능(FP32 35.6 TFLOPS)과 메모리 대역폭(936GB/s)으로 비교하면 RTX 4060(15.1 TFLOPS, 272GB/s)은 약 2.4~3.4배, RTX 3070(20.3 TFLOPS, 448GB/s)은 약 1.8~2.1배 느릴 것으로 <strong>추정</strong>합니다. 25,000 step 기준 약 6~11.6시간입니다(12시간 목표 안이지만 RTX 4060급에서는 여유가 적습니다).</li>
+<li>시간이 부족하면 <code>--steps</code>와 <code>--policy.scheduler_decay_steps</code>를 같이 줄이십시오.</li>
+</ul>
+<h2>(2) 학습 결과 폴더</h2>
+<pre><code class="language-text">~/vla_lab_runs/smolvla_t1_t10/
+└── checkpoints/
+    ├── 005000/
+    │   ├── pretrained_model/      # config.json, model.safetensors, 전처리·후처리(정규화) 설정
+    │   └── training_state/        # optimizer, scheduler, RNG 상태 (이어서 학습할 때 사용)
+    ├── 010000/
+    ├── 015000/
+    ├── 020000/
+    ├── 025000/
+    └── last -&gt; 025000
+</code></pre>
+<ul>
+<li><code>checkpoints/last</code>는 마지막 체크포인트를 가리키는 링크입니다. <strong>평가는 <code>checkpoints/last/pretrained_model</code>로 합니다.</strong></li>
+<li>5000 step마다 <code>checkpoints/005000</code> 같은 폴더가 생깁니다. 비교해 보고 싶을 때 쓰십시오.</li>
+</ul>
+<h2>(3) 학습 로그 보기</h2>
+<p>로그는 터미널에 100 step마다 나옵니다. 파일로 남기려면 명령 뒤에 <code>2&gt;&amp;1 | tee ~/vla_lab_runs/train.log</code>를 붙입니다.</p>
+<pre><code class="language-text">INFO ... cfg.steps=25000 (25K)
+INFO ... dataset.num_frames=182419 (182K)
+INFO ... dataset.num_episodes=500
+INFO ... num_learnable_params=99880992 (100M)
+INFO ... num_total_params=450046176 (450M)
+INFO ... step:2K smpl:40K ep:110 epch:0.22 loss:0.056 grdn:0.685 lr:9.8e-05 updt_s:0.467 data_s:0.018
+INFO ... step:10K smpl:160K ep:439 epch:0.88 loss:0.019 grdn:0.345 lr:6.7e-05 updt_s:0.456 data_s:0.017
+INFO ... step:20K smpl:320K ep:877 epch:1.75 loss:0.010 grdn:0.229 lr:1.2e-05 updt_s:0.454 data_s:0.017
+INFO ... step:25K smpl:400K ep:1K epch:2.19 loss:0.008 grdn:0.194 lr:2.5e-06 updt_s:0.456 data_s:0.017
+INFO ... Checkpoint policy after step 25000
+INFO ... End of training
+PEAK torch reserved 6.15 GB, allocated 5.98 GB
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>loss</code></td>
+<td>flow matching 손실(정규화된 action 공간)</td>
+</tr>
+<tr>
+<td><code>grdn</code></td>
+<td>gradient norm (clip 10)</td>
+</tr>
+<tr>
+<td><code>lr</code></td>
+<td>학습률 (warmup 1000 step 후 cosine 감소)</td>
+</tr>
+<tr>
+<td><code>updt_s</code></td>
+<td>step 하나의 학습 시간(초)</td>
+</tr>
+<tr>
+<td><code>data_s</code></td>
+<td>step 하나의 데이터 로딩 시간(초). <code>updt_s</code>보다 크면 <code>--num_workers</code>를 늘리십시오</td>
+</tr>
+</tbody>
+</table>
+<p>W&amp;B를 쓰려면 <code>--wandb.enable=true --wandb.project=&lt;프로젝트&gt;</code>를 붙입니다(로그인 필요).</p>
+<h2>(4) 하이퍼파라미터</h2>
+<p>기본값은 설치된 LeRobot 0.4.3의 코드(<code>policies/smolvla/configuration_smolvla.py</code>, <code>configs/train.py</code>)와 <code>lerobot/smolvla_base</code>의 <code>config.json</code>에서 확인한 값입니다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>파라미터</th>
+<th>값</th>
+<th>의미</th>
+<th>기본값과 다르면 바꾼 이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>데이터</td>
+<td><code>dataset.root</code></td>
+<td><code>~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle</code></td>
+<td>10개 task 합친 데이터셋 (500 에피소드, 182,419 step)</td>
+<td></td>
+</tr>
+<tr>
+<td>데이터</td>
+<td><code>rename_map</code></td>
+<td>front→camera1, left→camera2, right→camera3</td>
+<td>우리 카메라 이름을 smolvla_base의 입력 이름에 맞춤</td>
+<td>smolvla_base는 <code>camera1~3</code>으로 사전학습됨</td>
+</tr>
+<tr>
+<td>데이터</td>
+<td><code>dataset.image_transforms</code></td>
+<td>끔</td>
+<td>이미지 증강</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>policy.path</code></td>
+<td><code>lerobot/smolvla_base</code></td>
+<td>사전학습 가중치에서 시작</td>
+<td></td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>chunk_size</code> / <code>n_action_steps</code></td>
+<td>50 / 50</td>
+<td>한 번에 예측하는 step 수 / 그중 실행하는 step 수</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>resize_imgs_with_padding</code></td>
+<td>512×512</td>
+<td>비율을 유지한 채 패딩해 512로 맞춤</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>freeze_vision_encoder</code></td>
+<td>true</td>
+<td>이미지 인코더 동결</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>train_expert_only</code></td>
+<td>true</td>
+<td>VLM 동결, action expert만 학습 (학습 파라미터 1억 / 전체 4.5억)</td>
+<td>기본값 그대로. VLM까지 학습하면 8GB를 넘음</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>train_state_proj</code></td>
+<td>true</td>
+<td>상태 입력층 학습</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>num_vlm_layers</code></td>
+<td>16</td>
+<td>SmolVLM2의 앞 16층만 사용</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>max_state_dim</code> / <code>max_action_dim</code></td>
+<td>32 / 32</td>
+<td>16차원 상태·action을 32로 0 패딩</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>num_steps</code></td>
+<td>10</td>
+<td>추론 시 flow matching 적분 step 수</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정책</td>
+<td><code>tokenizer_max_length</code></td>
+<td>48</td>
+<td>지시문 토큰 최대 길이 (가장 긴 T2·T10 지시문이 18 토큰)</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>정규화</td>
+<td><code>STATE</code> / <code>ACTION</code></td>
+<td>MEAN_STD</td>
+<td>데이터셋 평균·표준편차로 정규화</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>최적화</td>
+<td><code>optimizer_lr</code></td>
+<td>1e-4</td>
+<td>AdamW 학습률</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>최적화</td>
+<td><code>optimizer_betas</code> / <code>weight_decay</code></td>
+<td>(0.9, 0.95) / 1e-10</td>
+<td>AdamW</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>최적화</td>
+<td><code>optimizer_grad_clip_norm</code></td>
+<td>10</td>
+<td>gradient clipping</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>스케줄</td>
+<td><code>scheduler_warmup_steps</code></td>
+<td>1000</td>
+<td>선형 warmup</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>스케줄</td>
+<td><code>scheduler_decay_steps</code></td>
+<td><strong>25000</strong></td>
+<td>cosine 감소 길이 (→ 2.5e-6)</td>
+<td>기본 30000. 학습 step 수에 맞춤</td>
+</tr>
+<tr>
+<td>학습</td>
+<td><code>batch_size</code></td>
+<td><strong>16</strong></td>
+<td>배치 크기</td>
+<td>기본 8. VRAM 실측: batch 16 → 프로세스 6.4GB, batch 32 → 상한 초과(OOM)</td>
+</tr>
+<tr>
+<td>학습</td>
+<td><code>steps</code></td>
+<td><strong>25000</strong></td>
+<td>학습 step 수 (≈ 2.2 epoch)</td>
+<td>기본 100000. 8GB급 GPU에서 12시간 이내가 되도록 (위 소요 시간 참고)</td>
+</tr>
+<tr>
+<td>학습</td>
+<td><code>save_freq</code></td>
+<td><strong>5000</strong></td>
+<td>체크포인트 간격</td>
+<td>기본 20000. 5개 체크포인트 비교 가능</td>
+</tr>
+<tr>
+<td>학습</td>
+<td><code>num_workers</code></td>
+<td>4</td>
+<td>데이터 로딩 프로세스</td>
+<td>기본값 그대로 (6코어 CPU)</td>
+</tr>
+<tr>
+<td>학습</td>
+<td><code>seed</code></td>
+<td>1000</td>
+<td>학습 seed (초기화, 셔플)</td>
+<td>기본값 그대로</td>
+</tr>
+<tr>
+<td>학습</td>
+<td>혼합정밀도</td>
+<td>끔 (fp32)</td>
+<td></td>
+<td>기본값 그대로. bf16(<code>ACCELERATE_MIXED_PRECISION=bf16</code>)도 시험했으나 메모리 0.35GB 감소, 속도 차이 없음</td>
+</tr>
+<tr>
+<td>학습</td>
+<td>VRAM 상한</td>
+<td><strong>7.0GB</strong></td>
+<td><code>torch.cuda.set_per_process_memory_fraction</code></td>
+<td>이 실습에서 추가. CUDA 컨텍스트 포함 프로세스 7.5GB 이하가 되도록</td>
+</tr>
+</tbody>
+</table>
+<h2>(5) CLI에서 바로 바꿀 수 있는 주요 인자</h2>
+<table>
+<thead>
+<tr>
+<th>인자</th>
+<th>예시</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--output_dir</code></td>
+<td><code>~/vla_lab_runs/exp1</code></td>
+<td>결과 폴더 (없어야 함)</td>
+</tr>
+<tr>
+<td><code>--steps</code></td>
+<td><code>--steps=30000</code></td>
+<td>학습 step 수</td>
+</tr>
+<tr>
+<td><code>--batch_size</code></td>
+<td><code>--batch_size=8</code></td>
+<td>배치 크기. VRAM이 부족하면 줄이기</td>
+</tr>
+<tr>
+<td><code>--save_freq</code></td>
+<td><code>--save_freq=2000</code></td>
+<td>체크포인트 간격</td>
+</tr>
+<tr>
+<td><code>--seed</code></td>
+<td><code>--seed=7</code></td>
+<td>학습 seed</td>
+</tr>
+<tr>
+<td><code>--num_workers</code></td>
+<td><code>--num_workers=8</code></td>
+<td>데이터 로딩 프로세스 수</td>
+</tr>
+<tr>
+<td><code>--policy.optimizer_lr</code></td>
+<td><code>--policy.optimizer_lr=5e-5</code></td>
+<td>학습률</td>
+</tr>
+<tr>
+<td><code>--policy.scheduler_decay_steps</code></td>
+<td><code>--policy.scheduler_decay_steps=30000</code></td>
+<td>cosine 감소 길이 (보통 <code>--steps</code>와 같게)</td>
+</tr>
+<tr>
+<td><code>--policy.train_expert_only</code></td>
+<td><code>false</code></td>
+<td>VLM까지 학습 (VRAM 크게 증가)</td>
+</tr>
+<tr>
+<td><code>--policy.n_action_steps</code></td>
+<td><code>--policy.n_action_steps=10</code></td>
+<td>chunk 50개 중 실제로 실행할 step 수</td>
+</tr>
+<tr>
+<td><code>--resume</code></td>
+<td><code>--resume=true --config_path=&lt;RUN_FOLDER&gt;/checkpoints/last/pretrained_model/train_config.json</code></td>
+<td>끊긴 학습 이어서</td>
+</tr>
+<tr>
+<td><code>--wandb.enable</code></td>
+<td><code>true</code></td>
+<td>W&amp;B 로깅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>5️⃣ 평가</h1>
+<p>레포에는 학습한 정책을 시뮬레이터에서 돌리는 스크립트가 없어서 <code>vla_lab/eval_smolvla.sh</code>를 만들었습니다.</p>
+<ul>
+<li>수집과 <strong>같은</strong> 장면, 카메라, 15fps 제어, <code>success_original</code>을 씁니다.</li>
+<li>task마다 고정된 seed 50개(<code>vla_lab/eval_seeds/Txx.json</code>, 100000~100049)로 시작 배치를 정합니다. 같은 명령이면 같은 배치입니다.</li>
+<li>한 에피소드는 <code>success_original</code>이 참이 되거나 최대 step에 도달하면 끝납니다. 최대 step은 <strong>오라클 시범 중 가장 긴 것의 2배</strong>입니다(<code>vla_lab/eval_horizons.json</code>).</li>
+<li>정책 출력의 팔 관절 목표는 그대로, 그리퍼는 0.5 기준 열기/닫기 명령으로 씁니다(수집기와 같은 손가락 속도 제한).</li>
+</ul>
+<h2>(1) 평가 명령어</h2>
+<p>conda 환경 활성화</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+</code></pre>
+<p>10개 task × 50회 평가</p>
+<pre><code class="language-bash">cd ~/lightwheel_rby1_transfer
+./vla_lab/eval_smolvla.sh \
+    --policy-path ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model \
+    --output ~/vla_lab_runs/eval_smolvla_t1_t10
+</code></pre>
+<p>일부 task만, 적은 횟수로 빠르게 확인</p>
+<pre><code class="language-bash">cd ~/lightwheel_rby1_transfer
+./vla_lab/eval_smolvla.sh \
+    --policy-path ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model \
+    --output ~/vla_lab_runs/eval_quick --tasks &quot;T1 T4&quot; --episodes 3
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>인자</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--policy-path</code></td>
+<td>(필수)</td>
+<td><code>&lt;RUN_FOLDER&gt;/checkpoints/last/pretrained_model</code></td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td>(필수)</td>
+<td>결과 폴더</td>
+</tr>
+<tr>
+<td><code>--tasks</code></td>
+<td><code>"T1 ... T10"</code></td>
+<td>평가할 task (따옴표 안에 공백으로 구분)</td>
+</tr>
+<tr>
+<td><code>--episodes</code></td>
+<td>50</td>
+<td>task당 에피소드 수 (seed 목록의 앞에서부터)</td>
+</tr>
+<tr>
+<td><code>--no-video</code></td>
+<td>꺼짐</td>
+<td>성공·실패 영상을 남기지 않음 (조금 빨라짐)</td>
+</tr>
+<tr>
+<td><code>--n-action-steps</code></td>
+<td>체크포인트 설정(50)</td>
+<td>chunk 50개 중 몇 step을 실행하고 다시 추론할지</td>
+</tr>
+</tbody>
+</table>
+<p><strong>소요 시간과 VRAM (조교 PC, RTX 3090)</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>속도</td>
+<td>평가 프로세스 1~3개가 함께 돌 때 프로세스당 약 7~10 step/s (실시간 15 step/s보다 느림)</td>
+</tr>
+<tr>
+<td>전체 평가 (500회, 311,580 step)</td>
+<td>순서대로 돌리면 <strong>약 9~13시간</strong>(위 속도로 추정). 조교는 4~5개를 동시에 돌려 약 9시간 40분</td>
+</tr>
+<tr>
+<td>task 하나</td>
+<td>성공이 많은 T5·T6은 약 25분, 실패가 많고 긴 T10은 수 시간</td>
+</tr>
+<tr>
+<td>최대 VRAM</td>
+<td>프로세스 하나(시뮬레이터 + 정책) <strong>5.3GB</strong> 이하 (5,439MiB)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>실패한 에피소드는 최대 step까지 돌기 때문에 성공률이 낮을수록 오래 걸립니다.</li>
+<li>빨리 확인할 때는 <code>--episodes 5</code>, <code>--tasks "T1 T6"</code>처럼 줄이십시오.</li>
+<li>GPU 메모리가 넉넉하면 다른 터미널에서 <code>--tasks</code>를 나눠 동시에 돌려도 됩니다(같은 <code>--output</code> 사용 가능, 마지막에 <code>./run_python.sh vla_lab/scripts/eval_summary.py --output &lt;EVAL_DIR&gt;</code>로 표를 다시 만듦). 8GB GPU에서는 하나씩 돌리십시오.</li>
+</ul>
+<h2>(2) 출력 예시</h2>
+<pre><code class="language-text">POLICY ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model loaded in 6.6 s; chunk 50, n_action_steps 50; horizon 412 steps
+[T5] episode 1/50 seed 100000: SUCCESS (213 steps, 45 s) | 1/1
+[T5] episode 2/50 seed 100001: fail (412 steps, 49 s) | 1/2
+[T5] episode 3/50 seed 100002: SUCCESS (203 steps, 22 s) | 2/3
+...
+TASK_SUMMARY {&quot;task&quot;: &quot;T5&quot;, &quot;instruction&quot;: &quot;Open the microwave.&quot;, ..., &quot;episodes&quot;: 50, &quot;successes&quot;: 38, &quot;horizon_steps&quot;: 412, ...}
+task    success    rate            95% CI
+T5      38/50     76.0% [ 61.8,  86.9]
+</code></pre>
+<h2>(3) 결과 (조교 baseline)</h2>
+<p><strong>조교 baseline</strong> — <code>checkpoints/last</code>(25,000 step), task당 50회, seed 100000~100049.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>지시문</th>
+<th>성공</th>
+<th>성공률</th>
+<th>95% 신뢰구간</th>
+<th>최대 step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td><code>put the black bowl on the plate.</code></td>
+<td>45/50</td>
+<td><strong>90%</strong></td>
+<td>78.2 ~ 96.7%</td>
+<td>536</td>
+</tr>
+<tr>
+<td>T2</td>
+<td><code>Pick the akita black bowl on the cookies box and place it on the plate.</code></td>
+<td>31/50</td>
+<td><strong>62%</strong></td>
+<td>47.2 ~ 75.3%</td>
+<td>526</td>
+</tr>
+<tr>
+<td>T3</td>
+<td><code>Pick up the ketchup, and put it in the basket.</code></td>
+<td>4/50</td>
+<td><strong>8%</strong></td>
+<td>2.2 ~ 19.2%</td>
+<td>794</td>
+</tr>
+<tr>
+<td>T4</td>
+<td><code>Open the top drawer of the cabinet.</code></td>
+<td>18/50</td>
+<td><strong>36%</strong></td>
+<td>22.9 ~ 50.8%</td>
+<td>512</td>
+</tr>
+<tr>
+<td>T5</td>
+<td><code>Open the microwave.</code></td>
+<td>38/50</td>
+<td><strong>76%</strong></td>
+<td>61.8 ~ 86.9%</td>
+<td>412</td>
+</tr>
+<tr>
+<td>T6</td>
+<td><code>Turn on the stove.</code></td>
+<td>50/50</td>
+<td><strong>100%</strong></td>
+<td>92.9 ~ 100.0%</td>
+<td>428</td>
+</tr>
+<tr>
+<td>T7</td>
+<td><code>Open the top layer of the drawer and put the bowl inside.</code></td>
+<td>9/50</td>
+<td><strong>18%</strong></td>
+<td>8.6 ~ 31.4%</td>
+<td>1218</td>
+</tr>
+<tr>
+<td>T8</td>
+<td><code>Stack the black bowl in the middle on the black bowl at the back.</code></td>
+<td>35/50</td>
+<td><strong>70%</strong></td>
+<td>55.4 ~ 82.1%</td>
+<td>614</td>
+</tr>
+<tr>
+<td>T9</td>
+<td><code>Put the black bowl in the bottom drawer of the cabinet and close it.</code></td>
+<td>17/50</td>
+<td><strong>34%</strong></td>
+<td>21.2 ~ 48.8%</td>
+<td>1212</td>
+</tr>
+<tr>
+<td>T10</td>
+<td><code>Pick up the alphabet soup and the tomato sauce, and put them in the basket.</code></td>
+<td>6/50</td>
+<td><strong>12%</strong></td>
+<td>4.5 ~ 24.3%</td>
+<td>1562</td>
+</tr>
+<tr>
+<td><strong>평균</strong></td>
+<td>10개 task 단순 평균</td>
+<td>253/500</td>
+<td><strong>50.6%</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>짧고 접촉이 한 번인 task(T6 스토브, T1 그릇, T5 전자레인지, T8 쌓기)는 잘 되고, 물체를 정확히 집어야 하는 T3(케첩), T10(캔 두 개), T7(서랍+그릇)이 어렵습니다.</li>
+<li>실패의 57%(140/247)는 <strong>파지 실패</strong>(물체를 밀거나 넘어뜨리고 들지 못함)입니다. 단계별 분석은 <code>vla_lab/reports/failure_analysis.md</code>에 있습니다.</li>
+<li>신뢰구간이 넓습니다(50회 기준 ±10~15%p). 두 설정을 비교할 때는 구간이 겹치는지 보십시오.</li>
+<li><strong>같은 명령을 다시 돌리면 결과가 조금 다를 수 있습니다.</strong> 정책 추론은 같은 입력·seed에서 완전히 같지만, 시뮬레이터의 RTX 렌더링이 같은 장면에서도 픽셀을 조금씩 다르게 그립니다(평균 2~3/255). 이 차이 때문에 같은 seed라도 에피소드 결과가 바뀔 수 있습니다. 조교가 T1·T5를 두 번 평가했을 때 성공 수는 45→46, 38→39로 거의 같았지만, seed별 결과는 T1 5개, T5 11개가 서로 달랐습니다(<code>vla_lab/reports/eval_determinism.md</code>). 오라클 수집과 물리는 결정적이라 같은 seed면 시범이 완전히 같습니다.</li>
+</ul>
+<h2>(4) 성공·실패 영상</h2>
+<p>task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장합니다(T6은 실패가 없음).</p>
+<ul>
+<li>T1: <figure><video controls preload="metadata" src="assets/eval/T1_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T1_failure_seed100002.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100002)</figcaption></figure></li>
+<li>T2: <figure><video controls preload="metadata" src="assets/eval/T2_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T2_failure_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100001)</figcaption></figure></li>
+<li>T3: <figure><video controls preload="metadata" src="assets/eval/T3_success_seed100027.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100027)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T3_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T4: <figure><video controls preload="metadata" src="assets/eval/T4_success_seed100008.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100008)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T4_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T5: <figure><video controls preload="metadata" src="assets/eval/T5_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T5_failure_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100001)</figcaption></figure></li>
+<li>T6: <figure><video controls preload="metadata" src="assets/eval/T6_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure></li>
+<li>T7: <figure><video controls preload="metadata" src="assets/eval/T7_success_seed100006.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100006)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T7_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T8: <figure><video controls preload="metadata" src="assets/eval/T8_success_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100001)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T8_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T9: <figure><video controls preload="metadata" src="assets/eval/T9_success_seed100004.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100004)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T9_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T10: <figure><video controls preload="metadata" src="assets/eval/T10_success_seed100003.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100003)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T10_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+</ul>
+<h2>(5) 결과 파일 위치</h2>
+<pre><code class="language-text">~/vla_lab_runs/eval_smolvla_t1_t10/
+├── results.json                     # 10개 task 표 + 평균
+├── failure_analysis.json            # failure_analysis.py 실행 시 생성
+├── T1/
+│   ├── summary.json                 # 성공 수, 최대 step, 걸린 시간, 영상 이름
+│   ├── episodes.json                # 에피소드별 seed, success, steps, 시간
+│   ├── episode_seed100000.npz       # 에피소드별 action과 관측 신호
+│   ├── ...
+│   ├── T1_success_seed100000.mp4
+│   └── T1_failure_seed100002.mp4
+├── T2/
+└── ...
+</code></pre>
+<ul>
+<li><code>results.json</code>: task별 성공 수, 성공률, 95% 신뢰구간(Clopper-Pearson), 10개 task 평균.</li>
+<li><code>Txx/episodes.json</code>: 에피소드별 seed, 성공 여부, step 수, 시간.</li>
+<li><code>Txx/episode_seedNNNNNN.npz</code>: 정책 action과 매 step의 관측 신호(TCP, 그리퍼, 물체 위치, 관절). 실패 분석에 씁니다.</li>
+</ul>
+<hr />
+<h1>6️⃣ VRAM 확인 방법</h1>
+<p>모든 단계는 <strong>VRAM 8GB 이하</strong>에서 돌도록 맞췄습니다. 각자 PC에서 직접 확인하는 방법입니다.</p>
+<h2>(1) 다른 터미널에서 1초마다 보기</h2>
+<pre><code class="language-bash">nvidia-smi --query-compute-apps=pid,used_memory --format=csv -l 1
+</code></pre>
+<h2>(2) 명령을 감싸서 최대값 기록하기</h2>
+<p><code>vla_lab/scripts/vram_monitor.py</code>는 위 명령을 1초마다 실행해 모든 프로세스의 합계를 CSV로 남기고, 끝나면 최대값을 출력합니다.</p>
+<pre><code class="language-bash">conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+python vla_lab/scripts/vram_monitor.py --out ~/vla_lab_runs/vram_test.csv -- \
+    ./vla_lab/train_smolvla.sh --output_dir ~/vla_lab_runs/vram_test --steps=200
+</code></pre>
+<pre><code class="language-text">VRAM_MONITOR child pid 435718
+VRAM cap: 7.0 GB of 23.6 GB (fraction 0.297)
+...
+INFO ... step:200 smpl:3K ep:9 epch:0.02 loss:0.163 grdn:1.049 lr:2.0e-05 updt_s:0.448 data_s:0.017
+PEAK torch reserved 6.10 GB, allocated 5.97 GB
+VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time': '2026-10-30 10:12:20', 'peak_mib_per_pid': {'435718': 6578}}
+</code></pre>
+<ul>
+<li><code>peak_total_mib</code>: 1초 간격으로 잰 <strong>모든 GPU 프로세스 합계</strong>의 최대값. 다른 프로그램(다른 시뮬레이터, 브라우저 등)이 GPU를 쓰면 함께 더해지므로 측정할 때는 끄십시오.</li>
+<li><code>peak_mib_per_pid</code>: 프로세스별 최대값.</li>
+<li>이미 있는 CSV의 최대값만 보려면 <code>python vla_lab/scripts/vram_monitor.py --summary &lt;csv&gt;</code>.</li>
+</ul>
+<h2>(3) 조교 PC 측정값</h2>
+<table>
+<thead>
+<tr>
+<th>단계</th>
+<th>프로세스</th>
+<th>최대 VRAM (<code>nvidia-smi</code>)</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>오라클 수집</td>
+<td>Isaac Sim (카메라 3대)</td>
+<td><strong>2.9~3.3GB</strong> (T1 2.91, T7 3.29)</td>
+<td>task마다 측정</td>
+</tr>
+<tr>
+<td>변환·병합</td>
+<td>CPU 위주</td>
+<td>GPU 거의 사용 안 함</td>
+<td></td>
+</tr>
+<tr>
+<td>학습</td>
+<td>lerobot-train</td>
+<td><strong>6.47GB</strong> (PyTorch 예약 6.15GB)</td>
+<td>batch 16, fp32, 상한 7.0GB</td>
+</tr>
+<tr>
+<td>평가</td>
+<td>시뮬레이터 + 정책 한 프로세스</td>
+<td><strong>4.8~5.3GB</strong></td>
+<td>task마다 측정, 최대는 T10</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>단위는 GB = MiB ÷ 1024 입니다. 모든 단계가 8GB 아래이고, 학습도 7.5GB 목표 아래입니다.</li>
+<li>학습 batch를 바꿀 때 참고: batch 8 → 4.0GB, batch 16 → 6.4GB, batch 32 → OOM (fp32는 7.5GB 상한, bf16은 7.0GB 상한에서 모두 초과, 조교 PC 측정).</li>
+<li>평가와 학습을 동시에 돌리면 합계가 8GB를 넘습니다. 8GB GPU에서는 한 번에 하나만 실행하십시오.</li>
+</ul>
+<hr />
+<h1>7️⃣ 문제 해결 FAQ</h1>
+<p>조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다.</p>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인과 해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'lerobot'</code></td>
+<td><code>lerobot-arena</code>에 LeRobot이 <code>~/lerobot</code>(editable)로 설치돼 있는데 그 폴더가 지워진 경우. <code>cd ~ &amp;&amp; git clone --branch v0.4.3 https://github.com/huggingface/lerobot.git</code> 로 같은 위치에 되돌리면 재설치 없이 import됩니다.</td>
+</tr>
+<tr>
+<td><code>FileNotFoundError: Missing external asset directory: .../rby1-sim-isaac</code></td>
+<td>로봇 USD 레포가 없음. <code>cd ~ &amp;&amp; git clone https://github.com/cailab-hy/rby1-sim-isaac</code> 또는 이미 있는 위치를 <code>export RBY1_SIM_ROOT=/path/to/rby1-sim-isaac</code>로 지정.</td>
+</tr>
+<tr>
+<td>레포를 <code>~/lightwheel_rby1_transfer</code>가 아닌 곳에 clone함</td>
+<td><code>IsaacLab_RS</code>, <code>rby1-sim-isaac</code>를 레포의 상위 폴더에서 찾습니다. <code>export RBY1_ISAACLAB_ROOT=~/IsaacLab_RS</code>, <code>export RBY1_SIM_ROOT=~/rby1-sim-isaac</code>를 설정하십시오(조교가 7단계 재현에서 이 방법으로 확인).</td>
+</tr>
+<tr>
+<td>환경 확인에서 <code>SmolVLA weights: MISSING</code>, 학습 시작 시 Hub 관련 에러</td>
+<td>위 <strong>추가 설치</strong>의 <code>hf download</code> 두 줄을 실행. 학습 스크립트는 오프라인 모드라 자동으로 받지 않습니다.</td>
+</tr>
+<tr>
+<td>학습 중 <code>torch.OutOfMemoryError: CUDA out of memory ... 7.00 GiB allowed</code></td>
+<td>래퍼가 건 7.0GB 상한을 넘은 것. <code>--batch_size</code>를 줄이십시오. 조교 PC에서 batch 32는 bf16 혼합정밀도로도 이 에러가 났고, batch 16은 PyTorch 6.1GB(프로세스 6.4GB)였습니다.</td>
+</tr>
+<tr>
+<td>데이터셋 합치기 끝에 <code>terminate called without an active exception</code></td>
+<td>영상 처리 스레드가 종료 순서 때문에 내는 메시지입니다. 바로 앞에 <code>MERGED ... 500 episodes</code>가 나왔으면 정상이며, 데이터셋은 그대로 로딩됩니다.</td>
+</tr>
+<tr>
+<td>Isaac Sim 로그에 <code>[Warning]</code>, <code>[Error] ... torch_dtype is deprecated</code> 등이 많이 나옴</td>
+<td>정상입니다. 수집기는 <code>[T1] attempt ...</code>, 평가는 <code>[T1] episode ...</code> 줄만 보면 됩니다.</td>
+</tr>
+<tr>
+<td>T3 시범을 <code>replay_dataset.sh --mode action</code>으로 재생했는데 <code>replayed_success_original: false</code></td>
+<td>관절은 기록과 같게 움직이지만(최대 0.002 rad 차이), 케첩을 바구니 안에 떨어뜨리는 순간의 접촉이 민감해서 넘어지는 방향이 달라질 수 있습니다. 조교 PC에서 10개 task 중 T3 하나만 재생 성공이 재현되지 않았습니다. 같은 seed로 <strong>다시 수집</strong>하면 결과가 완전히 같습니다.</td>
+</tr>
+<tr>
+<td><code>FileExistsError: Output directory ... already exists</code> (학습)</td>
+<td>LeRobot은 기존 결과 폴더를 덮어쓰지 않습니다. <code>--output_dir</code>을 새 이름으로 바꾸거나, 이어서 학습하려면 <code>--resume=true --config_path=...</code>를 쓰십시오.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>8️⃣ 더 발전시키려면</h1>
+<p>이번 baseline에는 일부러 넣지 <strong>않은</strong> 것들이 있습니다. 정답은 주지 않습니다. 질문과 단서만 적습니다.</p>
+<ol>
+<li><strong>복구 시범이 없다.</strong> 오라클은 항상 첫 시도에 성공한 깨끗한 시범만 보여 줍니다.<ul>
+<li>정책이 그릇을 살짝 놓쳤을 때, 학습 데이터에 그 상황에서 어떻게 해야 하는지가 있었나요?</li>
+<li>단서: 평가 실패 영상에서 "처음 실수 직후" 장면을 보십시오. 그 상태에서 시작하는 시범을 만들 수 있을까요?</li>
+</ul>
+</li>
+<li><strong>노이즈 주입이 없다.</strong> 오라클 경로는 매번 같은 모양입니다.<ul>
+<li>학습 때 본 적 없는 약간 어긋난 상태에서 정책은 어떻게 행동할까요?</li>
+<li>단서: DART(Laskey et al., 2017). 시범을 기록할 때 실행 동작에만 작은 노이즈를 넣고, 기록하는 action은 원래 오라클의 것으로 두면 무엇이 달라질까요?</li>
+</ul>
+</li>
+<li><strong>다양성 조절.</strong> 물체 배치 범위는 레포 기본값(<code>randomization</code>) 그대로입니다.<ul>
+<li>범위를 넓히면 평가가 쉬워질까요, 어려워질까요? 시범 수는 얼마나 더 필요할까요?</li>
+</ul>
+</li>
+<li><strong>시범 수.</strong> task당 50개입니다.<ul>
+<li>25개, 100개로 바꾸면 성공률 곡선이 어떻게 변하나요? 어떤 task가 데이터에 가장 민감한가요?</li>
+</ul>
+</li>
+<li><strong>학습 설정.</strong><ul>
+<li>평가 때 <code>--n-action-steps 10</code>으로 더 자주 다시 계획하면 접촉이 많은 T5, T9에서 결과가 달라질까요?</li>
+<li>체크포인트 5000/10000/15000/20000 중 어느 것이 가장 좋은가요? 손실(loss)이 낮을수록 성공률도 높은가요?</li>
+</ul>
+</li>
+<li><strong>실패 분석.</strong> <code>vla_lab/scripts/failure_analysis.py</code>로 실패를 단계(접근·파지·운반·배치·시간 초과)별로 나눠 보고, 가장 많이 실패하는 단계를 먼저 공략하십시오.</li>
+</ol></div></article></body></html>

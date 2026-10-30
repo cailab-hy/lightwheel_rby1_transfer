@@ -1,0 +1,156 @@
+{
+  "tasks": [
+    {
+      "task": "T1",
+      "successes": 45,
+      "episodes": 50,
+      "rate": 0.9,
+      "ci95": [
+        0.7818646335657977,
+        0.9667249064109775
+      ],
+      "wall_minutes": 110.7,
+      "videos": {
+        "success": "T1_success_seed100000.mp4",
+        "failure": "T1_failure_seed100002.mp4"
+      }
+    },
+    {
+      "task": "T2",
+      "successes": 31,
+      "episodes": 50,
+      "rate": 0.62,
+      "ci95": [
+        0.4717491630528553,
+        0.7534989222001378
+      ],
+      "wall_minutes": 103.2,
+      "videos": {
+        "success": "T2_success_seed100000.mp4",
+        "failure": "T2_failure_seed100001.mp4"
+      }
+    },
+    {
+      "task": "T3",
+      "successes": 4,
+      "episodes": 50,
+      "rate": 0.08,
+      "ci95": [
+        0.02222796365492976,
+        0.19234278359596277
+      ],
+      "wall_minutes": 293.8,
+      "videos": {
+        "success": "T3_success_seed100027.mp4",
+        "failure": "T3_failure_seed100000.mp4"
+      }
+    },
+    {
+      "task": "T4",
+      "successes": 18,
+      "episodes": 50,
+      "rate": 0.36,
+      "ci95": [
+        0.2291570668205873,
+        0.5080686477143987
+      ],
+      "wall_minutes": 119.2,
+      "videos": {
+        "success": "T4_success_seed100008.mp4",
+        "failure": "T4_failure_seed100000.mp4"
+      }
+    },
+    {
+      "task": "T5",
+      "successes": 38,
+      "episodes": 50,
+      "rate": 0.76,
+      "ci95": [
+        0.6183092518959619,
+        0.8693900838025427
+      ],
+      "wall_minutes": 22.1,
+      "videos": {
+        "success": "T5_success_seed100000.mp4",
+        "failure": "T5_failure_seed100001.mp4"
+      }
+    },
+    {
+      "task": "T6",
+      "successes": 50,
+      "episodes": 50,
+      "rate": 1.0,
+      "ci95": [
+        0.9288782635358024,
+        1.0
+      ],
+      "wall_minutes": 25.9,
+      "videos": {
+        "success": "T6_success_seed100000.mp4",
+        "failure": null
+      }
+    },
+    {
+      "task": "T7",
+      "successes": 9,
+      "episodes": 50,
+      "rate": 0.18,
+      "ci95": [
+        0.08576207810966364,
+        0.31436941128565027
+      ],
+      "wall_minutes": 441.4,
+      "videos": {
+        "success": "T7_success_seed100006.mp4",
+        "failure": "T7_failure_seed100000.mp4"
+      }
+    },
+    {
+      "task": "T8",
+      "successes": 35,
+      "episodes": 50,
+      "rate": 0.7,
+      "ci95": [
+        0.5539176743388218,
+        0.821382154335853
+      ],
+      "wall_minutes": 163.4,
+      "videos": {
+        "success": "T8_success_seed100001.mp4",
+        "failure": "T8_failure_seed100000.mp4"
+      }
+    },
+    {
+      "task": "T9",
+      "successes": 17,
+      "episodes": 50,
+      "rate": 0.34,
+      "ci95": [
+        0.21205471343538174,
+        0.48765248772158837
+      ],
+      "wall_minutes": 402.4,
+      "videos": {
+        "success": "T9_success_seed100004.mp4",
+        "failure": "T9_failure_seed100000.mp4"
+      }
+    },
+    {
+      "task": "T10",
+      "successes": 6,
+      "episodes": 50,
+      "rate": 0.12,
+      "ci95": [
+        0.04533532077366385,
+        0.24310131670556254
+      ],
+      "wall_minutes": 553.4,
+      "videos": {
+        "success": "T10_success_seed100003.mp4",
+        "failure": "T10_failure_seed100000.mp4"
+      }
+    }
+  ],
+  "macro_average": 0.506,
+  "eval_minutes": 2235.5
+}
