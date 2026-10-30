@@ -117,6 +117,7 @@ for i, seed in enumerate(seeds):
         writer = Mp4Writer(out / f"_tmp_seed{seed}.mp4", sim_env.FPS)
     t0 = time.monotonic()
     success, steps, trace, actions = False, 0, [], []
+    self_contact = {}  # "link|link" -> frames in contact (PhysX contact report; fingers of one hand excluded)
     for steps in range(1, horizon + 1):
         env.success.update()
         if env.success.success_original:
@@ -134,9 +135,12 @@ for i, seed in enumerate(seeds):
         if writer is not None:
             writer.frame(env.front_image(), f"{a.task} seed {seed} | step {steps}/{horizon} | t={env.time:5.1f}s")
         env.apply(env.target.copy())
+        for pair in env.self_contact:
+            if pair not in (("ee_finger_l1", "ee_finger_l2"), ("ee_finger_r1", "ee_finger_r2")):
+                self_contact["|".join(pair)] = self_contact.get("|".join(pair), 0) + 1
     wall = time.monotonic() - t0
     rec = {"task": a.task, "seed": seed, "success": success, "steps": steps, "sim_seconds": round(steps / sim_env.FPS, 2),
-           "wall_seconds": round(wall, 1)}
+           "wall_seconds": round(wall, 1), "self_contact_frames": self_contact}
     results.append(rec)
     np.savez_compressed(out / f"episode_seed{seed}.npz", actions=np.array(actions, dtype=np.float32),
                         trace=np.array([json.dumps(r) for r in trace]), landmarks=json.dumps(marks), success=success)
@@ -154,7 +158,8 @@ for i, seed in enumerate(seeds):
           f"({steps} steps, {wall:.0f} s) | {done}/{i + 1}", flush=True)
 
 summary = {"task": a.task, "instruction": instruction, "policy_path": str(a.policy_path), "episodes": len(results),
-           "successes": sum(r["success"] for r in results), "horizon_steps": horizon, "seeds": [seeds[0], seeds[-1]],
+           "successes": sum(r["success"] for r in results),
+           "episodes_with_self_contact": sum(bool(r["self_contact_frames"]) for r in results), "horizon_steps": horizon, "seeds": [seeds[0], seeds[-1]],
            "wall_minutes": round((time.monotonic() - t_all) / 60, 1), "videos": kept}
 (out / "episodes.json").write_text(json.dumps(results, indent=2))
 (out / "summary.json").write_text(json.dumps(summary, indent=2))

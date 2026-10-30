@@ -6,6 +6,11 @@ same scene, World timing (15 fps, 7 physics steps of 1/105 s), robot READY pose,
 per-reset layout randomization and the absolute-pose Differential IK path with the
 same joint slew limit and finger motion. Import this only after SimulationApp exists.
 
+Contact monitor: robot links carry PhysxContactReportAPI (reporting only) and every physics
+step's contacts with a non-zero impulse are collected; after apply(), self_contact holds
+{(link, link): max impulse N*s} of robot-robot contacts and scene_contact {(link, prim): ...}
+of contacts between an arm/torso/head/gripper-body link and the scene, for that frame.
+
 Layout seed: reset(seed) draws the layout with numpy default_rng(seed), so one seed always
 gives the same initial object poses (the collector draws all resets from one RNG instead).
 """
@@ -19,7 +24,8 @@ import omni.usd
 import omni.replicator.core as rep
 import omni.graph.core as og
 from isaacsim.core.nodes.bindings import _isaacsim_core_nodes
-from pxr import UsdGeom
+from pxr import PhysicsSchemaTools, PhysxSchema, Usd, UsdGeom, UsdPhysics
+from omni.physx import get_physx_simulation_interface
 from isaacsim.core.api import World
 from isaacsim.core.prims import SingleArticulation
 from isaacsim.core.utils.stage import open_stage
@@ -66,7 +72,7 @@ def mat_to_quat(R):
 
 
 class TaskEnv:
-    def __init__(self, app, task, joint_speed=0.8, front_video_size=None):
+    def __init__(self, app, task, joint_speed=0.8, front_video_size=None, contact_report=True):
         self.app = app
         self.task = task
         self.joint_speed = joint_speed
@@ -75,9 +81,16 @@ class TaskEnv:
         open_stage(str(self.scene))
         for _ in range(8):
             app.update()
+        self.stage = omni.usd.get_context().get_stage()
+        robot = self.stage.GetPrimAtPath("/World/Robot")
+        for prim in Usd.PrimRange(robot):
+            if contact_report and prim.HasAPI(UsdPhysics.RigidBodyAPI):
+                PhysxSchema.PhysxContactReportAPI.Apply(prim).CreateThresholdAttr().Set(0)
+        self.self_collision = bool(robot.GetAttribute("physxArticulation:enabledSelfCollisions").Get())
+        self.self_contact, self.scene_contact, self._contacts, self._scene = {}, {}, {}, {}
+        self._contact_sub = get_physx_simulation_interface().subscribe_contact_report_events(self._on_contacts)
         self.world = World(physics_dt=PHYSICS_DT * (1 - 1e-12), rendering_dt=1 / FPS, stage_units_in_meters=1)
         self.robot = self.world.scene.add(SingleArticulation(prim_path="/World/Robot", name="rby1"))
-        self.stage = omni.usd.get_context().get_stage()
         self.success = OriginalSuccess(self.world, self.meta)
         self.world.reset()
         self.success.initialize()
@@ -230,22 +243,26 @@ class TaskEnv:
         return t.translation.copy(), t.rotation.copy()
 
     def action(self, q, goals):
-        """goals: side -> (p, R) absolute TCP target in the robot frame, or None to hold.
+        """goals: side -> (p, R) absolute TCP target in the robot frame, None to hold, or
+        {"joints": 7 arm joint targets} (oracle joint-space moves, no IK).
         Collector VR path: absolute DLS IK at the measured q, joint slew limit, finger slew.
         Needs fk(q) first."""
         for side, goal in goals.items():
             if goal is None:
                 continue
+            ids = self.arms[side]
+            limit = self.joint_speed / FPS
+            if isinstance(goal, dict):
+                self.target[ids] = np.clip(goal["joints"], self.target[ids] - limit, self.target[ids] + limit)
+                continue
             pose = self.model.pose(side)
             quat = pin.Quaternion(pose.rotation).coeffs()
             pos = torch.tensor(pose.translation, dtype=torch.float32)[None]
             rot = torch.tensor(np.r_[quat[3], quat[:3]], dtype=torch.float32)[None]
-            ids = self.arms[side]
             jac = pin.getFrameJacobian(self.model.model, self.model.data, self.model.frame[side], pin.LOCAL_WORLD_ALIGNED)[:, self.qidx[ids]]
             ik = self.ik[side]
             ik.set_command(torch.tensor(np.r_[goal[0], mat_to_quat(goal[1])], dtype=torch.float32)[None])
             candidate = ik.compute(pos, rot, torch.tensor(jac, dtype=torch.float32)[None], torch.tensor(q[ids], dtype=torch.float32)[None])[0].numpy()
-            limit = self.joint_speed / FPS
             self.target[ids] = np.clip(candidate, self.target[ids] - limit, self.target[ids] + limit)
         self.finger_step()
         return self.target.copy()
@@ -256,10 +273,31 @@ class TaskEnv:
             self.target[ids] += np.clip(np.array([-opening, opening]) - self.target[ids], -FINGER_SPEED / FPS, FINGER_SPEED / FPS)
         self.target = np.clip(self.target, self.limits[:, 0], self.limits[:, 1])
 
+    def _on_contacts(self, headers, data):
+        for h in headers:
+            a, b = str(PhysicsSchemaTools.intToSdfPath(h.actor0)), str(PhysicsSchemaTools.intToSdfPath(h.actor1))
+            ra, rb = a.startswith("/World/Robot/"), b.startswith("/World/Robot/")
+            if not (ra or rb):
+                continue
+            imp = max((np.linalg.norm(np.asarray(data[i].impulse)) for i in range(h.contact_data_offset, h.contact_data_offset + h.num_contact_data)), default=0.0)
+            if imp <= 0:
+                continue
+            if ra and rb:
+                key, store = tuple(sorted(p.rsplit("/", 1)[-1] for p in (a, b))), self._contacts
+            else:
+                link, other = (a, b) if ra else (b, a)
+                link = link.rsplit("/", 1)[-1]
+                if link.startswith("ee_finger") or link in ("base", "wheel_l", "wheel_r"):
+                    continue
+                key, store = (link, "/".join(other.split("/")[:4])), self._scene
+            store[key] = max(store.get(key, 0.0), float(imp))
+
     def apply(self, act):
         self.robot.apply_action(ArticulationAction(joint_positions=act))
+        self._contacts, self._scene = {}, {}
         for _ in range(SUBSTEPS):
             self.world.step(render=False)
+        self.self_contact, self.scene_contact = self._contacts, self._scene
         self.world.render()
         measured = float(self.world.current_time) - self.time_origin
         assert abs(measured - self.time - 1 / FPS) < 1e-6, (measured, self.time)
@@ -292,7 +330,6 @@ class TaskEnv:
         return rot_z(self.yaw).T @ R_world
 
     def body_pose(self, prim_path):
-        from pxr import Usd
         prim = self.stage.GetPrimAtPath(prim_path)
         m = np.array(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(Usd.TimeCode.Default()), dtype=float).T
         return self.to_robot(m[:3, 3]), self.rot_to_robot(m[:3, :3])
@@ -341,7 +378,6 @@ class TaskEnv:
         """Collision mesh vertices of a link (the handle bars are modelled as boxes), expressed in the
         frame of the link's physics body at its initial (authored) pose. Using the body pose, not the
         USD prim transform, keeps fixture scale out of the local frame."""
-        from pxr import Usd, UsdPhysics
         if not hasattr(self, "_mesh_cache"):
             self._mesh_cache = {}
         if prim_path not in self._mesh_cache:
@@ -399,7 +435,6 @@ class TaskEnv:
 
     def joint_anchor(self, joint_name):
         """World anchor of a USD physics joint (body0 frame localPos0), robot frame."""
-        from pxr import Usd, UsdPhysics
         for p in self.stage.Traverse():
             if p.GetName() == joint_name and p.IsA(UsdPhysics.Joint):
                 j = UsdPhysics.Joint(p)

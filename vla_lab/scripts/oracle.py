@@ -51,6 +51,7 @@ class Oracle:
         self.task = env.task
         self.desired = {s: env.target_pose(s) for s in ["left", "right"]}
         self.active = {"left": False, "right": False}
+        self.joint_goal = {"left": None, "right": None}  # set during joint-space moves
         self.stage = "start"
         self.last_delta = np.zeros(6)
         self.last_side = "left"
@@ -76,7 +77,8 @@ class Oracle:
             if np.linalg.norm(dp) > 1e-9 or np.linalg.norm(dr) > 1e-9:
                 self.last_delta = np.r_[dp, before[s][1] @ dr]
                 self.last_side = s
-        return {s: (self.desired[s] if self.active[s] else None) for s in ["left", "right"]}
+        return {s: ({"joints": self.joint_goal[s]} if self.joint_goal[s] is not None
+                    else self.desired[s] if self.active[s] else None) for s in ["left", "right"]}
 
     def command_vector(self):
         """teleop.command row: commanded TCP delta of the moving arm, arm flag, its gripper state."""
@@ -142,6 +144,40 @@ class Oracle:
         p, R = self.env.home_pose[side]
         yield from self.move(side, p, R, speed=speed, stage=stage, **kw)
 
+    def joint_home(self, side, speed=0.6, stage="retreat", settle=0.5):
+        """Return to READY along a straight line in joint space, commanding the arm joints directly
+        (smooth profile, `speed` rad/s for the joint that moves most). For returns where the IK
+        path would swing the arm through the body or get stuck near joint limits."""
+        self.stage = stage
+        self.last_side = side
+        self.active[side] = True
+        ids = self.env.arms[side]
+        q0, q1 = self.env.target[ids].copy(), self.env.ready[ids].copy()
+        n = max(1, int(math.ceil(np.abs(q1 - q0).max() / speed * FPS)))
+        for k in range(1, n + 1):
+            self.joint_goal[side] = q0 + smooth(k / n) * (q1 - q0)
+            self.desired[side] = self.pose_at(side, self.joint_goal[side])
+            yield
+        for _ in range(int(settle * FPS)):
+            yield
+        self.joint_goal[side] = None
+        p, R = self.env.home_pose[side]
+        self.desired[side] = (p, R)
+        pm, Rm = self.tcp(side)
+        self.log.append((self.stage, round(float(np.linalg.norm(pm - p)), 4), round(float(np.linalg.norm(pin.log3(Rm.T @ R))), 3), []))
+
+    def pose_at(self, side, arm_q):
+        """TCP pose with the arm at `arm_q` (other joints at the current target), computed on a
+        separate pinocchio Data so the Jacobians env.action() uses this step stay intact."""
+        m = self.env.model
+        if not hasattr(self, "_fk_data"):
+            self._fk_data = m.model.createData()
+        q = self.env.target.copy()
+        q[self.env.arms[side]] = arm_q
+        pin.framesForwardKinematics(m.model, self._fk_data, m.q_from_dict(dict(zip(self.env.names, q))))
+        t = self._fk_data.oMf[m.frame[side]]
+        return t.translation.copy(), t.rotation.copy()
+
     # -------------------------------------------------------------- helpers
     def carry_offset(self, side, name):
         """Object centre minus TCP position (robot frame) while the object is held."""
@@ -195,6 +231,25 @@ def nearest_yaw(o, side, Rs):
     return min(Rs, key=lambda R: np.linalg.norm(pin.log3(R0.T @ R)))
 
 
+def camera_up(side, Rs):
+    """Of equivalent gripper rotations pick the one with the wrist D405 mount on top (it sits on
+    ee +y of the left hand and -y of the right one and hangs 2.3 cm below the palm)."""
+    d = np.array([0.0, 1.0 if side == "left" else -1.0, 0.0])
+    return max(Rs, key=lambda R: (R @ d)[2])
+
+
+def vertical_mount_clear(o, side, close, hand_xy, keep_out_xy, keep_out_r):
+    """vertical(), unless the D405 mount (8.9 cm to one side of a vertical hand) would reach over
+    a keep-out disc (e.g. a basket next to the grasped object); then the hand turned by 180 deg.
+    Only flip when needed: the flipped hand puts the arm on another wrist branch."""
+    d = np.array([0.0, 1.0 if side == "left" else -1.0, 0.0])
+    R = vertical(o, side, close)
+    tip = np.asarray(hand_xy)[:2] + 0.089 * (R @ d)[:2]
+    if np.linalg.norm(tip - np.asarray(keep_out_xy)[:2]) < keep_out_r:
+        R = frame(-UP, -R[:, 0])
+    return R
+
+
 def vertical(o, side, close):
     close = unit(close)
     return nearest_yaw(o, side, [frame(-UP, close), frame(-UP, -close)])
@@ -216,7 +271,9 @@ def plan_T1(o):
     bowl = o.env.object_center("bowl")
     # resting bowl centre on the plate: plate top + the bowl's centre height above its support
     rest = np.array([plate[0], plate[1], plate[3] + (bowl[3] - bowl[2])])
-    yield from pinch_rim_plan(o, "left", "bowl", rest)
+    # Vertical hand: the READY hand is tilted ~40 deg, which drops the palm's edge to TCP height and
+    # into the rim; vertical, the palm is 3.2 cm and the D405 mount 2.3 cm above the TCP.
+    yield from pinch_rim_plan(o, "left", "bowl", rest, depth=0.012, R=vertical(o, "left", [1.0, 0.0, 0.0]))
     yield from o.home("left")
 
 
@@ -239,9 +296,21 @@ def basket_drop(o, side, obj, basket, R, dy=0.0, stage_prefix=""):
     yield from o.move(side, np.r_[above[:2], max(o.desired[side][0][2], above[2])], R, stage=stage_prefix + "carry")
     inside = above.copy()
     inside[2] = basket[2] - (basket[3] - basket[2]) + 0.05 + half - off[2]  # bottom ~5 cm above the basket floor
+    # but keep the gripper body out of the narrow basket (its lowest part, the D405 mount of the
+    # vertical hand, 2 cm above the rim): lowered inside, the hand wedged and lifted the basket
+    inside[2] = max(inside[2], rim_top + 0.02 - 0.0226)
     yield from o.move(side, inside, R, speed=0.06, stage=stage_prefix + "place")
     yield from o.grip(side, False, 1.0, stage=stage_prefix + "release")
     yield from o.move(side, np.r_[inside[:2], rim_top + 0.12], R, speed=0.08, stage=stage_prefix + "release_up")
+
+
+def vertical_retreat(o, side, R, stage="retreat"):
+    """From a vertical hand: back over the hand's own side, still vertical and above its READY
+    height, then turn to READY in joint space. Turning on the way (IK) lifted the right elbow into
+    the head and torso; a joint-space line straight from the basket dipped the hand into its rim."""
+    home_p = o.env.home_pose[side][0]
+    yield from o.move(side, np.r_[home_p[:2], max(o.desired[side][0][2], home_p[2] + 0.05)], R, stage=stage)
+    yield from o.joint_home(side, stage=stage)
 
 
 def plan_T3(o):
@@ -249,8 +318,9 @@ def plan_T3(o):
     obj = "ketchup"
     _, Rk = o.env.object_pose(o.env.success_key(obj))
     narrow = Rk[:, 1] if size_of(o, obj)[1] < size_of(o, obj)[0] else Rk[:, 0]
-    R = vertical(o, side, np.r_[narrow[:2], 0.0])
     basket = o.env.object_center("basket")
+    R = vertical_mount_clear(o, side, np.r_[narrow[:2], 0.0], o.env.object_center(obj), basket,
+                             size_of(o, "basket")[:2].max() / 2 + 0.01)
     yield from grasp_top(o, side, obj, R, depth=0.03, lift_to=basket[3] + size_of(o, obj)[2] + 0.06)
     yield from basket_drop(o, side, obj, basket, R)
     yield from o.home(side)
@@ -262,7 +332,7 @@ def plan_T10(o):
         R = vertical(o, side, [1.0, 0.0, 0.0])
         yield from grasp_top(o, side, obj, R, depth=0.03, lift_to=basket[3] + size_of(o, obj)[2] + 0.06, stage_prefix=f"{obj}:")
         yield from basket_drop(o, side, obj, basket, R, dy=dy, stage_prefix=f"{obj}:")
-        yield from o.home(side, stage=f"{obj}:retreat")
+        yield from vertical_retreat(o, side, R, stage=f"{obj}:retreat")
 
 
 def plan_T8(o):
@@ -270,7 +340,9 @@ def plan_T8(o):
     mid = o.env.object_center("middle_bowl")
     rim = size_of(o, "middle_bowl")[0] / 2 - 0.006
     rest = np.array([back[0], back[1], back[3] + 0.5 * (mid[3] - mid[2])])
-    yield from pinch_rim_plan(o, "left", "middle_bowl", rest, rim=rim, place_dz=0.015)
+    # vertical hand: with the tilted READY hand the palm edge hits the rim (see plan_T1)
+    yield from pinch_rim_plan(o, "left", "middle_bowl", rest, rim=rim, depth=0.012, place_dz=0.015,
+                              R=vertical(o, "left", [1.0, 0.0, 0.0]))
     yield from o.home("left")
 
 
@@ -368,7 +440,9 @@ def plan_T9(o):
     # not reach under the middle drawer's handle
     front = o.env.handle_point("Drawer003")[0] + 0.017
     rest = np.array([front + 0.095, inside[1], inside[2] + half])
-    yield from pinch_rim_plan(o, side, "bowl", rest, rim=rim, clearance=0.12, lift=0.14, place_dz=0.015, stage_prefix="bowl:")
+    # vertical hand: with the tilted READY hand the palm edge hits the rim (see plan_T1)
+    yield from pinch_rim_plan(o, side, "bowl", rest, rim=rim, depth=0.012, clearance=0.12, lift=0.14, place_dz=0.015,
+                              R=vertical(o, side, [1.0, 0.0, 0.0]), stage_prefix="bowl:")
     # push the open bottom drawer shut in two stages: (1) READY hand, closed fingertips on the handle
     # bar, until ~6 cm remain; (2) the READY hand would then hit the cabinet face above the drawer,
     # so finish with the fingertips pointing forward (70 deg tilt, 45 deg inward; offline search
@@ -413,29 +487,73 @@ def tilt_frame(o, side, tilt_deg, side_deg, roll_deg):
     return a, nearest_yaw(o, side, [frame(a, c), frame(a, -c)])
 
 
+def door_angle(o, joint="microjoint"):
+    """Current angle (rad) of a fixture door joint."""
+    for key in o.env.success.arts:
+        for name, v in o.env.fixture_joints(key).items():
+            if joint in name:
+                return float(v)
+    raise KeyError(joint)
+
+
 def plan_T5(o):
+    """Pull the handle ~10 deg, then push the door open from behind its free edge.
+    Following the handle all the way winds the right wrist to its joint limits and brings the elbow
+    into the torso on the way back; pushing keeps the hand vertical at a fixed yaw."""
     side = "right"
     hinge, handle, theta0 = o.env.microwave_geometry()
-    pitch = np.radians(40)
+    # door plane while closed: the 1 cm slab at the inner (largest x) side of the door link; the
+    # handle stands 4.5 cm proud of it, so the hinge->handle line is ~10 deg off the plane
+    lo, hi = o.env.link_box("Microwave089_door")
+    edge = np.array([hi[0] - 0.005, lo[1]])
+    u = edge - hinge[:2]
+    r = np.linalg.norm(u) - 0.03  # push 3 cm in from the free edge
+    u = u / np.linalg.norm(u)
+    n = np.array([-u[1], u[0]])
+    n = n if n[0] > 0 else -n  # door normal toward its inner side (+x, away from the robot, when closed)
+    z = hi[2] - 0.006  # palm and D405 mount above the door top
+
+    def post(ang, off):
+        """Centre of the closed fingers (a 3.2 cm post) at door angle `ang`, `off` from the door
+        mid-plane on its inner side: it touches the door at 2.1 cm, clears it at 2.6, pushes at 1.6."""
+        return np.r_[hinge[:2] + rot_about(UP, -ang)[:2, :2] @ (r * u + off * n), z]
+
+    # 25 deg pitch: steeper, the far end of the D405 mount (on top) leans into the curved handle bar
+    pitch = np.radians(25)
     a = np.array([np.cos(pitch), 0.0, -np.sin(pitch)])
-    R = nearest_yaw(o, side, [frame(a, [0, 1, 0]), frame(a, [0, -1, 0])])
+    R = camera_up(side, [frame(a, [0, 1, 0]), frame(a, [0, -1, 0])])
     g = handle - 0.004 * a
     yield from o.move(side, g - 0.10 * a, R, stage="approach")
     yield from o.move(side, g, R, speed=0.05, tol=0.005, settle=1.5, stage="pregrasp")
     yield from o.grip(side, True, 1.0, stage="grasp")
-    # follow the door arc about the hinge (opening = rotation by -angle about +z)
-    target = np.radians(68)
+    # pull along the door arc (opening = rotation by -angle about +z); only ~10 deg, further on
+    # right_arm_1 (shoulder) reaches its joint limit
+    Rz = rot_about(UP, -np.radians(9))
+    yield from o.move(side, hinge + Rz @ (g - hinge), Rz @ R, speed=0.06, wspeed=0.5, settle=0.0, stage="open")
+    yield from o.wait(0.6)  # hold until the door stops swinging
+    # the hand lags the arc goal (the door resists); command where it is so that it does not keep
+    # shoving the handle once released
+    o.desired[side] = o.tcp(side)
+    yield from o.grip(side, False, 0.8, stage="release")
+    # the fingertips are inside the handle loop: back straight out along the approach axis as the
+    # door has turned it, then lift above the door
+    back = rot_about(UP, -door_angle(o)) @ a
+    yield from o.move(side, o.desired[side][0] - 0.08 * back + 0.01 * UP, stage="release_back")
+    p = o.desired[side][0]
+    yield from o.move(side, np.r_[p[:2], z + 0.12], stage="push_lift")
+    yield from o.grip(side, True, 0.6, stage="push_close")
+    Rv = vertical(o, side, [0.0, 1.0, 0.0])
+    yield from o.move(side, o.desired[side][0], Rv, wspeed=0.6, stage="push_turn")
+    start = door_angle(o)
+    yield from o.move(side, post(start, 0.026) + 0.12 * UP, Rv, stage="push_approach")
+    yield from o.move(side, post(start, 0.026), Rv, speed=0.06, tol=0.006, stage="push_insert")
+    target = np.radians(80)  # success needs 54 deg (0.6 of the 90 deg range); the door lags the post
     steps = 6
     for k in range(1, steps + 1):
-        ang = -target * k / steps
-        Rz = rot_about(UP, ang)
-        p = hinge + Rz @ (g - hinge)
-        yield from o.move(side, p, Rz @ R, speed=0.06, wspeed=0.5, settle=0.0, stage="open")
-    yield from o.wait(0.5)
-    yield from o.grip(side, False, 0.8, stage="release")
-    Rz = rot_about(UP, -target)
-    p = o.desired[side][0]
-    yield from o.move(side, p - 0.10 * (Rz @ a), stage="release_back")
+        ang = start + (target - start) * k / steps
+        yield from o.move(side, post(ang, 0.016), Rv, speed=0.08, settle=0.0, stage="push")
+    yield from o.wait(0.3)
+    yield from o.move(side, o.desired[side][0] + 0.10 * UP, Rv, stage="push_up")
     yield from o.home(side)
 
 

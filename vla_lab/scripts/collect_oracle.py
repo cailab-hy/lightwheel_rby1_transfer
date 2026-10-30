@@ -4,6 +4,10 @@ Attempt k uses layout seed (--seed-start + k). Only the first try of each seed i
 whose attempt fails is skipped (its failure is logged, nothing is saved). Raw episodes go to
 <output>_raw/episode-<id>/ exactly like collect_keyboard.sh, so export_dataset.sh and --validate
 work unchanged. Attempt log: <output>_raw/oracle_attempts.jsonl; summary: oracle_summary.json.
+
+A successful attempt is still rejected (failure stage "self_contact") if any two robot links touched
+during it, from the PhysX contact report (sim_env.TaskEnv.self_contact). The two fingers of one
+gripper meeting each other when the gripper closes is allowed.
 """
 import argparse
 import json
@@ -91,9 +95,16 @@ def view_image(images=None):
     return np.asarray(canvas)
 
 
+FINGER_PAIRS = {("ee_finger_l1", "ee_finger_l2"), ("ee_finger_r1", "ee_finger_r2")}
+self_contacts = {}  # (link, link) -> [frames, max impulse N*s, first frame], current attempt
+scene_contacts = {}  # (non-finger link, scene prim) -> same; diagnostics only
+
+
 def run_attempt(seed, record, writer):
     env.reset(seed)
     oracle = Oracle(env)
+    self_contacts.clear()
+    scene_contacts.clear()
     if record:
         rec.start(env.initial_state())
     frames = 0
@@ -121,6 +132,18 @@ def run_attempt(seed, record, writer):
             writer.frame(view_image(images if record else None), f"{a.task} seed {seed} | t={env.time:5.1f}s | {oracle.stage}"
                          + (" | success_original" if done else ""))
         env.apply(act)
+        for pair, imp in env.self_contact.items():
+            if pair not in FINGER_PAIRS:
+                c = self_contacts.setdefault(pair, [0, 0.0, frames])
+                c[0] += 1
+                c[1] = max(c[1], imp)
+        for pair, imp in env.scene_contact.items():
+            c = scene_contacts.setdefault(pair, [0, 0.0, frames])
+            c[0] += 1
+            c[1] = max(c[1], imp)
+        if done and self_contacts:
+            oracle.stage = "self_contact"
+            return False, frames, oracle
         if done and not env.success.raw_predicate:
             # success_original latches ~3.5 s after the predicate first holds, even if the task was
             # undone meanwhile (e.g. the object slid off again). Keep only demonstrations whose final
@@ -208,11 +231,17 @@ try:
         saved += bool(ok)
         entry = {"task": a.task, "seed": seed, "saved": bool(ok), "frames": frames, "seconds": round(frames / sim_env.FPS, 2),
                  "failure_stage": None if ok else oracle.stage, "raw": raw.name if raw else None,
-                 "wall_s": round(time.monotonic() - t0, 1), "final_state": diagnostics(), "moves": oracle.log}
+                 "wall_s": round(time.monotonic() - t0, 1), "final_state": diagnostics(),
+                 "self_contacts": {f"{p[0]}|{p[1]}": {"frames": c[0], "max_impulse": round(c[1], 5), "first_frame": c[2]}
+                                   for p, c in self_contacts.items()},
+                 "scene_contacts": {f"{p[0]}|{p[1]}": {"frames": c[0], "max_impulse": round(c[1], 5), "first_frame": c[2]}
+                                    for p, c in scene_contacts.items()},
+                 "moves": oracle.log}
         with log_path.open("a") as f:
             f.write(json.dumps(entry) + "\n")
         print(f"[{a.task}] attempt {attempts} seed {seed}: {'SAVED' if ok else 'FAILED at ' + oracle.stage} "
-              f"({frames} frames, {entry['wall_s']} s) | saved {saved}/{a.num_demos}", flush=True)
+              f"({frames} frames, {entry['wall_s']} s) | saved {saved}/{a.num_demos}"
+              + (f" | self contact {sorted(entry['self_contacts'])}" if self_contacts else ""), flush=True)
         seed += 1
 finally:
     rec.close()
