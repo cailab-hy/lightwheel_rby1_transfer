@@ -65,7 +65,8 @@ Path: /home/cai/lerobot/src/lerobot/__init__.py
 
 ========== Repositories ==========
 lightwheel_rby1_transfer: <commit> (vla-lab-v1)
-rby1-sim-isaac: ba52496 (main)
+rby1-sim-isaac: 146bec3 (selfcollision-hulls)
+Robot self-collision layer: OK
 
 ========== SmolVLA weights (HF cache) ==========
 lerobot/smolvla_base: OK
@@ -77,6 +78,7 @@ NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
 
 - GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
 - `<commit>` 자리에는 `vla-lab-v1` 브랜치의 commit 해시(7자리)가 나옵니다.
+- `Robot self-collision layer: MISSING`이면 로봇 레포가 `main`입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset(`selfcollision-hulls` 브랜치)을 씁니다: `git -C ~/rby1-sim-isaac checkout selfcollision-hulls`.
 - `SmolVLA weights`가 `MISSING`이면 아래 **추가 설치**를 먼저 하십시오.
 
 **2. 경로 설정 확인**
@@ -142,20 +144,21 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 - 기록 형식도 키보드 수집기와 같은 raw 형식(`<output>_raw/episode-*/`)입니다. 그래서 기존 `export_dataset.sh`, `--validate`, `replay_dataset.sh`가 그대로 동작합니다.
 - **복구 동작은 없습니다.** 재파지, 노이즈, 재시도를 하지 않습니다. 첫 시도가 실패한 seed는 저장하지 않고 다음 seed로 넘어갑니다(실패 수와 원인만 기록).
 - 오라클 자체에는 무작위성이 없습니다. 물체 배치만 seed(`numpy.random.default_rng(seed)`)로 정해집니다.
+- 로봇은 자기 몸과 충돌합니다(팔·몸통·머리·손바닥이 convex hull 충돌체). 수집기는 PhysX 접촉 보고로 로봇 링크끼리 닿았는지 매 step 확인하고, 닿은 시범은 성공해도 저장하지 않습니다(실패 원인 `self_contact`, 한 손의 두 손가락끼리 닿는 것은 허용).
 - 성공 판정 후 저장 직전에 원래 조건이 아직 성립하는지 한 번 더 확인합니다. `success_original`은 조건이 한 번 성립하면 3.5초 뒤 확정되므로, 그사이 물체가 미끄러져 조건이 깨진 시범도 성공으로 남을 수 있기 때문입니다(실패 원인 `latched_then_undone`).
 
 | Task | 사용하는 팔 | 하위 동작 |
 |---|---|---|
-| T1 | 왼팔 | 그릇의 로봇 쪽 테두리 집기 → 들기 → 접시 위로 운반 → 놓기 → 위로 → 준비 자세 |
+| T1 | 왼팔 | 손을 수직으로 세워 그릇의 로봇 쪽 테두리 집기 → 들기 → 접시 위로 운반 → 놓기 → 위로 → 준비 자세 |
 | T2 | 왼팔 | T1과 같음 (쿠키 상자 위 그릇, 더 얕게 집기) |
-| T3 | 왼팔 | 케첩 위에서 수직으로 집기 → 바구니 테두리 위로 들기 → 바구니 안에 놓기 → 준비 자세 |
+| T3 | 왼팔 | 케첩 위에서 수직으로 집기 → 바구니 테두리 위로 들기 → 테두리 바로 위에서 놓아 떨어뜨리기 → 준비 자세 |
 | T4 | 왼팔 | 손잡이에 접근 → 손가락 하나를 손잡이 뒤 틈에 걸어 잡기 → 14cm 당기기 → 놓고 위·뒤로 → 준비 자세 |
-| T5 | 오른팔 | 손잡이(세로 막대) 잡기 → 경첩 중심으로 원호를 따라 68° 열기 → 놓고 뒤로 → 준비 자세 |
+| T5 | 오른팔 | 손잡이(세로 막대) 잡고 약 10° 당기기 → 놓고 손잡이에서 빠지기 → 손가락을 모아 문 안쪽 끝 뒤에 넣기 → 원호를 따라 밀어 열기 → 위로 → 준비 자세 |
 | T6 | 왼팔 | 손잡이 능선을 위에서 집기 → 수직축으로 0.9 rad 돌리기 → 놓고 위로 → 준비 자세 |
 | T7 | 왼팔 | 위 서랍 끝까지 당기기 → 그릇 테두리 집기 → 높이 들어 서랍 위로 → 서랍 앞쪽에 놓기 → 서랍에서 떨어진 자세 |
-| T8 | 왼팔 | 가운데 그릇 테두리 집기 → 뒤쪽 그릇 위로 운반 → 놓기 → 준비 자세 |
+| T8 | 왼팔 | 손을 수직으로 세워 가운데 그릇 테두리 집기 → 뒤쪽 그릇 위로 운반 → 놓기 → 준비 자세 |
 | T9 | 왼팔 | 그릇을 열린 아래 서랍에 넣기 → 손끝으로 손잡이를 밀어 닫기(2단계) → 준비 자세 |
-| T10 | 왼팔 → 오른팔 | 수프(왼팔)를 바구니에 넣고 복귀 → 토마토 소스(오른팔)를 바구니에 넣고 복귀 |
+| T10 | 왼팔 → 오른팔 | 수프(왼팔)를 바구니에 넣고 복귀 → 토마토 소스(오른팔)를 바구니에 넣고 복귀 (복귀: 수직 손 그대로 제자리 위로 → 관절 공간 직선으로 준비 자세) |
 
 ## (2) 수집 명령어
 
@@ -197,35 +200,39 @@ done
 ## (3) 출력 예시
 
 ```text
-[T9] attempt 1 seed 0: SAVED (494 frames, 110.4 s) | saved 1/3
-[T9] attempt 2 seed 1: SAVED (502 frames, 113.0 s) | saved 2/3
-[T9] attempt 3 seed 2: FAILED at hold (750 frames, 171.7 s) | saved 2/3
-[T9] attempt 4 seed 3: SAVED (497 frames, 112.2 s) | saved 3/3
-SUMMARY {"task": "T9", "attempts": 4, "saved": 3, "oracle_success_rate": 0.75, "seeds": [0, 3], "failures_by_stage": {"hold": 1}, "mean_seconds_saved": 33.18, ...}
+[T9] attempt 1 seed 0: SAVED (496 frames, 406.6 s) | saved 1/50
+[T9] attempt 2 seed 1: SAVED (512 frames, 425.4 s) | saved 2/50
+...
+[T9] attempt 33 seed 32: FAILED at hold (750 frames, 654.0 s) | saved 32/50
+...
+[T9] attempt 50 seed 49: SAVED (504 frames, 335.8 s) | saved 49/50
+SUMMARY {"task": "T9", "attempts": 51, "saved": 50, "oracle_success_rate": 0.9804, "seeds": [0, 50], "failures_by_stage": {"hold": 1}, "mean_seconds_saved": 33.8, ...}
 ```
 
-- `<output>_raw/oracle_attempts.jsonl`: 시도마다 seed, 저장 여부, 길이, 실패한 하위 동작.
+- `<output>_raw/oracle_attempts.jsonl`: 시도마다 seed, 저장 여부, 길이, 실패한 하위 동작, 로봇 링크끼리 닿은 접촉(`self_contacts`), 팔·손바닥이 장면에 닿은 접촉(`scene_contacts`).
+- 로봇 링크끼리 닿은 시도는 `FAILED at self_contact ... | self contact [...]`로 표시됩니다.
 - `<output>_raw/oracle_summary.json`: 시도 수, 성공 수, 오라클 성공률, 실패 원인별 횟수.
 
 ## (4) 오라클 결과 (조교 PC)
 
 | Task | 시도 | 저장 | 오라클 성공률 | 실패 원인 | 평균 길이(초) | 수집 시간(분) | 최대 VRAM |
 |---|---|---|---|---|---|---|---|
-| T1 | 50 | 50 | 100.0% | - | 17.23 | 52.7 | 2.91 GB |
-| T2 | 51 | 50 | 98.0% | 확정 후 조건 깨짐 1 | 16.96 | 53.8 | 3.11 GB |
-| T3 | 54 | 50 | 92.6% | 시간 초과(하위 동작 실패) 4 | 23.82 | 71.0 | 3.20 GB |
-| T4 | 50 | 50 | 100.0% | - | 17.07 | 35.0 | 2.94 GB |
-| T5 | 50 | 50 | 100.0% | - | 13.73 | 26.2 | 2.92 GB |
-| T6 | 50 | 50 | 100.0% | - | 14.27 | 28.0 | 3.11 GB |
-| T7 | 62 | 50 | 80.7% | 시간 초과(하위 동작 실패) 8, 확정 후 조건 깨짐 4 | 38.19 | 87.4 | 3.29 GB |
-| T8 | 52 | 50 | 96.2% | 시간 초과(하위 동작 실패) 2 | 18.85 | 41.8 | 2.94 GB |
-| T9 | 64 | 50 | 78.1% ⚠️ | 시간 초과(하위 동작 실패) 14 | 34.92 | 69.6 | 3.22 GB |
-| T10 | 51 | 50 | 98.0% | 시간 초과(하위 동작 실패) 1 | 48.18 | 84.2 | 3.28 GB |
-| 합계 | 534 | 500 | 93.6% | | | 550 | |
+| T1 | 51 | 50 | 98.0% | 시간 초과(하위 동작 실패) 1 | 17.53 | 53.8 | 3.12 GB |
+| T2 | 50 | 50 | 100.0% | - | 16.95 | 54.6 | 3.25 GB |
+| T3 | 55 | 50 | 90.9% | 시간 초과(하위 동작 실패) 5 | 22.70 | 94.9 | 3.12 GB |
+| T4 | 50 | 50 | 100.0% | - | 17.20 | 29.0 | 3.12 GB |
+| T5 | 50 | 50 | 100.0% | - | 27.07 | 246.3 | 3.16 GB |
+| T6 | 50 | 50 | 100.0% | - | 14.27 | 39.8 | 3.27 GB |
+| T7 | 50 | 50 | 100.0% | - | 41.27 | 114.5 | 3.29 GB |
+| T8 | 51 | 50 | 98.0% | 확정 후 조건 깨짐 1 | 18.83 | 61.6 | 3.12 GB |
+| T9 | 51 | 50 | 98.0% | 시간 초과(하위 동작 실패) 1 | 33.80 | 340.2 | 3.28 GB |
+| T10 | 51 | 50 | 98.0% | 시간 초과(하위 동작 실패) 1 | 41.46 | 122.5 | 3.34 GB |
+| 합계 | 509 | 500 | 98.2% | | | | |
 
-- 수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 **task 3개를 동시에** 수집하며 잰 값입니다(시범 저장 시 PNG 3장/step을 쓰므로 CPU가 병목). 학습과 함께 돌린 T1 축소판은 시범 하나에 약 56~59초(시뮬레이션 17초)였습니다.
-- 최대 VRAM은 `vram_monitor.py`로 잰 수집 프로세스 하나의 값입니다(MiB ÷ 1024). 모든 task가 3.3GB 이하입니다.
-- **T9 오라클 성공률은 78.1%로 목표(80%)보다 조금 낮습니다.** 실패 14회 중 11회는 그릇은 서랍에 들어갔지만 서랍이 끝까지(관절 0.00115m 이하) 닫히지 않은 경우, 3회는 그릇이 서랍 밖에 놓인 경우입니다. 손끝으로 손잡이를 미는 접촉이 미끄러지거나, 다 닫은 뒤 손을 뺄 때 서랍이 조금 다시 열립니다. 저장된 시범 50개는 모두 성공 판정을 통과한 것이라 데이터 품질에는 영향이 없고, 수집에 seed를 더 쓸 뿐입니다.
+- **로봇 링크끼리 닿은 시도는 509번 중 0번**입니다(실패 원인 `self_contact` 없음). `self_collision_check.py`로 저장된 시범 500개를 다시 계산해도 링크끼리 겹친 step이 없습니다.
+- 수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 **task 3개를 동시에 수집하면서 변환(`export_dataset.sh`)도 1~2개 함께 돌린** 값입니다(CPU가 병목). 마지막에 남은 T5·T9는 다른 작업이 가장 많을 때 돌아 특히 오래 걸렸습니다. 혼자 돌리면 훨씬 짧습니다.
+- 최대 VRAM은 `vram_monitor.py`로 잰 수집 프로세스 하나의 값입니다(MiB ÷ 1024). 모든 task가 3.4GB 이하입니다.
+- T3 실패 5회는 모두 제한 시간까지 성공 조건이 성립하지 않은 경우(`hold`)입니다. 이 중 3회는 손목의 D405 카메라 마운트가 파지 직전에 바구니 테두리를 오래 누른 경우입니다. 저장된 시범 4개에도 마운트가 테두리에 잠깐(3~7 step) 닿는 장면이 있습니다(물리적으로 막히는 접촉이며 관통은 아님).
 - 같은 seed는 항상 같은 결과입니다. 새 폴더에 다시 clone해 T1·T9를 수집했을 때 seed별 성공 여부, 길이, 초기 배치, 기록된 관절 값이 모두 처음 수집과 같았습니다(최대 차이 0).
 
 각 task의 첫 번째 저장 시범을 `replay_dataset.sh --mode action --video`로 정면 카메라에서 녹화한 영상입니다.
@@ -308,8 +315,8 @@ cd ~/lightwheel_rby1_transfer
 ~/datasets/vla_lab/T8/oracle: 50 episodes, task ['T8']
 ~/datasets/vla_lab/T9/oracle: 50 episodes, task ['T9']
 ~/datasets/vla_lab/T10/oracle: 50 episodes, task ['T10']
-MERGED ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle: 500 episodes, 182419 frames, 10 tasks
-(소요 약 9분)
+MERGED ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle: 500 episodes, 188315 frames, 10 tasks
+(소요 약 10분)
 ```
 
 ## (3) 데이터 요약
@@ -324,17 +331,17 @@ cd ~/lightwheel_rby1_transfer
 
 ```text
 task   eps  len mean   min   max  sec mean    min    max  switch   idle
-T1      50     258.5   252   268      17.2   16.8   17.9     2.0  26.7%
-T2      50     254.3   249   263      17.0   16.6   17.5     2.0  27.2%
-T3      50     357.4   340   397      23.8   22.7   26.5     2.0   9.3%
-T4      50     256.0   256   256      17.1   17.1   17.1     2.0  24.3%
-T5      50     206.0   206   206      13.7   13.7   13.7     2.0  10.2%
+T1      50     262.9   253   271      17.5   16.9   18.1     2.0  15.7%
+T2      50     254.3   249   264      17.0   16.6   17.6     2.0  27.2%
+T3      50     340.6   322   380      22.7   21.5   25.3     2.0  10.0%
+T4      50     258.0   258   258      17.2   17.2   17.2     2.0  22.2%
+T5      50     406.0   406   406      27.1   27.1   27.1     3.0   9.1%
 T6      50     214.0   214   214      14.3   14.3   14.3     2.0  27.2%
-T7      50     572.8   425   609      38.2   28.3   40.6     3.9  13.0%
-T8      50     282.8   272   307      18.9   18.1   20.5     2.0  25.4%
-T9      50     523.8   493   606      34.9   32.9   40.4     3.0   7.0%
-T10     50     722.7   664   781      48.2   44.3   52.1     4.0   8.9%
-total: 500 episodes, 182419 steps (202.7 min)
+T7      50     619.1   611   627      41.3   40.7   41.8     4.0   9.4%
+T8      50     282.5   276   297      18.8   18.4   19.8     2.0  12.1%
+T9      50     507.0   495   522      33.8   33.0   34.8     3.0   8.6%
+T10     50     621.9   608   648      41.5   40.5   43.2     4.0  11.1%
+total: 500 episodes, 188315 steps (209.2 min)
 ```
 
 - `len` — 시범 길이(step 수). `sec`는 15fps 기준 초(len / 15).
@@ -352,13 +359,19 @@ cd ~/lightwheel_rby1_transfer
 ```
 
 ```text
-REPLAY episode 0: task T1, 256 frames at 15 fps, mode action
-VIDEO ~/vla_lab_runs/replay/T1_episode_0_action.mp4 (286 frames, 19.1 s)
-RESULT {"episode": "episode 0", "frames": 256, "recorded_success": true, "replayed_success_original": true, "max_joint_drift_rad": 0.0017, "final_joint_drift_rad": 0.0, ...}
-RESULT {"episode": "episode 1", "frames": 265, "recorded_success": true, "replayed_success_original": true, "max_joint_drift_rad": 0.0009, "final_joint_drift_rad": 0.0, ...}
+REPLAY episode 0: task T1, 258 frames at 15 fps, mode action
+VIDEO ~/vla_lab_runs/replay/T1_episode_0_action.mp4 (288 frames, 19.2 s)
+RESULT {"episode": "episode 0", "frames": 258, "recorded_success": true, "replayed_success_original": true, "max_joint_drift_rad": 0.0033, "final_joint_drift_rad": 0.0, ...}
+REPLAY episode 1: task T1, 267 frames at 15 fps, mode action
+VIDEO ~/vla_lab_runs/replay/T1_episode_1_action.mp4 (297 frames, 19.8 s)
+RESULT {"episode": "episode 1", "frames": 267, "recorded_success": true, "replayed_success_original": true, "max_joint_drift_rad": 0.0014, "final_joint_drift_rad": 0.0, ...}
 ```
 
 `replayed_success_original: true`이면 재현된 것입니다. `--headless`를 빼면 창으로 볼 수 있습니다.
+
+조교가 task마다 시범 10개(episode 0~9)를 재생했을 때 T3을 뺀 9개 task는 모두 10/10 재현됐습니다. 관절 차이는 대부분 0.005 rad 이하이고, 손으로 문·서랍을 미는 T5(최대 0.25 rad), T9(0.07), T7(0.03)이 큽니다.
+
+**T3은 `replay_dataset.sh`로 재생하면 대부분 실패합니다(2/9).** 시범 문제가 아니라 재생 도구(`scripts/replay_episode.py`)가 raw 기록에서 장면을 복원할 때 케첩(관절이 있는 자유 물체)의 위치를 복원하지 않기 때문입니다. 케첩이 장면 기본 위치(3.6cm 떨어진 곳)에 남은 채 재생됩니다. 조교가 이 위치만 복원하도록 고친 복사본으로 재생하면 10/10이 재현됐습니다(관절 차이 0.0004 rad 이하).
 
 [▶ T1 시범 재생 (episode 0, action 모드)](assets/replay/T1_episode_0_action.mp4)
 

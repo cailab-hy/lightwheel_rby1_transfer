@@ -45,6 +45,12 @@ echo "========== Repositories =========="
 for d in "$RBY_PROJECT_DIR" "${RBY1_SIM_ROOT:-$REPOS/rby1-sim-isaac}"; do
     echo "$(basename "$d"): $(git -C "$d" rev-parse --short HEAD 2>/dev/null) ($(git -C "$d" branch --show-current 2>/dev/null))"
 done
+# The lab data and evaluation use the robot with self-collision on (rby1-sim-isaac branch selfcollision-hulls).
+if [[ -f "${RBY1_SIM_ROOT:-$REPOS/rby1-sim-isaac}/assets/generated/rby1_selfcollision_hulls.usda" ]]; then
+    echo "Robot self-collision layer: OK"
+else
+    echo "Robot self-collision layer: MISSING (git -C rby1-sim-isaac checkout selfcollision-hulls)"
+fi
 
 echo
 echo "========== SmolVLA weights (HF cache) =========="

@@ -1,165 +1,162 @@
 {
- "T1": {
-  "task": "T1",
-  "attempts": 50,
-  "saved": 50,
-  "oracle_success_rate": 1.0,
-  "seeds": [
-   0,
-   49
-  ],
-  "failures_by_stage": {},
-  "mean_seconds_saved": 17.23,
-  "wall_minutes_this_run": 52.7,
-  "output": "/home/cai/datasets/vla_lab/T1/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T1/oracle_raw"
- },
- "T2": {
-  "task": "T2",
-  "attempts": 51,
-  "saved": 50,
-  "oracle_success_rate": 0.9804,
-  "seeds": [
-   0,
-   50
-  ],
-  "failures_by_stage": {
-   "latched_then_undone": 1
+  "T1": {
+    "task": "T1",
+    "attempts": 51,
+    "saved": 50,
+    "oracle_success_rate": 0.9804,
+    "seeds": [
+      0,
+      50
+    ],
+    "failures_by_stage": {
+      "hold": 1
+    },
+    "mean_seconds_saved": 17.53,
+    "wall_minutes_this_run": 53.8,
+    "output": "/home/cai/datasets/vla_lab/T1/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T1/oracle_raw"
   },
-  "mean_seconds_saved": 16.96,
-  "wall_minutes_this_run": 53.8,
-  "output": "/home/cai/datasets/vla_lab/T2/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T2/oracle_raw"
- },
- "T3": {
-  "task": "T3",
-  "attempts": 54,
-  "saved": 50,
-  "oracle_success_rate": 0.9259,
-  "seeds": [
-   0,
-   53
-  ],
-  "failures_by_stage": {
-   "hold": 4
+  "T2": {
+    "task": "T2",
+    "attempts": 50,
+    "saved": 50,
+    "oracle_success_rate": 1.0,
+    "seeds": [
+      0,
+      49
+    ],
+    "failures_by_stage": {},
+    "mean_seconds_saved": 16.95,
+    "wall_minutes_this_run": 54.6,
+    "output": "/home/cai/datasets/vla_lab/T2/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T2/oracle_raw"
   },
-  "mean_seconds_saved": 23.82,
-  "wall_minutes_this_run": 71.0,
-  "output": "/home/cai/datasets/vla_lab/T3/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T3/oracle_raw"
- },
- "T4": {
-  "task": "T4",
-  "attempts": 50,
-  "saved": 50,
-  "oracle_success_rate": 1.0,
-  "seeds": [
-   0,
-   49
-  ],
-  "failures_by_stage": {},
-  "mean_seconds_saved": 17.07,
-  "wall_minutes_this_run": 35.0,
-  "output": "/home/cai/datasets/vla_lab/T4/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T4/oracle_raw"
- },
- "T5": {
-  "task": "T5",
-  "attempts": 50,
-  "saved": 50,
-  "oracle_success_rate": 1.0,
-  "seeds": [
-   0,
-   49
-  ],
-  "failures_by_stage": {},
-  "mean_seconds_saved": 13.73,
-  "wall_minutes_this_run": 26.2,
-  "output": "/home/cai/datasets/vla_lab/T5/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T5/oracle_raw"
- },
- "T6": {
-  "task": "T6",
-  "attempts": 50,
-  "saved": 50,
-  "oracle_success_rate": 1.0,
-  "seeds": [
-   0,
-   49
-  ],
-  "failures_by_stage": {},
-  "mean_seconds_saved": 14.27,
-  "wall_minutes_this_run": 28.0,
-  "output": "/home/cai/datasets/vla_lab/T6/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T6/oracle_raw"
- },
- "T7": {
-  "task": "T7",
-  "attempts": 62,
-  "saved": 50,
-  "oracle_success_rate": 0.8065,
-  "seeds": [
-   0,
-   61
-  ],
-  "failures_by_stage": {
-   "hold": 8,
-   "latched_then_undone": 4
+  "T3": {
+    "task": "T3",
+    "attempts": 55,
+    "saved": 50,
+    "oracle_success_rate": 0.9091,
+    "seeds": [
+      0,
+      54
+    ],
+    "failures_by_stage": {
+      "hold": 5
+    },
+    "mean_seconds_saved": 22.7,
+    "wall_minutes_this_run": 94.9,
+    "output": "/home/cai/datasets/vla_lab/T3/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T3/oracle_raw"
   },
-  "mean_seconds_saved": 38.19,
-  "wall_minutes_this_run": 87.4,
-  "output": "/home/cai/datasets/vla_lab/T7/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T7/oracle_raw"
- },
- "T8": {
-  "task": "T8",
-  "attempts": 52,
-  "saved": 50,
-  "oracle_success_rate": 0.9615,
-  "seeds": [
-   0,
-   51
-  ],
-  "failures_by_stage": {
-   "hold": 2
+  "T4": {
+    "task": "T4",
+    "attempts": 50,
+    "saved": 50,
+    "oracle_success_rate": 1.0,
+    "seeds": [
+      0,
+      49
+    ],
+    "failures_by_stage": {},
+    "mean_seconds_saved": 17.2,
+    "wall_minutes_this_run": 29.0,
+    "output": "/home/cai/datasets/vla_lab/T4/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T4/oracle_raw"
   },
-  "mean_seconds_saved": 18.85,
-  "wall_minutes_this_run": 41.8,
-  "output": "/home/cai/datasets/vla_lab/T8/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T8/oracle_raw"
- },
- "T9": {
-  "task": "T9",
-  "attempts": 64,
-  "saved": 50,
-  "oracle_success_rate": 0.7812,
-  "seeds": [
-   0,
-   63
-  ],
-  "failures_by_stage": {
-   "hold": 14
+  "T5": {
+    "task": "T5",
+    "attempts": 50,
+    "saved": 50,
+    "oracle_success_rate": 1.0,
+    "seeds": [
+      0,
+      49
+    ],
+    "failures_by_stage": {},
+    "mean_seconds_saved": 27.07,
+    "wall_minutes_this_run": 246.3,
+    "output": "/home/cai/datasets/vla_lab/T5/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T5/oracle_raw"
   },
-  "mean_seconds_saved": 34.92,
-  "wall_minutes_this_run": 69.6,
-  "output": "/home/cai/datasets/vla_lab/T9/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T9/oracle_raw"
- },
- "T10": {
-  "task": "T10",
-  "attempts": 51,
-  "saved": 50,
-  "oracle_success_rate": 0.9804,
-  "seeds": [
-   0,
-   50
-  ],
-  "failures_by_stage": {
-   "hold": 1
+  "T6": {
+    "task": "T6",
+    "attempts": 50,
+    "saved": 50,
+    "oracle_success_rate": 1.0,
+    "seeds": [
+      0,
+      49
+    ],
+    "failures_by_stage": {},
+    "mean_seconds_saved": 14.27,
+    "wall_minutes_this_run": 39.8,
+    "output": "/home/cai/datasets/vla_lab/T6/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T6/oracle_raw"
   },
-  "mean_seconds_saved": 48.18,
-  "wall_minutes_this_run": 84.2,
-  "output": "/home/cai/datasets/vla_lab/T10/oracle",
-  "raw": "/home/cai/datasets/vla_lab/T10/oracle_raw"
- }
+  "T7": {
+    "task": "T7",
+    "attempts": 50,
+    "saved": 50,
+    "oracle_success_rate": 1.0,
+    "seeds": [
+      0,
+      49
+    ],
+    "failures_by_stage": {},
+    "mean_seconds_saved": 41.27,
+    "wall_minutes_this_run": 114.5,
+    "output": "/home/cai/datasets/vla_lab/T7/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T7/oracle_raw"
+  },
+  "T8": {
+    "task": "T8",
+    "attempts": 51,
+    "saved": 50,
+    "oracle_success_rate": 0.9804,
+    "seeds": [
+      0,
+      50
+    ],
+    "failures_by_stage": {
+      "latched_then_undone": 1
+    },
+    "mean_seconds_saved": 18.83,
+    "wall_minutes_this_run": 61.6,
+    "output": "/home/cai/datasets/vla_lab/T8/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T8/oracle_raw"
+  },
+  "T9": {
+    "task": "T9",
+    "attempts": 51,
+    "saved": 50,
+    "oracle_success_rate": 0.9804,
+    "seeds": [
+      0,
+      50
+    ],
+    "failures_by_stage": {
+      "hold": 1
+    },
+    "mean_seconds_saved": 33.8,
+    "wall_minutes_this_run": 340.2,
+    "output": "/home/cai/datasets/vla_lab/T9/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T9/oracle_raw"
+  },
+  "T10": {
+    "task": "T10",
+    "attempts": 51,
+    "saved": 50,
+    "oracle_success_rate": 0.9804,
+    "seeds": [
+      0,
+      50
+    ],
+    "failures_by_stage": {
+      "hold": 1
+    },
+    "mean_seconds_saved": 41.46,
+    "wall_minutes_this_run": 122.5,
+    "output": "/home/cai/datasets/vla_lab/T10/oracle",
+    "raw": "/home/cai/datasets/vla_lab/T10/oracle_raw"
+  }
 }

@@ -1,181 +1,86 @@
 {
-  "capsules": 17,
-  "pairs": 112,
+  "hull_links": 25,
+  "pairs": 246,
   "threshold_m": 0.005,
+  "stride": 5,
   "oracle": {
     "T1": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 12924,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 2649,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T10": {
       "episodes": 50,
-      "with_penetration": 14,
-      "steps": 36136,
-      "pen_steps": 759,
-      "max_depth_m": 0.03320884618009731,
-      "pairs": {
-        "torso_5-right_arm_1": 14,
-        "torso_5-right_arm_2": 12
-      }
+      "with_overlap": 0,
+      "steps": 6239,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
     },
     "T2": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 12717,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 2562,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T3": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 17868,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 3424,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T4": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 12800,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 2600,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T5": {
       "episodes": 50,
-      "with_penetration": 50,
-      "steps": 10300,
-      "pen_steps": 2550,
-      "max_depth_m": 0.22619930058719964,
-      "pairs": {
-        "torso_5-right_arm_3": 50,
-        "torso_5-right_arm_4": 50,
-        "torso_5-right_arm_5": 50
-      }
+      "with_overlap": 0,
+      "steps": 4100,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
     },
     "T6": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 10700,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 2150,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T7": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 28641,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 6211,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T8": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 14141,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 2845,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     },
     "T9": {
       "episodes": 50,
-      "with_penetration": 0,
-      "steps": 26192,
-      "pen_steps": 0,
-      "max_depth_m": 0.0032892764433355426,
-      "pairs": {}
-    }
-  },
-  "eval": {
-    "T1": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 14160,
-      "pen_steps": 0,
-      "max_depth_m": 0.0,
-      "pairs": {}
-    },
-    "T10": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 73101,
-      "pen_steps": 0,
-      "max_depth_m": 0.001415777186903916,
-      "pairs": {}
-    },
-    "T2": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 18368,
-      "pen_steps": 0,
-      "max_depth_m": 0.0,
-      "pairs": {}
-    },
-    "T3": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 37899,
-      "pen_steps": 0,
-      "max_depth_m": 0.0,
-      "pairs": {}
-    },
-    "T4": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 20990,
-      "pen_steps": 0,
-      "max_depth_m": 0.0,
-      "pairs": {}
-    },
-    "T5": {
-      "episodes": 50,
-      "with_penetration": 50,
-      "steps": 12670,
-      "pen_steps": 5199,
-      "max_depth_m": 0.22993099858648186,
-      "pairs": {
-        "torso_5-right_arm_3": 50,
-        "torso_5-right_arm_4": 50,
-        "torso_5-right_arm_5": 50
-      }
-    },
-    "T6": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 10544,
-      "pen_steps": 0,
-      "max_depth_m": 0.0,
-      "pairs": {}
-    },
-    "T7": {
-      "episodes": 50,
-      "with_penetration": 1,
-      "steps": 55167,
-      "pen_steps": 4,
-      "max_depth_m": 0.007627375465332292,
-      "pairs": {
-        "torso_5-left_arm_4": 1,
-        "torso_5-left_arm_5": 1
-      }
-    },
-    "T8": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 19945,
-      "pen_steps": 0,
-      "max_depth_m": 0.0,
-      "pairs": {}
-    },
-    "T9": {
-      "episodes": 50,
-      "with_penetration": 0,
-      "steps": 48483,
-      "pen_steps": 0,
+      "with_overlap": 0,
+      "steps": 5091,
+      "overlap_steps": 0,
       "max_depth_m": 0.0,
       "pairs": {}
     }
