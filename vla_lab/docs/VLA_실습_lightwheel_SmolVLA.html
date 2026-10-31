@@ -97,7 +97,8 @@ Path: /home/cai/lerobot/src/lerobot/__init__.py
 
 ========== Repositories ==========
 lightwheel_rby1_transfer: &lt;commit&gt; (vla-lab-v1)
-rby1-sim-isaac: ba52496 (main)
+rby1-sim-isaac: 146bec3 (selfcollision-hulls)
+Robot self-collision layer: OK
 
 ========== SmolVLA weights (HF cache) ==========
 lerobot/smolvla_base: OK
@@ -109,6 +110,7 @@ NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
 <ul>
 <li>GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.</li>
 <li><code>&lt;commit&gt;</code> 자리에는 <code>vla-lab-v1</code> 브랜치의 commit 해시(7자리)가 나옵니다.</li>
+<li><code>Robot self-collision layer: MISSING</code>이면 로봇 레포가 <code>main</code>입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset(<code>selfcollision-hulls</code> 브랜치)을 씁니다: <code>git -C ~/rby1-sim-isaac checkout selfcollision-hulls</code>.</li>
 <li><code>SmolVLA weights</code>가 <code>MISSING</code>이면 아래 <strong>추가 설치</strong>를 먼저 하십시오.</li>
 </ul>
 <p><strong>2. 경로 설정 확인</strong></p>
@@ -219,6 +221,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 <li>기록 형식도 키보드 수집기와 같은 raw 형식(<code>&lt;output&gt;_raw/episode-*/</code>)입니다. 그래서 기존 <code>export_dataset.sh</code>, <code>--validate</code>, <code>replay_dataset.sh</code>가 그대로 동작합니다.</li>
 <li><strong>복구 동작은 없습니다.</strong> 재파지, 노이즈, 재시도를 하지 않습니다. 첫 시도가 실패한 seed는 저장하지 않고 다음 seed로 넘어갑니다(실패 수와 원인만 기록).</li>
 <li>오라클 자체에는 무작위성이 없습니다. 물체 배치만 seed(<code>numpy.random.default_rng(seed)</code>)로 정해집니다.</li>
+<li>로봇은 자기 몸과 충돌합니다(팔·몸통·머리·손바닥이 convex hull 충돌체). 수집기는 PhysX 접촉 보고로 로봇 링크끼리 닿았는지 매 step 확인하고, 닿은 시범은 성공해도 저장하지 않습니다(실패 원인 <code>self_contact</code>, 한 손의 두 손가락끼리 닿는 것은 허용).</li>
 <li>성공 판정 후 저장 직전에 원래 조건이 아직 성립하는지 한 번 더 확인합니다. <code>success_original</code>은 조건이 한 번 성립하면 3.5초 뒤 확정되므로, 그사이 물체가 미끄러져 조건이 깨진 시범도 성공으로 남을 수 있기 때문입니다(실패 원인 <code>latched_then_undone</code>).</li>
 </ul>
 <table>
@@ -233,7 +236,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 <tr>
 <td>T1</td>
 <td>왼팔</td>
-<td>그릇의 로봇 쪽 테두리 집기 → 들기 → 접시 위로 운반 → 놓기 → 위로 → 준비 자세</td>
+<td>손을 수직으로 세워 그릇의 로봇 쪽 테두리 집기 → 들기 → 접시 위로 운반 → 놓기 → 위로 → 준비 자세</td>
 </tr>
 <tr>
 <td>T2</td>
@@ -243,7 +246,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 <tr>
 <td>T3</td>
 <td>왼팔</td>
-<td>케첩 위에서 수직으로 집기 → 바구니 테두리 위로 들기 → 바구니 안에 놓기 → 준비 자세</td>
+<td>케첩 위에서 수직으로 집기 → 바구니 테두리 위로 들기 → 테두리 바로 위에서 놓아 떨어뜨리기 → 준비 자세</td>
 </tr>
 <tr>
 <td>T4</td>
@@ -253,7 +256,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 <tr>
 <td>T5</td>
 <td>오른팔</td>
-<td>손잡이(세로 막대) 잡기 → 경첩 중심으로 원호를 따라 68° 열기 → 놓고 뒤로 → 준비 자세</td>
+<td>손잡이(세로 막대) 잡고 약 10° 당기기 → 놓고 손잡이에서 빠지기 → 손가락을 모아 문 안쪽 끝 뒤에 넣기 → 원호를 따라 밀어 열기 → 위로 → 준비 자세</td>
 </tr>
 <tr>
 <td>T6</td>
@@ -268,7 +271,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 <tr>
 <td>T8</td>
 <td>왼팔</td>
-<td>가운데 그릇 테두리 집기 → 뒤쪽 그릇 위로 운반 → 놓기 → 준비 자세</td>
+<td>손을 수직으로 세워 가운데 그릇 테두리 집기 → 뒤쪽 그릇 위로 운반 → 놓기 → 준비 자세</td>
 </tr>
 <tr>
 <td>T9</td>
@@ -278,7 +281,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 <tr>
 <td>T10</td>
 <td>왼팔 → 오른팔</td>
-<td>수프(왼팔)를 바구니에 넣고 복귀 → 토마토 소스(오른팔)를 바구니에 넣고 복귀</td>
+<td>수프(왼팔)를 바구니에 넣고 복귀 → 토마토 소스(오른팔)를 바구니에 넣고 복귀 (복귀: 수직 손 그대로 제자리 위로 → 관절 공간 직선으로 준비 자세)</td>
 </tr>
 </tbody>
 </table>
@@ -347,14 +350,17 @@ done
 <li>수집이 중간에 끊기면 같은 명령을 다시 실행하십시오. <code>&lt;output&gt;_raw/oracle_attempts.jsonl</code>을 읽고 마지막 seed 다음부터 이어서 수집합니다.</li>
 </ul>
 <h2>(3) 출력 예시</h2>
-<pre><code class="language-text">[T9] attempt 1 seed 0: SAVED (494 frames, 110.4 s) | saved 1/3
-[T9] attempt 2 seed 1: SAVED (502 frames, 113.0 s) | saved 2/3
-[T9] attempt 3 seed 2: FAILED at hold (750 frames, 171.7 s) | saved 2/3
-[T9] attempt 4 seed 3: SAVED (497 frames, 112.2 s) | saved 3/3
-SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&quot;: 3, &quot;oracle_success_rate&quot;: 0.75, &quot;seeds&quot;: [0, 3], &quot;failures_by_stage&quot;: {&quot;hold&quot;: 1}, &quot;mean_seconds_saved&quot;: 33.18, ...}
+<pre><code class="language-text">[T9] attempt 1 seed 0: SAVED (496 frames, 406.6 s) | saved 1/50
+[T9] attempt 2 seed 1: SAVED (512 frames, 425.4 s) | saved 2/50
+...
+[T9] attempt 33 seed 32: FAILED at hold (750 frames, 654.0 s) | saved 32/50
+...
+[T9] attempt 50 seed 49: SAVED (504 frames, 335.8 s) | saved 49/50
+SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 51, &quot;saved&quot;: 50, &quot;oracle_success_rate&quot;: 0.9804, &quot;seeds&quot;: [0, 50], &quot;failures_by_stage&quot;: {&quot;hold&quot;: 1}, &quot;mean_seconds_saved&quot;: 33.8, ...}
 </code></pre>
 <ul>
-<li><code>&lt;output&gt;_raw/oracle_attempts.jsonl</code>: 시도마다 seed, 저장 여부, 길이, 실패한 하위 동작.</li>
+<li><code>&lt;output&gt;_raw/oracle_attempts.jsonl</code>: 시도마다 seed, 저장 여부, 길이, 실패한 하위 동작, 로봇 링크끼리 닿은 접촉(<code>self_contacts</code>), 팔·손바닥이 장면에 닿은 접촉(<code>scene_contacts</code>).</li>
+<li>로봇 링크끼리 닿은 시도는 <code>FAILED at self_contact ... | self contact [...]</code>로 표시됩니다.</li>
 <li><code>&lt;output&gt;_raw/oracle_summary.json</code>: 시도 수, 성공 수, 오라클 성공률, 실패 원인별 횟수.</li>
 </ul>
 <h2>(4) 오라클 결과 (조교 PC)</h2>
@@ -374,33 +380,33 @@ SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&
 <tbody>
 <tr>
 <td>T1</td>
+<td>51</td>
+<td>50</td>
+<td>98.0%</td>
+<td>시간 초과(하위 동작 실패) 1</td>
+<td>17.53</td>
+<td>53.8</td>
+<td>3.12 GB</td>
+</tr>
+<tr>
+<td>T2</td>
 <td>50</td>
 <td>50</td>
 <td>100.0%</td>
 <td>-</td>
-<td>17.23</td>
-<td>52.7</td>
-<td>2.91 GB</td>
-</tr>
-<tr>
-<td>T2</td>
-<td>51</td>
-<td>50</td>
-<td>98.0%</td>
-<td>확정 후 조건 깨짐 1</td>
-<td>16.96</td>
-<td>53.8</td>
-<td>3.11 GB</td>
+<td>16.95</td>
+<td>54.6</td>
+<td>3.25 GB</td>
 </tr>
 <tr>
 <td>T3</td>
-<td>54</td>
+<td>55</td>
 <td>50</td>
-<td>92.6%</td>
-<td>시간 초과(하위 동작 실패) 4</td>
-<td>23.82</td>
-<td>71.0</td>
-<td>3.20 GB</td>
+<td>90.9%</td>
+<td>시간 초과(하위 동작 실패) 5</td>
+<td>22.70</td>
+<td>94.9</td>
+<td>3.12 GB</td>
 </tr>
 <tr>
 <td>T4</td>
@@ -408,9 +414,9 @@ SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&
 <td>50</td>
 <td>100.0%</td>
 <td>-</td>
-<td>17.07</td>
-<td>35.0</td>
-<td>2.94 GB</td>
+<td>17.20</td>
+<td>29.0</td>
+<td>3.12 GB</td>
 </tr>
 <tr>
 <td>T5</td>
@@ -418,9 +424,9 @@ SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&
 <td>50</td>
 <td>100.0%</td>
 <td>-</td>
-<td>13.73</td>
-<td>26.2</td>
-<td>2.92 GB</td>
+<td>27.07</td>
+<td>246.3</td>
+<td>3.16 GB</td>
 </tr>
 <tr>
 <td>T6</td>
@@ -429,38 +435,38 @@ SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&
 <td>100.0%</td>
 <td>-</td>
 <td>14.27</td>
-<td>28.0</td>
-<td>3.11 GB</td>
+<td>39.8</td>
+<td>3.27 GB</td>
 </tr>
 <tr>
 <td>T7</td>
-<td>62</td>
 <td>50</td>
-<td>80.7%</td>
-<td>시간 초과(하위 동작 실패) 8, 확정 후 조건 깨짐 4</td>
-<td>38.19</td>
-<td>87.4</td>
+<td>50</td>
+<td>100.0%</td>
+<td>-</td>
+<td>41.27</td>
+<td>114.5</td>
 <td>3.29 GB</td>
 </tr>
 <tr>
 <td>T8</td>
-<td>52</td>
+<td>51</td>
 <td>50</td>
-<td>96.2%</td>
-<td>시간 초과(하위 동작 실패) 2</td>
-<td>18.85</td>
-<td>41.8</td>
-<td>2.94 GB</td>
+<td>98.0%</td>
+<td>확정 후 조건 깨짐 1</td>
+<td>18.83</td>
+<td>61.6</td>
+<td>3.12 GB</td>
 </tr>
 <tr>
 <td>T9</td>
-<td>64</td>
+<td>51</td>
 <td>50</td>
-<td>78.1% ⚠️</td>
-<td>시간 초과(하위 동작 실패) 14</td>
-<td>34.92</td>
-<td>69.6</td>
-<td>3.22 GB</td>
+<td>98.0%</td>
+<td>시간 초과(하위 동작 실패) 1</td>
+<td>33.80</td>
+<td>340.2</td>
+<td>3.28 GB</td>
 </tr>
 <tr>
 <td>T10</td>
@@ -468,26 +474,27 @@ SUMMARY {&quot;task&quot;: &quot;T9&quot;, &quot;attempts&quot;: 4, &quot;saved&
 <td>50</td>
 <td>98.0%</td>
 <td>시간 초과(하위 동작 실패) 1</td>
-<td>48.18</td>
-<td>84.2</td>
-<td>3.28 GB</td>
+<td>41.46</td>
+<td>122.5</td>
+<td>3.34 GB</td>
 </tr>
 <tr>
 <td>합계</td>
-<td>534</td>
+<td>509</td>
 <td>500</td>
-<td>93.6%</td>
+<td>98.2%</td>
 <td></td>
 <td></td>
-<td>550</td>
+<td></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li>수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 <strong>task 3개를 동시에</strong> 수집하며 잰 값입니다(시범 저장 시 PNG 3장/step을 쓰므로 CPU가 병목). 학습과 함께 돌린 T1 축소판은 시범 하나에 약 56~59초(시뮬레이션 17초)였습니다.</li>
-<li>최대 VRAM은 <code>vram_monitor.py</code>로 잰 수집 프로세스 하나의 값입니다(MiB ÷ 1024). 모든 task가 3.3GB 이하입니다.</li>
-<li><strong>T9 오라클 성공률은 78.1%로 목표(80%)보다 조금 낮습니다.</strong> 실패 14회 중 11회는 그릇은 서랍에 들어갔지만 서랍이 끝까지(관절 0.00115m 이하) 닫히지 않은 경우, 3회는 그릇이 서랍 밖에 놓인 경우입니다. 손끝으로 손잡이를 미는 접촉이 미끄러지거나, 다 닫은 뒤 손을 뺄 때 서랍이 조금 다시 열립니다. 저장된 시범 50개는 모두 성공 판정을 통과한 것이라 데이터 품질에는 영향이 없고, 수집에 seed를 더 쓸 뿐입니다.</li>
+<li><strong>로봇 링크끼리 닿은 시도는 509번 중 0번</strong>입니다(실패 원인 <code>self_contact</code> 없음). <code>self_collision_check.py</code>로 저장된 시범 500개를 다시 계산해도 링크끼리 겹친 step이 없습니다.</li>
+<li>수집 시간은 조교 PC(RTX 3090, i5-8500 6코어)에서 <strong>task 3개를 동시에 수집하면서 변환(<code>export_dataset.sh</code>)도 1~2개 함께 돌린</strong> 값입니다(CPU가 병목). 마지막에 남은 T5·T9는 다른 작업이 가장 많을 때 돌아 특히 오래 걸렸습니다. 혼자 돌리면 훨씬 짧습니다.</li>
+<li>최대 VRAM은 <code>vram_monitor.py</code>로 잰 수집 프로세스 하나의 값입니다(MiB ÷ 1024). 모든 task가 3.4GB 이하입니다.</li>
+<li>T3 실패 5회는 모두 제한 시간까지 성공 조건이 성립하지 않은 경우(<code>hold</code>)입니다. 이 중 3회는 손목의 D405 카메라 마운트가 파지 직전에 바구니 테두리를 오래 누른 경우입니다. 저장된 시범 4개에도 마운트가 테두리에 잠깐(3~7 step) 닿는 장면이 있습니다(물리적으로 막히는 접촉이며 관통은 아님).</li>
 <li>같은 seed는 항상 같은 결과입니다. 새 폴더에 다시 clone해 T1·T9를 수집했을 때 seed별 성공 여부, 길이, 초기 배치, 기록된 관절 값이 모두 처음 수집과 같았습니다(최대 차이 0).</li>
 </ul>
 <p>각 task의 첫 번째 저장 시범을 <code>replay_dataset.sh --mode action --video</code>로 정면 카메라에서 녹화한 영상입니다.</p>
@@ -516,16 +523,16 @@ done
 </ul>
 <pre><code class="language-text">{
   &quot;episodes&quot;: 50,
-  &quot;frames&quot;: 12924,
+  &quot;frames&quot;: 13145,
   &quot;fps&quot;: 15,
   &quot;format&quot;: &quot;rby1&quot;,
   &quot;numeric_arrays_exact_to_raw&quot;: true,
   &quot;all_video_frame_counts_match&quot;: true,
-  &quot;max_raw_to_video_mse&quot;: 8.822860243055555
+  &quot;max_raw_to_video_mse&quot;: 11.213232421875
 }
 </code></pre>
 <ul>
-<li>변환 시간: task당 30~87분(시범 50개, 합계 약 8.5시간). 조교 PC에서 2~5개 task를 동시에 변환하며 잰 값입니다. 긴 시범이 많은 T7·T9·T10이 오래 걸립니다.</li>
+<li>변환 시간: task당 32~86분(시범 50개, 합계 약 8.4시간). 조교 PC에서 수집 3개와 변환 1~2개를 동시에 돌리며 잰 값입니다. 긴 시범이 많은 T7·T9·T10이 오래 걸립니다.</li>
 <li>검증 결과는 <code>~/datasets/vla_lab/&lt;task&gt;/validation.json</code>에 저장됩니다.</li>
 </ul>
 <h2>(2) 10개 task를 데이터셋 하나로 합치기</h2>
@@ -546,8 +553,8 @@ cd ~/lightwheel_rby1_transfer
 ~/datasets/vla_lab/T8/oracle: 50 episodes, task ['T8']
 ~/datasets/vla_lab/T9/oracle: 50 episodes, task ['T9']
 ~/datasets/vla_lab/T10/oracle: 50 episodes, task ['T10']
-MERGED ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle: 500 episodes, 182419 frames, 10 tasks
-(소요 약 9분)
+MERGED ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle: 500 episodes, 188315 frames, 10 tasks
+(소요 약 10분)
 </code></pre>
 <h2>(3) 데이터 요약</h2>
 <p>IL 실습의 <code>summarize_demos.py</code>처럼 task별로 시범 길이와 그리퍼 사용을 확인합니다.</p>
@@ -556,17 +563,17 @@ cd ~/lightwheel_rby1_transfer
 ./run_python.sh vla_lab/scripts/summarize_dataset.py --root ~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle
 </code></pre>
 <pre><code class="language-text">task   eps  len mean   min   max  sec mean    min    max  switch   idle
-T1      50     258.5   252   268      17.2   16.8   17.9     2.0  26.7%
-T2      50     254.3   249   263      17.0   16.6   17.5     2.0  27.2%
-T3      50     357.4   340   397      23.8   22.7   26.5     2.0   9.3%
-T4      50     256.0   256   256      17.1   17.1   17.1     2.0  24.3%
-T5      50     206.0   206   206      13.7   13.7   13.7     2.0  10.2%
+T1      50     262.9   253   271      17.5   16.9   18.1     2.0  15.7%
+T2      50     254.3   249   264      17.0   16.6   17.6     2.0  27.2%
+T3      50     340.6   322   380      22.7   21.5   25.3     2.0  10.0%
+T4      50     258.0   258   258      17.2   17.2   17.2     2.0  22.2%
+T5      50     406.0   406   406      27.1   27.1   27.1     3.0   9.1%
 T6      50     214.0   214   214      14.3   14.3   14.3     2.0  27.2%
-T7      50     572.8   425   609      38.2   28.3   40.6     3.9  13.0%
-T8      50     282.8   272   307      18.9   18.1   20.5     2.0  25.4%
-T9      50     523.8   493   606      34.9   32.9   40.4     3.0   7.0%
-T10     50     722.7   664   781      48.2   44.3   52.1     4.0   8.9%
-total: 500 episodes, 182419 steps (202.7 min)
+T7      50     619.1   611   627      41.3   40.7   41.8     4.0   9.4%
+T8      50     282.5   276   297      18.8   18.4   19.8     2.0  12.1%
+T9      50     507.0   495   522      33.8   33.0   34.8     3.0   8.6%
+T10     50     621.9   608   648      41.5   40.5   43.2     4.0  11.1%
+total: 500 episodes, 188315 steps (209.2 min)
 </code></pre>
 <ul>
 <li><code>len</code> — 시범 길이(step 수). <code>sec</code>는 15fps 기준 초(len / 15).</li>
@@ -579,12 +586,18 @@ total: 500 episodes, 182419 steps (202.7 min)
 cd ~/lightwheel_rby1_transfer
 ./replay_dataset.sh --root ~/datasets/vla_lab/T1/oracle --episode 0,1 --mode action --headless --video ~/vla_lab_runs/replay/
 </code></pre>
-<pre><code class="language-text">REPLAY episode 0: task T1, 256 frames at 15 fps, mode action
-VIDEO ~/vla_lab_runs/replay/T1_episode_0_action.mp4 (286 frames, 19.1 s)
-RESULT {&quot;episode&quot;: &quot;episode 0&quot;, &quot;frames&quot;: 256, &quot;recorded_success&quot;: true, &quot;replayed_success_original&quot;: true, &quot;max_joint_drift_rad&quot;: 0.0017, &quot;final_joint_drift_rad&quot;: 0.0, ...}
-RESULT {&quot;episode&quot;: &quot;episode 1&quot;, &quot;frames&quot;: 265, &quot;recorded_success&quot;: true, &quot;replayed_success_original&quot;: true, &quot;max_joint_drift_rad&quot;: 0.0009, &quot;final_joint_drift_rad&quot;: 0.0, ...}
+<pre><code class="language-text">REPLAY episode 0: task T1, 258 frames at 15 fps, mode action
+VIDEO ~/vla_lab_runs/replay/T1_episode_0_action.mp4 (288 frames, 19.2 s)
+RESULT {&quot;episode&quot;: &quot;episode 0&quot;, &quot;frames&quot;: 258, &quot;recorded_success&quot;: true, &quot;replayed_success_original&quot;: true, &quot;max_joint_drift_rad&quot;: 0.0033, &quot;final_joint_drift_rad&quot;: 0.0, ...}
+REPLAY episode 1: task T1, 267 frames at 15 fps, mode action
+VIDEO ~/vla_lab_runs/replay/T1_episode_1_action.mp4 (297 frames, 19.8 s)
+RESULT {&quot;episode&quot;: &quot;episode 1&quot;, &quot;frames&quot;: 267, &quot;recorded_success&quot;: true, &quot;replayed_success_original&quot;: true, &quot;max_joint_drift_rad&quot;: 0.0014, &quot;final_joint_drift_rad&quot;: 0.0, ...}
 </code></pre>
 <p><code>replayed_success_original: true</code>이면 재현된 것입니다. <code>--headless</code>를 빼면 창으로 볼 수 있습니다.</p>
+<p>조교가 task마다 시범 10개(episode 0~9)를 재생했을 때 10개 task 모두 10/10 재현됐습니다. 관절 차이는 대부분 0.005 rad 이하이고, 손으로 문·서랍을 미는 T5(최대 0.25 rad), T9(0.07), T7(0.03)이 큽니다.</p>
+<ul>
+<li><code>replay_dataset.sh</code>는 raw 기록에서 장면을 복원할 때 관절이 있는 자유 물체(T3·T10의 케첩)의 위치를 복원하지 않는 문제가 있어 고쳤습니다(<code>scripts/replay_episode.py</code>). 고치기 전에는 케첩이 장면 기본 위치(3.6cm 떨어진 곳)에 남아 T3 재생이 대부분 실패했습니다(2/9). 고친 뒤 T3 10/10(관절 차이 0.0004 rad 이하).</li>
+</ul>
 <p><figure><video controls preload="metadata" src="assets/replay/T1_episode_0_action.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ T1 시범 재생 (episode 0, action 모드)</figcaption></figure></p>
 <hr />
 <h1>4️⃣ SmolVLA 학습</h1>
@@ -613,15 +626,15 @@ RESULT {&quot;episode&quot;: &quot;episode 1&quot;, &quot;frames&quot;: 265, &qu
 <tbody>
 <tr>
 <td>step당 시간</td>
-<td><code>updt_s</code> 0.455초 + <code>data_s</code> 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,301초)</td>
+<td><code>updt_s</code> 0.457초 + <code>data_s</code> 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,313초)</td>
 </tr>
 <tr>
 <td>25,000 step</td>
-<td>약 3시간 23분 (0.488초 × 25,000. 다른 작업과 함께 돌린 이번 실행은 3시간 46분)</td>
+<td>약 3시간 20분 (시작부터 끝까지. 처음 1시간은 재생 검사와 함께 돌림)</td>
 </tr>
 <tr>
 <td>최대 VRAM</td>
-<td>프로세스 <strong>6.47GB</strong> (<code>nvidia-smi</code> 6,624MiB), PyTorch 예약 6.15GB</td>
+<td>프로세스 <strong>6.50GB</strong> (<code>nvidia-smi</code> 6,656MiB), PyTorch 예약 6.18GB</td>
 </tr>
 <tr>
 <td>체크포인트</td>
@@ -652,17 +665,17 @@ RESULT {&quot;episode&quot;: &quot;episode 1&quot;, &quot;frames&quot;: 265, &qu
 <h2>(3) 학습 로그 보기</h2>
 <p>로그는 터미널에 100 step마다 나옵니다. 파일로 남기려면 명령 뒤에 <code>2&gt;&amp;1 | tee ~/vla_lab_runs/train.log</code>를 붙입니다.</p>
 <pre><code class="language-text">INFO ... cfg.steps=25000 (25K)
-INFO ... dataset.num_frames=182419 (182K)
+INFO ... dataset.num_frames=188315 (188K)
 INFO ... dataset.num_episodes=500
 INFO ... num_learnable_params=99880992 (100M)
 INFO ... num_total_params=450046176 (450M)
-INFO ... step:2K smpl:40K ep:110 epch:0.22 loss:0.056 grdn:0.685 lr:9.8e-05 updt_s:0.467 data_s:0.018
-INFO ... step:10K smpl:160K ep:439 epch:0.88 loss:0.019 grdn:0.345 lr:6.7e-05 updt_s:0.456 data_s:0.017
-INFO ... step:20K smpl:320K ep:877 epch:1.75 loss:0.010 grdn:0.229 lr:1.2e-05 updt_s:0.454 data_s:0.017
-INFO ... step:25K smpl:400K ep:1K epch:2.19 loss:0.008 grdn:0.194 lr:2.5e-06 updt_s:0.456 data_s:0.017
+INFO ... step:2K smpl:32K ep:85 epch:0.17 loss:0.053 grdn:0.640 lr:9.9e-05 updt_s:0.455 data_s:0.017
+INFO ... step:10K smpl:160K ep:425 epch:0.85 loss:0.017 grdn:0.326 lr:6.7e-05 updt_s:0.458 data_s:0.017
+INFO ... step:20K smpl:320K ep:850 epch:1.70 loss:0.008 grdn:0.204 lr:1.2e-05 updt_s:0.457 data_s:0.017
+INFO ... step:25K smpl:400K ep:1K epch:2.12 loss:0.007 grdn:0.178 lr:2.5e-06 updt_s:0.456 data_s:0.017
 INFO ... Checkpoint policy after step 25000
 INFO ... End of training
-PEAK torch reserved 6.15 GB, allocated 5.98 GB
+PEAK torch reserved 6.18 GB, allocated 5.97 GB
 </code></pre>
 <table>
 <thead>
@@ -712,7 +725,7 @@ PEAK torch reserved 6.15 GB, allocated 5.98 GB
 <td>데이터</td>
 <td><code>dataset.root</code></td>
 <td><code>~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle</code></td>
-<td>10개 task 합친 데이터셋 (500 에피소드, 182,419 step)</td>
+<td>10개 task 합친 데이터셋 (500 에피소드, 188,315 step)</td>
 <td></td>
 </tr>
 <tr>
@@ -1044,16 +1057,16 @@ PEAK torch reserved 6.15 GB, allocated 5.98 GB
 <td>평가 프로세스 1~3개가 함께 돌 때 프로세스당 약 7~10 step/s (실시간 15 step/s보다 느림)</td>
 </tr>
 <tr>
-<td>전체 평가 (500회, 311,580 step)</td>
-<td>순서대로 돌리면 <strong>약 9~13시간</strong>(위 속도로 추정). 조교는 4~5개를 동시에 돌려 약 9시간 40분</td>
+<td>전체 평가 (500회, 290,542 step)</td>
+<td>순서대로 돌리면 <strong>약 8~12시간</strong>(위 속도로 추정). 조교는 4~5개를 동시에 돌려 약 11시간 10분</td>
 </tr>
 <tr>
 <td>task 하나</td>
-<td>성공이 많은 T5·T6은 약 25분, 실패가 많고 긴 T10은 수 시간</td>
+<td>성공이 많은 T6은 약 25분, 실패가 많고 긴 T9·T10은 수 시간</td>
 </tr>
 <tr>
 <td>최대 VRAM</td>
-<td>프로세스 하나(시뮬레이터 + 정책) <strong>5.3GB</strong> 이하 (5,439MiB)</td>
+<td>프로세스 하나(시뮬레이터 + 정책) <strong>5.2GB</strong> 이하 (5,327MiB)</td>
 </tr>
 </tbody>
 </table>
@@ -1063,14 +1076,15 @@ PEAK torch reserved 6.15 GB, allocated 5.98 GB
 <li>GPU 메모리가 넉넉하면 다른 터미널에서 <code>--tasks</code>를 나눠 동시에 돌려도 됩니다(같은 <code>--output</code> 사용 가능, 마지막에 <code>./run_python.sh vla_lab/scripts/eval_summary.py --output &lt;EVAL_DIR&gt;</code>로 표를 다시 만듦). 8GB GPU에서는 하나씩 돌리십시오.</li>
 </ul>
 <h2>(2) 출력 예시</h2>
-<pre><code class="language-text">POLICY ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model loaded in 6.6 s; chunk 50, n_action_steps 50; horizon 412 steps
-[T5] episode 1/50 seed 100000: SUCCESS (213 steps, 45 s) | 1/1
-[T5] episode 2/50 seed 100001: fail (412 steps, 49 s) | 1/2
-[T5] episode 3/50 seed 100002: SUCCESS (203 steps, 22 s) | 2/3
+<pre><code class="language-text">POLICY ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model loaded in 9.2 s; chunk 50, n_action_steps 50; horizon 812 steps
+[T5] episode 1/50 seed 100000: SUCCESS (401 steps, 292 s) | 1/1
+[T5] episode 2/50 seed 100001: SUCCESS (409 steps, 339 s) | 2/2
 ...
-TASK_SUMMARY {&quot;task&quot;: &quot;T5&quot;, &quot;instruction&quot;: &quot;Open the microwave.&quot;, ..., &quot;episodes&quot;: 50, &quot;successes&quot;: 38, &quot;horizon_steps&quot;: 412, ...}
+[T5] episode 10/50 seed 100009: fail (812 steps, 910 s) | 9/10
+...
+TASK_SUMMARY {&quot;task&quot;: &quot;T5&quot;, &quot;instruction&quot;: &quot;Open the microwave.&quot;, ..., &quot;episodes&quot;: 50, &quot;successes&quot;: 45, &quot;episodes_with_self_contact&quot;: 0, &quot;horizon_steps&quot;: 812, ...}
 task    success    rate            95% CI
-T5      38/50     76.0% [ 61.8,  86.9]
+T5      45/50     90.0% [ 78.2,  96.7]
 </code></pre>
 <h2>(3) 결과 (조교 baseline)</h2>
 <p><strong>조교 baseline</strong> — <code>checkpoints/last</code>(25,000 step), task당 50회, seed 100000~100049.</p>
@@ -1089,130 +1103,131 @@ T5      38/50     76.0% [ 61.8,  86.9]
 <tr>
 <td>T1</td>
 <td><code>put the black bowl on the plate.</code></td>
-<td>45/50</td>
-<td><strong>90%</strong></td>
-<td>78.2 ~ 96.7%</td>
-<td>536</td>
+<td>42/50</td>
+<td><strong>84%</strong></td>
+<td>70.9 ~ 92.8%</td>
+<td>542</td>
 </tr>
 <tr>
 <td>T2</td>
 <td><code>Pick the akita black bowl on the cookies box and place it on the plate.</code></td>
-<td>31/50</td>
-<td><strong>62%</strong></td>
-<td>47.2 ~ 75.3%</td>
-<td>526</td>
+<td>25/50</td>
+<td><strong>50%</strong></td>
+<td>35.5 ~ 64.5%</td>
+<td>528</td>
 </tr>
 <tr>
 <td>T3</td>
 <td><code>Pick up the ketchup, and put it in the basket.</code></td>
-<td>4/50</td>
-<td><strong>8%</strong></td>
-<td>2.2 ~ 19.2%</td>
-<td>794</td>
+<td>16/50</td>
+<td><strong>32%</strong></td>
+<td>19.5 ~ 46.7%</td>
+<td>760</td>
 </tr>
 <tr>
 <td>T4</td>
 <td><code>Open the top drawer of the cabinet.</code></td>
-<td>18/50</td>
-<td><strong>36%</strong></td>
-<td>22.9 ~ 50.8%</td>
-<td>512</td>
+<td>25/50</td>
+<td><strong>50%</strong></td>
+<td>35.5 ~ 64.5%</td>
+<td>516</td>
 </tr>
 <tr>
 <td>T5</td>
 <td><code>Open the microwave.</code></td>
-<td>38/50</td>
-<td><strong>76%</strong></td>
-<td>61.8 ~ 86.9%</td>
-<td>412</td>
+<td>45/50</td>
+<td><strong>90%</strong></td>
+<td>78.2 ~ 96.7%</td>
+<td>812</td>
 </tr>
 <tr>
 <td>T6</td>
 <td><code>Turn on the stove.</code></td>
-<td>50/50</td>
-<td><strong>100%</strong></td>
-<td>92.9 ~ 100.0%</td>
+<td>49/50</td>
+<td><strong>98%</strong></td>
+<td>89.4 ~ 99.9%</td>
 <td>428</td>
 </tr>
 <tr>
 <td>T7</td>
 <td><code>Open the top layer of the drawer and put the bowl inside.</code></td>
-<td>9/50</td>
-<td><strong>18%</strong></td>
-<td>8.6 ~ 31.4%</td>
-<td>1218</td>
+<td>11/50</td>
+<td><strong>22%</strong></td>
+<td>11.5 ~ 36.0%</td>
+<td>1254</td>
 </tr>
 <tr>
 <td>T8</td>
 <td><code>Stack the black bowl in the middle on the black bowl at the back.</code></td>
-<td>35/50</td>
-<td><strong>70%</strong></td>
-<td>55.4 ~ 82.1%</td>
-<td>614</td>
+<td>39/50</td>
+<td><strong>78%</strong></td>
+<td>64.0 ~ 88.5%</td>
+<td>594</td>
 </tr>
 <tr>
 <td>T9</td>
 <td><code>Put the black bowl in the bottom drawer of the cabinet and close it.</code></td>
-<td>17/50</td>
-<td><strong>34%</strong></td>
-<td>21.2 ~ 48.8%</td>
-<td>1212</td>
+<td>23/50</td>
+<td><strong>46%</strong></td>
+<td>31.8 ~ 60.7%</td>
+<td>1044</td>
 </tr>
 <tr>
 <td>T10</td>
 <td><code>Pick up the alphabet soup and the tomato sauce, and put them in the basket.</code></td>
-<td>6/50</td>
-<td><strong>12%</strong></td>
-<td>4.5 ~ 24.3%</td>
-<td>1562</td>
+<td>11/50</td>
+<td><strong>22%</strong></td>
+<td>11.5 ~ 36.0%</td>
+<td>1296</td>
 </tr>
 <tr>
 <td><strong>평균</strong></td>
 <td>10개 task 단순 평균</td>
-<td>253/500</td>
-<td><strong>50.6%</strong></td>
+<td>286/500</td>
+<td><strong>57.2%</strong></td>
 <td></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li>짧고 접촉이 한 번인 task(T6 스토브, T1 그릇, T5 전자레인지, T8 쌓기)는 잘 되고, 물체를 정확히 집어야 하는 T3(케첩), T10(캔 두 개), T7(서랍+그릇)이 어렵습니다.</li>
-<li>실패의 57%(140/247)는 <strong>파지 실패</strong>(물체를 밀거나 넘어뜨리고 들지 못함)입니다. 단계별 분석은 <code>vla_lab/reports/failure_analysis.md</code>에 있습니다.</li>
+<li>짧고 접촉이 한 번인 task(T6 스토브, T5 전자레인지, T1 그릇, T8 쌓기)는 잘 되고, 물체를 정확히 집어야 하는 T3(케첩), T10(캔 두 개), T7(서랍+그릇)이 어렵습니다.</li>
+<li>실패의 51%(110/214)는 <strong>파지 실패</strong>(물체를 밀거나 넘어뜨리고 들지 못함)입니다. T7 실패의 대부분(25/39)은 서랍을 충분히 열지 못한 경우입니다.</li>
+<li>평가 500회 중 <strong>로봇 팔이 자기 몸에 닿은 에피소드는 0회</strong>입니다(<code>summary.json</code>의 <code>episodes_with_self_contact</code>). 단계별 분석은 <code>vla_lab/reports/failure_analysis.md</code>에 있습니다.</li>
 <li>신뢰구간이 넓습니다(50회 기준 ±10~15%p). 두 설정을 비교할 때는 구간이 겹치는지 보십시오.</li>
-<li><strong>같은 명령을 다시 돌리면 결과가 조금 다를 수 있습니다.</strong> 정책 추론은 같은 입력·seed에서 완전히 같지만, 시뮬레이터의 RTX 렌더링이 같은 장면에서도 픽셀을 조금씩 다르게 그립니다(평균 2~3/255). 이 차이 때문에 같은 seed라도 에피소드 결과가 바뀔 수 있습니다. 조교가 T1·T5를 두 번 평가했을 때 성공 수는 45→46, 38→39로 거의 같았지만, seed별 결과는 T1 5개, T5 11개가 서로 달랐습니다(<code>vla_lab/reports/eval_determinism.md</code>). 오라클 수집과 물리는 결정적이라 같은 seed면 시범이 완전히 같습니다.</li>
+<li><strong>같은 명령을 다시 돌리면 결과가 조금 다를 수 있습니다.</strong> 정책 추론은 같은 입력·seed에서 완전히 같지만, 시뮬레이터의 RTX 렌더링이 같은 장면에서도 픽셀을 조금씩 다르게 그립니다(평균 2~3/255). 이 차이 때문에 같은 seed라도 에피소드 결과가 바뀔 수 있습니다. 조교가 T1·T5를 두 번 평가했을 때 성공 수는 42→41, 45→45로 거의 같았지만, seed별 결과는 T1 11개, T5 10개가 서로 달랐습니다(<code>vla_lab/reports/eval_determinism.md</code>). 오라클 수집과 물리는 결정적이라 같은 seed면 시범이 완전히 같습니다.</li>
 </ul>
 <h2>(4) 성공·실패 영상</h2>
-<p>task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장합니다(T6은 실패가 없음).</p>
+<p>task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장합니다.</p>
 <ul>
-<li>T1: <figure><video controls preload="metadata" src="assets/eval/T1_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T1_failure_seed100002.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100002)</figcaption></figure></li>
-<li>T2: <figure><video controls preload="metadata" src="assets/eval/T2_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T2_failure_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100001)</figcaption></figure></li>
-<li>T3: <figure><video controls preload="metadata" src="assets/eval/T3_success_seed100027.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100027)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T3_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
-<li>T4: <figure><video controls preload="metadata" src="assets/eval/T4_success_seed100008.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100008)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T4_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
-<li>T5: <figure><video controls preload="metadata" src="assets/eval/T5_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T5_failure_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100001)</figcaption></figure></li>
-<li>T6: <figure><video controls preload="metadata" src="assets/eval/T6_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure></li>
-<li>T7: <figure><video controls preload="metadata" src="assets/eval/T7_success_seed100006.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100006)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T7_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
-<li>T8: <figure><video controls preload="metadata" src="assets/eval/T8_success_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100001)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T8_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
-<li>T9: <figure><video controls preload="metadata" src="assets/eval/T9_success_seed100004.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100004)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T9_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
-<li>T10: <figure><video controls preload="metadata" src="assets/eval/T10_success_seed100003.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100003)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T10_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T1: <figure><video controls preload="metadata" src="assets/eval/T1_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T1_failure_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100001)</figcaption></figure></li>
+<li>T2: <figure><video controls preload="metadata" src="assets/eval/T2_success_seed100003.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100003)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T2_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T3: <figure><video controls preload="metadata" src="assets/eval/T3_success_seed100004.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100004)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T3_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T4: <figure><video controls preload="metadata" src="assets/eval/T4_success_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100001)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T4_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T5: <figure><video controls preload="metadata" src="assets/eval/T5_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T5_failure_seed100009.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100009)</figcaption></figure></li>
+<li>T6: <figure><video controls preload="metadata" src="assets/eval/T6_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T6_failure_seed100012.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100012)</figcaption></figure></li>
+<li>T7: <figure><video controls preload="metadata" src="assets/eval/T7_success_seed100005.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100005)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T7_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
+<li>T8: <figure><video controls preload="metadata" src="assets/eval/T8_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T8_failure_seed100009.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100009)</figcaption></figure></li>
+<li>T9: <figure><video controls preload="metadata" src="assets/eval/T9_success_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100000)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T9_failure_seed100001.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100001)</figcaption></figure></li>
+<li>T10: <figure><video controls preload="metadata" src="assets/eval/T10_success_seed100016.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 성공 (seed 100016)</figcaption></figure> · <figure><video controls preload="metadata" src="assets/eval/T10_failure_seed100000.mp4"></video><figcaption style="font-size:85%;color:rgba(55,53,47,0.65)">▶ 실패 (seed 100000)</figcaption></figure></li>
 </ul>
 <h2>(5) 결과 파일 위치</h2>
 <pre><code class="language-text">~/vla_lab_runs/eval_smolvla_t1_t10/
 ├── results.json                     # 10개 task 표 + 평균
 ├── failure_analysis.json            # failure_analysis.py 실행 시 생성
 ├── T1/
-│   ├── summary.json                 # 성공 수, 최대 step, 걸린 시간, 영상 이름
+│   ├── summary.json                 # 성공 수, 자기충돌 에피소드 수, 최대 step, 걸린 시간, 영상 이름
 │   ├── episodes.json                # 에피소드별 seed, success, steps, 시간
 │   ├── episode_seed100000.npz       # 에피소드별 action과 관측 신호
 │   ├── ...
 │   ├── T1_success_seed100000.mp4
-│   └── T1_failure_seed100002.mp4
+│   └── T1_failure_seed100001.mp4
 ├── T2/
 └── ...
 </code></pre>
 <ul>
 <li><code>results.json</code>: task별 성공 수, 성공률, 95% 신뢰구간(Clopper-Pearson), 10개 task 평균.</li>
-<li><code>Txx/episodes.json</code>: 에피소드별 seed, 성공 여부, step 수, 시간.</li>
+<li><code>Txx/episodes.json</code>: 에피소드별 seed, 성공 여부, step 수, 시간, 로봇 링크끼리 닿은 frame 수(<code>self_contact_frames</code>).</li>
 <li><code>Txx/episode_seedNNNNNN.npz</code>: 정책 action과 매 step의 관측 신호(TCP, 그리퍼, 물체 위치, 관절). 실패 분석에 씁니다.</li>
 </ul>
 <hr />
@@ -1254,7 +1269,7 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 <tr>
 <td>오라클 수집</td>
 <td>Isaac Sim (카메라 3대)</td>
-<td><strong>2.9~3.3GB</strong> (T1 2.91, T7 3.29)</td>
+<td><strong>3.1~3.4GB</strong> (T1 3.12, T10 3.34)</td>
 <td>task마다 측정</td>
 </tr>
 <tr>
@@ -1266,14 +1281,14 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 <tr>
 <td>학습</td>
 <td>lerobot-train</td>
-<td><strong>6.47GB</strong> (PyTorch 예약 6.15GB)</td>
+<td><strong>6.50GB</strong> (PyTorch 예약 6.18GB)</td>
 <td>batch 16, fp32, 상한 7.0GB</td>
 </tr>
 <tr>
 <td>평가</td>
 <td>시뮬레이터 + 정책 한 프로세스</td>
-<td><strong>4.8~5.3GB</strong></td>
-<td>task마다 측정, 최대는 T10</td>
+<td><strong>4.7~5.2GB</strong></td>
+<td>평가 프로세스마다 측정</td>
 </tr>
 </tbody>
 </table>
