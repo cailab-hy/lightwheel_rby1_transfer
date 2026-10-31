@@ -16,4 +16,6 @@
 | `PLAN.md` | 작업 계획과 결과 요약 |
 | `lecture_kit/` | 강의자료 제작용 브리핑(`LECTURE_BRIEF.md`/`.html`)과 차트·장면 모음·GIF (`make_assets.py`로 재생성) |
 
-조교 baseline: 시범 500개(오라클 성공률 93.6%) → SmolVLA 25,000 step → 253/500 성공, 10개 task 평균 50.6%.
+조교 baseline: 시범 500개(오라클 성공률 98.2%, 로봇 자기충돌 켠 asset) → SmolVLA 25,000 step → 286/500 성공, 10개 task 평균 57.2%.
+
+로봇 asset은 `rby1-sim-isaac`의 `selfcollision-hulls` 브랜치를 씁니다(`check_env.sh`가 확인). 자세한 내용은 `reports/self_collision_review.md`.

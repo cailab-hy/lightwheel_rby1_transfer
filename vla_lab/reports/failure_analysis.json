@@ -3,140 +3,140 @@
     {
       "task": "T1",
       "episodes": 50,
-      "failures": 5,
+      "failures": 8,
       "approach": 0,
-      "grasp": 2,
-      "transport": 3,
+      "grasp": 4,
+      "transport": 4,
       "place": 0,
       "timeout": 0,
       "videos": {
         "success": "T1_success_seed100000.mp4",
-        "failure": "T1_failure_seed100002.mp4"
+        "failure": "T1_failure_seed100001.mp4"
       }
     },
     {
       "task": "T2",
       "episodes": 50,
-      "failures": 19,
+      "failures": 25,
       "approach": 0,
-      "grasp": 11,
-      "transport": 7,
+      "grasp": 17,
+      "transport": 6,
       "place": 1,
-      "timeout": 0,
+      "timeout": 1,
       "videos": {
-        "success": "T2_success_seed100000.mp4",
-        "failure": "T2_failure_seed100001.mp4"
+        "success": "T2_success_seed100003.mp4",
+        "failure": "T2_failure_seed100000.mp4"
       }
     },
     {
       "task": "T3",
       "episodes": 50,
-      "failures": 46,
-      "approach": 1,
-      "grasp": 42,
-      "transport": 3,
+      "failures": 34,
+      "approach": 4,
+      "grasp": 26,
+      "transport": 4,
       "place": 0,
       "timeout": 0,
       "videos": {
-        "success": "T3_success_seed100027.mp4",
+        "success": "T3_success_seed100004.mp4",
         "failure": "T3_failure_seed100000.mp4"
       }
     },
     {
       "task": "T4",
       "episodes": 50,
-      "failures": 32,
+      "failures": 25,
       "approach": 0,
       "grasp": 0,
       "transport": 0,
-      "place": 31,
+      "place": 24,
       "timeout": 1,
       "videos": {
-        "success": "T4_success_seed100008.mp4",
+        "success": "T4_success_seed100001.mp4",
         "failure": "T4_failure_seed100000.mp4"
       }
     },
     {
       "task": "T5",
       "episodes": 50,
-      "failures": 12,
+      "failures": 5,
       "approach": 0,
       "grasp": 0,
       "transport": 0,
-      "place": 12,
+      "place": 5,
       "timeout": 0,
       "videos": {
         "success": "T5_success_seed100000.mp4",
-        "failure": "T5_failure_seed100001.mp4"
+        "failure": "T5_failure_seed100009.mp4"
       }
     },
     {
       "task": "T6",
       "episodes": 50,
-      "failures": 0,
+      "failures": 1,
       "approach": 0,
       "grasp": 0,
       "transport": 0,
-      "place": 0,
+      "place": 1,
       "timeout": 0,
       "videos": {
         "success": "T6_success_seed100000.mp4",
-        "failure": null
+        "failure": "T6_failure_seed100012.mp4"
       }
     },
     {
       "task": "T7",
       "episodes": 50,
-      "failures": 41,
-      "approach": 4,
-      "grasp": 30,
-      "transport": 7,
-      "place": 0,
+      "failures": 39,
+      "approach": 0,
+      "grasp": 9,
+      "transport": 4,
+      "place": 26,
       "timeout": 0,
       "videos": {
-        "success": "T7_success_seed100006.mp4",
+        "success": "T7_success_seed100005.mp4",
         "failure": "T7_failure_seed100000.mp4"
       }
     },
     {
       "task": "T8",
       "episodes": 50,
-      "failures": 15,
+      "failures": 11,
       "approach": 0,
-      "grasp": 8,
-      "transport": 6,
-      "place": 0,
-      "timeout": 1,
+      "grasp": 7,
+      "transport": 1,
+      "place": 1,
+      "timeout": 2,
       "videos": {
-        "success": "T8_success_seed100001.mp4",
-        "failure": "T8_failure_seed100000.mp4"
+        "success": "T8_success_seed100000.mp4",
+        "failure": "T8_failure_seed100009.mp4"
       }
     },
     {
       "task": "T9",
       "episodes": 50,
-      "failures": 33,
+      "failures": 27,
       "approach": 0,
-      "grasp": 11,
-      "transport": 8,
-      "place": 12,
-      "timeout": 2,
+      "grasp": 17,
+      "transport": 3,
+      "place": 7,
+      "timeout": 0,
       "videos": {
-        "success": "T9_success_seed100004.mp4",
-        "failure": "T9_failure_seed100000.mp4"
+        "success": "T9_success_seed100000.mp4",
+        "failure": "T9_failure_seed100001.mp4"
       }
     },
     {
       "task": "T10",
       "episodes": 50,
-      "failures": 44,
+      "failures": 39,
       "approach": 0,
-      "grasp": 36,
-      "transport": 8,
+      "grasp": 30,
+      "transport": 9,
       "place": 0,
       "timeout": 0,
       "videos": {
-        "success": "T10_success_seed100003.mp4",
+        "success": "T10_success_seed100016.mp4",
         "failure": "T10_failure_seed100000.mp4"
       }
     }
@@ -144,237 +144,267 @@
   "episodes": [
     {
       "task": "T1",
-      "seed": 100002,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.285 m from the goal"
+      "seed": 100001,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.07 m)"
     },
     {
       "task": "T1",
-      "seed": 100014,
+      "seed": 100002,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.017 m, pushed 0.04 m)"
+    },
+    {
+      "task": "T1",
+      "seed": 100010,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.020 m, pushed 0.08 m)"
+    },
+    {
+      "task": "T1",
+      "seed": 100021,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.013 m)"
+    },
+    {
+      "task": "T1",
+      "seed": 100025,
       "stage": "transport",
-      "why": "bowl: lifted but ends 0.232 m from the goal"
+      "why": "bowl: lifted but ends 0.185 m from the goal"
     },
     {
       "task": "T1",
       "seed": 100037,
       "stage": "transport",
-      "why": "bowl: lifted but ends 0.180 m from the goal"
+      "why": "bowl: lifted but ends 0.243 m from the goal"
     },
     {
       "task": "T1",
       "seed": 100043,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.10 m)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.191 m from the goal"
     },
     {
       "task": "T1",
       "seed": 100046,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.018 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100001,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.011 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100002,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.024 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100003,
       "stage": "transport",
-      "why": "bowl: lifted but ends 0.237 m from the goal"
+      "why": "bowl: lifted but ends 0.208 m from the goal"
     },
     {
       "task": "T2",
-      "seed": 100006,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.259 m from the goal"
-    },
-    {
-      "task": "T2",
-      "seed": 100007,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.017 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100008,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.019 m, pushed 0.05 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100010,
-      "stage": "place",
-      "why": "bowl: 0.085 m from the goal (needs < 0.08)"
-    },
-    {
-      "task": "T2",
-      "seed": 100011,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.244 m from the goal"
-    },
-    {
-      "task": "T2",
-      "seed": 100012,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.297 m from the goal"
-    },
-    {
-      "task": "T2",
-      "seed": 100018,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.157 m from the goal"
-    },
-    {
-      "task": "T2",
-      "seed": 100021,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100034,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.012 m, pushed 0.13 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100036,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.012 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100038,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.015 m, pushed 0.05 m)"
-    },
-    {
-      "task": "T2",
-      "seed": 100041,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.187 m from the goal"
-    },
-    {
-      "task": "T2",
-      "seed": 100043,
+      "seed": 100000,
       "stage": "grasp",
       "why": "bowl: never lifted (max lift 0.014 m, pushed 0.03 m)"
     },
     {
       "task": "T2",
-      "seed": 100045,
+      "seed": 100001,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.012 m, pushed 0.04 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100002,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.011 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100004,
+      "stage": "place",
+      "why": "bowl: 0.088 m from the goal (needs < 0.08)"
+    },
+    {
+      "task": "T2",
+      "seed": 100007,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.010 m, pushed 0.05 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100008,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.010 m, pushed 0.06 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100010,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.020 m, pushed 0.03 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100012,
       "stage": "transport",
-      "why": "bowl: lifted but ends 0.203 m from the goal"
+      "why": "bowl: lifted but ends 0.228 m from the goal"
+    },
+    {
+      "task": "T2",
+      "seed": 100013,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.010 m, pushed 0.08 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100014,
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.284 m from the goal"
+    },
+    {
+      "task": "T2",
+      "seed": 100015,
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.337 m from the goal"
+    },
+    {
+      "task": "T2",
+      "seed": 100016,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.09 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100018,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.007 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100021,
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.171 m from the goal"
+    },
+    {
+      "task": "T2",
+      "seed": 100031,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.029 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100034,
+      "stage": "timeout",
+      "why": "bowl placed at the end; success did not latch in time"
+    },
+    {
+      "task": "T2",
+      "seed": 100035,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.010 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100036,
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.310 m from the goal"
+    },
+    {
+      "task": "T2",
+      "seed": 100038,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.009 m, pushed 0.05 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100039,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.008 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100040,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.008 m, pushed 0.06 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100043,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
     },
     {
       "task": "T2",
       "seed": 100046,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.017 m, pushed 0.04 m)"
+      "why": "bowl: never lifted (max lift 0.015 m, pushed 0.04 m)"
+    },
+    {
+      "task": "T2",
+      "seed": 100047,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.009 m, pushed 0.03 m)"
     },
     {
       "task": "T2",
       "seed": 100049,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.009 m)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.289 m from the goal"
     },
     {
       "task": "T3",
       "seed": 100000,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.13 m)"
+      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.11 m)"
     },
     {
       "task": "T3",
       "seed": 100001,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.005 m)"
+      "why": "ketchup: never lifted (max lift 0.006 m, pushed 0.11 m)"
     },
     {
       "task": "T3",
       "seed": 100002,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.001 m)"
+      "why": "ketchup: never lifted (max lift 0.002 m)"
     },
     {
       "task": "T3",
       "seed": 100003,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.003 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100004,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.006 m, pushed 0.11 m)"
+      "why": "ketchup: never lifted (max lift 0.004 m, pushed 0.11 m)"
     },
     {
       "task": "T3",
       "seed": 100005,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.11 m)"
+      "why": "ketchup: never lifted (max lift 0.004 m, pushed 0.11 m)"
     },
     {
       "task": "T3",
       "seed": 100006,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.003 m)"
+      "why": "ketchup: never lifted (max lift 0.003 m, pushed 0.11 m)"
     },
     {
       "task": "T3",
       "seed": 100007,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.000 m)"
+      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.11 m)"
     },
     {
       "task": "T3",
       "seed": 100008,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.003 m, pushed 0.07 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100009,
-      "stage": "grasp",
       "why": "ketchup: never lifted (max lift 0.002 m)"
     },
     {
       "task": "T3",
-      "seed": 100010,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.003 m, pushed 0.11 m)"
-    },
-    {
-      "task": "T3",
       "seed": 100011,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m)"
+      "stage": "approach",
+      "why": "ketchup: never reached (TCP > 0.08 m, object untouched)"
     },
     {
       "task": "T3",
       "seed": 100012,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.000 m)"
+      "why": "ketchup: never lifted (max lift 0.002 m)"
     },
     {
       "task": "T3",
       "seed": 100013,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.000 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100014,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.08 m)"
+      "stage": "approach",
+      "why": "ketchup: never reached (TCP > 0.08 m, object untouched)"
     },
     {
       "task": "T3",
@@ -386,115 +416,79 @@
       "task": "T3",
       "seed": 100016,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.001 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100017,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.07 m)"
+      "why": "ketchup: never lifted (max lift 0.003 m)"
     },
     {
       "task": "T3",
       "seed": 100018,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.010 m, pushed 0.12 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100019,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.12 m)"
+      "why": "ketchup: never lifted (max lift 0.001 m)"
     },
     {
       "task": "T3",
       "seed": 100020,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.008 m, pushed 0.17 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100021,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.11 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100022,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.006 m, pushed 0.09 m)"
+      "stage": "approach",
+      "why": "ketchup: never reached (TCP > 0.08 m, object untouched)"
     },
     {
       "task": "T3",
       "seed": 100023,
-      "stage": "transport",
-      "why": "ketchup: lifted but ends 0.490 m from the goal"
+      "stage": "grasp",
+      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.06 m)"
     },
     {
       "task": "T3",
       "seed": 100024,
-      "stage": "transport",
-      "why": "ketchup: lifted but ends 0.232 m from the goal"
-    },
-    {
-      "task": "T3",
-      "seed": 100025,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.003 m, pushed 0.12 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100026,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.002 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100028,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100029,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.008 m, pushed 0.15 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100030,
       "stage": "grasp",
       "why": "ketchup: never lifted (max lift 0.004 m)"
     },
     {
       "task": "T3",
+      "seed": 100026,
+      "stage": "grasp",
+      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.13 m)"
+    },
+    {
+      "task": "T3",
+      "seed": 100030,
+      "stage": "transport",
+      "why": "ketchup: lifted but ends 0.212 m from the goal"
+    },
+    {
+      "task": "T3",
+      "seed": 100031,
+      "stage": "grasp",
+      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.14 m)"
+    },
+    {
+      "task": "T3",
       "seed": 100032,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.004 m, pushed 0.10 m)"
+      "why": "ketchup: never lifted (max lift 0.006 m)"
     },
     {
       "task": "T3",
       "seed": 100033,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.003 m, pushed 0.09 m)"
+      "stage": "transport",
+      "why": "ketchup: lifted but ends 2.442 m from the goal (fell off the table)"
     },
     {
       "task": "T3",
       "seed": 100035,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.004 m, pushed 0.33 m)"
+      "why": "ketchup: never lifted (max lift 0.003 m)"
     },
     {
       "task": "T3",
       "seed": 100036,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m)"
+      "why": "ketchup: never lifted (max lift 0.005 m)"
     },
     {
       "task": "T3",
       "seed": 100037,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.13 m)"
+      "why": "ketchup: never lifted (max lift 0.004 m)"
     },
     {
       "task": "T3",
@@ -504,621 +498,483 @@
     },
     {
       "task": "T3",
-      "seed": 100039,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.13 m)"
-    },
-    {
-      "task": "T3",
       "seed": 100040,
-      "stage": "transport",
-      "why": "ketchup: lifted but ends 0.498 m from the goal"
+      "stage": "grasp",
+      "why": "ketchup: never lifted (max lift 0.003 m, pushed 0.12 m)"
     },
     {
       "task": "T3",
       "seed": 100041,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.12 m)"
-    },
-    {
-      "task": "T3",
-      "seed": 100043,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.005 m, pushed 0.11 m)"
+      "stage": "transport",
+      "why": "ketchup: lifted but ends 898.646 m from the goal (fell off the table)"
     },
     {
       "task": "T3",
       "seed": 100044,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.009 m)"
+      "why": "ketchup: never lifted (max lift 0.007 m, pushed 0.04 m)"
     },
     {
       "task": "T3",
       "seed": 100045,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.001 m)"
+      "why": "ketchup: never lifted (max lift 0.002 m)"
     },
     {
       "task": "T3",
       "seed": 100046,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.000 m)"
+      "why": "ketchup: never lifted (max lift 0.003 m)"
     },
     {
       "task": "T3",
       "seed": 100047,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.001 m)"
+      "why": "ketchup: never lifted (max lift 0.003 m)"
     },
     {
       "task": "T3",
       "seed": 100048,
       "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.000 m)"
+      "why": "ketchup: never lifted (max lift 0.004 m)"
     },
     {
       "task": "T3",
       "seed": 100049,
-      "stage": "grasp",
-      "why": "ketchup: never lifted (max lift 0.016 m, pushed 0.04 m)"
+      "stage": "transport",
+      "why": "ketchup: lifted but ends 0.187 m from the goal"
     },
     {
       "task": "T4",
       "seed": 100000,
       "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.114 (needs >= 0.115)"
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.101 (needs >= 0.115)"
     },
     {
       "task": "T4",
-      "seed": 100001,
+      "seed": 100003,
       "stage": "place",
       "why": "StorageFurniture136_Drawer001_joint ends at 0.113 (needs >= 0.115)"
     },
     {
       "task": "T4",
-      "seed": 100002,
+      "seed": 100004,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.113 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100005,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.113 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100007,
       "stage": "place",
       "why": "StorageFurniture136_Drawer001_joint ends at 0.110 (needs >= 0.115)"
     },
     {
       "task": "T4",
-      "seed": 100003,
+      "seed": 100008,
       "stage": "place",
       "why": "StorageFurniture136_Drawer001_joint ends at 0.114 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100004,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.106 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100005,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.014 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100006,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.114 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100007,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.049 (needs >= 0.115)"
     },
     {
       "task": "T4",
       "seed": 100009,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.071 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100012,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.061 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100013,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.007 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100015,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.107 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100017,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.094 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100018,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.115 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100022,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.064 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100023,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.041 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100026,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.107 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100027,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.037 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100028,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.058 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100031,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.047 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100032,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.034 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100033,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.114 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100035,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.113 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100036,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.059 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100037,
       "stage": "place",
       "why": "StorageFurniture136_Drawer001_joint ends at 0.111 (needs >= 0.115)"
     },
     {
       "task": "T4",
+      "seed": 100012,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.100 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100013,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.101 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100014,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.096 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100015,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.113 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100017,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.112 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100020,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.111 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100022,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.058 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100025,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.108 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100026,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.112 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100028,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.071 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100030,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.109 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100035,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.110 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100036,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.112 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
       "seed": 100040,
+      "stage": "place",
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.110 (needs >= 0.115)"
+    },
+    {
+      "task": "T4",
+      "seed": 100042,
       "stage": "timeout",
       "why": "StorageFurniture136_Drawer001_joint reached the goal; gripper not withdrawn / not latched"
     },
     {
       "task": "T4",
-      "seed": 100042,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
       "seed": 100043,
       "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.114 (needs >= 0.115)"
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.111 (needs >= 0.115)"
     },
     {
       "task": "T4",
-      "seed": 100045,
+      "seed": 100046,
       "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.115)"
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.113 (needs >= 0.115)"
     },
     {
       "task": "T4",
       "seed": 100047,
       "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.027 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100048,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.077 (needs >= 0.115)"
-    },
-    {
-      "task": "T4",
-      "seed": 100049,
-      "stage": "place",
-      "why": "StorageFurniture136_Drawer001_joint ends at 0.066 (needs >= 0.115)"
+      "why": "StorageFurniture136_Drawer001_joint ends at 0.104 (needs >= 0.115)"
     },
     {
       "task": "T5",
-      "seed": 100001,
+      "seed": 100009,
       "stage": "place",
-      "why": "microjoint ends at 0.727 (needs >= 0.942)"
+      "why": "microjoint ends at 0.841 (needs >= 0.942)"
     },
     {
       "task": "T5",
-      "seed": 100004,
+      "seed": 100011,
       "stage": "place",
-      "why": "microjoint ends at 0.291 (needs >= 0.942)"
+      "why": "microjoint ends at 0.639 (needs >= 0.942)"
     },
     {
       "task": "T5",
-      "seed": 100017,
+      "seed": 100013,
       "stage": "place",
-      "why": "microjoint ends at 0.662 (needs >= 0.942)"
+      "why": "microjoint ends at 0.818 (needs >= 0.942)"
     },
     {
       "task": "T5",
-      "seed": 100021,
+      "seed": 100014,
       "stage": "place",
-      "why": "microjoint ends at 0.650 (needs >= 0.942)"
-    },
-    {
-      "task": "T5",
-      "seed": 100026,
-      "stage": "place",
-      "why": "microjoint ends at 0.365 (needs >= 0.942)"
-    },
-    {
-      "task": "T5",
-      "seed": 100031,
-      "stage": "place",
-      "why": "microjoint ends at 0.778 (needs >= 0.942)"
+      "why": "microjoint ends at 0.720 (needs >= 0.942)"
     },
     {
       "task": "T5",
       "seed": 100034,
       "stage": "place",
-      "why": "microjoint ends at 0.854 (needs >= 0.942)"
+      "why": "microjoint ends at 0.576 (needs >= 0.942)"
     },
     {
-      "task": "T5",
-      "seed": 100035,
+      "task": "T6",
+      "seed": 100012,
       "stage": "place",
-      "why": "microjoint ends at 0.912 (needs >= 0.942)"
-    },
-    {
-      "task": "T5",
-      "seed": 100038,
-      "stage": "place",
-      "why": "microjoint ends at 0.685 (needs >= 0.942)"
-    },
-    {
-      "task": "T5",
-      "seed": 100043,
-      "stage": "place",
-      "why": "microjoint ends at 0.726 (needs >= 0.942)"
-    },
-    {
-      "task": "T5",
-      "seed": 100045,
-      "stage": "place",
-      "why": "microjoint ends at 0.857 (needs >= 0.942)"
-    },
-    {
-      "task": "T5",
-      "seed": 100046,
-      "stage": "place",
-      "why": "microjoint ends at 0.744 (needs >= 0.942)"
+      "why": "knob_center_joint ends at 0.217 (needs >= 0.350)"
     },
     {
       "task": "T7",
       "seed": 100000,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.369 m from the goal"
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.020 m)"
     },
     {
       "task": "T7",
       "seed": 100001,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.021 m, pushed 0.05 m)"
+      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.03 m)"
     },
     {
       "task": "T7",
       "seed": 100002,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.390 m from the goal"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.006 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100003,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.06 m)"
+      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.03 m)"
     },
     {
       "task": "T7",
       "seed": 100004,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.010 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.069)"
     },
     {
       "task": "T7",
-      "seed": 100005,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
+      "seed": 100006,
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.031 (needs >= 0.069)"
+    },
+    {
+      "task": "T7",
+      "seed": 100007,
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.015 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100008,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m)"
+      "why": "bowl: never lifted (max lift 0.018 m, pushed 0.05 m)"
+    },
+    {
+      "task": "T7",
+      "seed": 100009,
+      "stage": "place",
+      "why": "bowl: 0.091 m from the goal (needs < 0.08)"
     },
     {
       "task": "T7",
       "seed": 100010,
-      "stage": "approach",
-      "why": "bowl: never reached (TCP > 0.08 m, object untouched)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.334 m from the goal"
+    },
+    {
+      "task": "T7",
+      "seed": 100011,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.019 m, pushed 0.12 m)"
     },
     {
       "task": "T7",
       "seed": 100013,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.030 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100015,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.032 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100016,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.383 m from the goal"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.028 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100017,
-      "stage": "approach",
-      "why": "bowl: never reached (TCP > 0.08 m, object untouched)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.069)"
+    },
+    {
+      "task": "T7",
+      "seed": 100018,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
     },
     {
       "task": "T7",
       "seed": 100019,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m)"
+      "why": "bowl: never lifted (max lift 0.014 m)"
     },
     {
       "task": "T7",
       "seed": 100020,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.022 m, pushed 0.09 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.051 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100021,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T7",
-      "seed": 100022,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.04 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.064 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100023,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.008 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.010 (needs >= 0.069)"
+    },
+    {
+      "task": "T7",
+      "seed": 100024,
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.045 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100025,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m)"
-    },
-    {
-      "task": "T7",
-      "seed": 100026,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.002 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100027,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.010 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100028,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.022 m, pushed 0.05 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.043 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100029,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.012 m)"
+      "why": "bowl: never lifted (max lift 0.018 m)"
     },
     {
       "task": "T7",
       "seed": 100030,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.007 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.045 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100031,
-      "stage": "approach",
-      "why": "bowl: never reached (TCP > 0.08 m, object untouched)"
-    },
-    {
-      "task": "T7",
-      "seed": 100032,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.015 m, pushed 0.03 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.011 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100033,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.009 m)"
+      "why": "bowl: never lifted (max lift 0.011 m)"
     },
     {
       "task": "T7",
       "seed": 100035,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.003 m)"
-    },
-    {
-      "task": "T7",
-      "seed": 100036,
-      "stage": "approach",
-      "why": "bowl: never reached (TCP > 0.08 m, object untouched)"
-    },
-    {
-      "task": "T7",
-      "seed": 100037,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.351 m from the goal"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.060 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100038,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.012 m)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.336 m from the goal"
     },
     {
       "task": "T7",
       "seed": 100039,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.052 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100040,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100041,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T7",
-      "seed": 100042,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.04 m)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.339 m from the goal"
     },
     {
       "task": "T7",
       "seed": 100043,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.04 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100044,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.359 m from the goal"
-    },
-    {
-      "task": "T7",
-      "seed": 100045,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.329 m from the goal"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.045 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100046,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.163 m from the goal"
     },
     {
       "task": "T7",
       "seed": 100047,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.052 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100048,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.007 m)"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.000 (needs >= 0.069)"
     },
     {
       "task": "T7",
       "seed": 100049,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.372 m from the goal"
+      "stage": "place",
+      "why": "drawer: StorageFurniture136_Drawer001_joint ends at 0.003 (needs >= 0.069)"
     },
     {
       "task": "T8",
-      "seed": 100000,
+      "seed": 100009,
       "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
-    },
-    {
-      "task": "T8",
-      "seed": 100003,
-      "stage": "transport",
-      "why": "middle_bowl: lifted but ends 0.267 m from the goal"
-    },
-    {
-      "task": "T8",
-      "seed": 100004,
-      "stage": "transport",
-      "why": "middle_bowl: lifted but ends 0.257 m from the goal"
-    },
-    {
-      "task": "T8",
-      "seed": 100010,
-      "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T8",
-      "seed": 100014,
-      "stage": "transport",
-      "why": "middle_bowl: lifted but ends 0.225 m from the goal"
-    },
-    {
-      "task": "T8",
-      "seed": 100018,
-      "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.018 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T8",
-      "seed": 100019,
-      "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.013 m)"
+      "why": "middle_bowl: never lifted (max lift 0.011 m)"
     },
     {
       "task": "T8",
       "seed": 100021,
       "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.014 m, pushed 0.04 m)"
+      "why": "middle_bowl: never lifted (max lift 0.013 m, pushed 0.07 m)"
     },
     {
       "task": "T8",
@@ -1128,417 +984,375 @@
     },
     {
       "task": "T8",
-      "seed": 100026,
-      "stage": "transport",
-      "why": "middle_bowl: lifted but ends 0.534 m from the goal (fell off the table)"
+      "seed": 100027,
+      "stage": "grasp",
+      "why": "middle_bowl: never lifted (max lift 0.022 m, pushed 0.11 m)"
     },
     {
       "task": "T8",
-      "seed": 100029,
-      "stage": "transport",
-      "why": "middle_bowl: lifted but ends 0.241 m from the goal"
+      "seed": 100028,
+      "stage": "grasp",
+      "why": "middle_bowl: never lifted (max lift 0.011 m, pushed 0.05 m)"
     },
     {
       "task": "T8",
-      "seed": 100030,
+      "seed": 100032,
+      "stage": "transport",
+      "why": "middle_bowl: lifted but ends 0.383 m from the goal (fell off the table)"
+    },
+    {
+      "task": "T8",
+      "seed": 100033,
+      "stage": "timeout",
+      "why": "middle_bowl placed; gripper not withdrawn"
+    },
+    {
+      "task": "T8",
+      "seed": 100039,
+      "stage": "grasp",
+      "why": "middle_bowl: never lifted (max lift 0.012 m)"
+    },
+    {
+      "task": "T8",
+      "seed": 100044,
       "stage": "timeout",
       "why": "middle_bowl placed at the end; success did not latch in time"
     },
     {
       "task": "T8",
-      "seed": 100032,
+      "seed": 100047,
       "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.016 m, pushed 0.04 m)"
+      "why": "middle_bowl: never lifted (max lift 0.014 m, pushed 0.05 m)"
     },
     {
       "task": "T8",
-      "seed": 100039,
-      "stage": "transport",
-      "why": "middle_bowl: lifted but ends 0.315 m from the goal"
-    },
-    {
-      "task": "T8",
-      "seed": 100043,
-      "stage": "grasp",
-      "why": "middle_bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100000,
+      "seed": 100048,
       "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.008 (needs <= 0.001)"
+      "why": "middle_bowl: 0.193 m from the goal (needs < 0.14)"
     },
     {
       "task": "T9",
       "seed": 100001,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
+      "why": "bowl: never lifted (max lift 0.012 m)"
     },
     {
       "task": "T9",
       "seed": 100002,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.06 m)"
+      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
     },
     {
       "task": "T9",
       "seed": 100003,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100005,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.014 (needs <= 0.001)"
+      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.03 m)"
     },
     {
       "task": "T9",
       "seed": 100006,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.021 (needs <= 0.001)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.316 m from the goal"
     },
     {
       "task": "T9",
-      "seed": 100009,
+      "seed": 100007,
       "stage": "transport",
-      "why": "bowl: lifted but ends 0.306 m from the goal"
+      "why": "bowl: lifted but ends 0.221 m from the goal"
+    },
+    {
+      "task": "T9",
+      "seed": 100008,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.027 m, pushed 0.15 m)"
     },
     {
       "task": "T9",
       "seed": 100010,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.291 m from the goal"
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.012 m, pushed 0.03 m)"
     },
     {
       "task": "T9",
       "seed": 100012,
       "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.031 (needs <= 0.001)"
+      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.009 (needs <= 0.001)"
+    },
+    {
+      "task": "T9",
+      "seed": 100013,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.015 m, pushed 0.04 m)"
     },
     {
       "task": "T9",
       "seed": 100014,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.014 m, pushed 0.10 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100015,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.010 (needs <= 0.001)"
-    },
-    {
-      "task": "T9",
-      "seed": 100016,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.357 m from the goal"
-    },
-    {
-      "task": "T9",
-      "seed": 100017,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.007 (needs <= 0.001)"
-    },
-    {
-      "task": "T9",
-      "seed": 100019,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.309 m from the goal"
-    },
-    {
-      "task": "T9",
-      "seed": 100020,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.432 m from the goal (fell off the table)"
-    },
-    {
-      "task": "T9",
-      "seed": 100021,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100022,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.028 (needs <= 0.001)"
-    },
-    {
-      "task": "T9",
-      "seed": 100023,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.06 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100025,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.200 m from the goal"
-    },
-    {
-      "task": "T9",
-      "seed": 100026,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.019 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100027,
-      "stage": "timeout",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint reached the goal; gripper not withdrawn / not latched"
-    },
-    {
-      "task": "T9",
-      "seed": 100029,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.008 (needs <= 0.001)"
-    },
-    {
-      "task": "T9",
-      "seed": 100031,
-      "stage": "timeout",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint reached the goal; gripper not withdrawn / not latched"
-    },
-    {
-      "task": "T9",
-      "seed": 100034,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.024 m, pushed 0.15 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100036,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.329 m from the goal"
-    },
-    {
-      "task": "T9",
-      "seed": 100037,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.017 (needs <= 0.001)"
-    },
-    {
-      "task": "T9",
-      "seed": 100038,
-      "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.017 m, pushed 0.05 m)"
-    },
-    {
-      "task": "T9",
-      "seed": 100040,
       "stage": "place",
       "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.013 (needs <= 0.001)"
     },
     {
       "task": "T9",
-      "seed": 100042,
+      "seed": 100015,
       "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.014 (needs <= 0.001)"
+      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.013 (needs <= 0.001)"
+    },
+    {
+      "task": "T9",
+      "seed": 100019,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.016 m, pushed 0.04 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100021,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.012 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100023,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.027 m, pushed 0.05 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100026,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.021 m, pushed 0.04 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100031,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.011 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100034,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.012 m, pushed 0.03 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100035,
+      "stage": "place",
+      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.009 (needs <= 0.001)"
+    },
+    {
+      "task": "T9",
+      "seed": 100036,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.012 m, pushed 0.05 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100039,
+      "stage": "place",
+      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.019 (needs <= 0.001)"
+    },
+    {
+      "task": "T9",
+      "seed": 100041,
+      "stage": "place",
+      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.007 (needs <= 0.001)"
+    },
+    {
+      "task": "T9",
+      "seed": 100043,
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.04 m)"
     },
     {
       "task": "T9",
       "seed": 100044,
-      "stage": "place",
-      "why": "drawer close: StorageFurniture136_Drawer003_joint ends at 0.020 (needs <= 0.001)"
+      "stage": "transport",
+      "why": "bowl: lifted but ends 0.335 m from the goal"
     },
     {
       "task": "T9",
       "seed": 100045,
-      "stage": "transport",
-      "why": "bowl: lifted but ends 0.288 m from the goal"
+      "stage": "grasp",
+      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.04 m)"
     },
     {
       "task": "T9",
       "seed": 100046,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.019 m, pushed 0.05 m)"
+      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.05 m)"
+    },
+    {
+      "task": "T9",
+      "seed": 100048,
+      "stage": "place",
+      "why": "bowl: 0.161 m from the goal (needs < 0.12)"
     },
     {
       "task": "T9",
       "seed": 100049,
       "stage": "grasp",
-      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.03 m)"
+      "why": "bowl: never lifted (max lift 0.013 m, pushed 0.04 m)"
     },
     {
       "task": "T10",
       "seed": 100000,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.007 m, pushed 0.13 m)"
+      "why": "tomato_sauce: never lifted (max lift 0.006 m)"
     },
     {
       "task": "T10",
       "seed": 100001,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.011 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.012 m, pushed 0.11 m)"
     },
     {
       "task": "T10",
       "seed": 100002,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.05 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.03 m)"
     },
     {
       "task": "T10",
-      "seed": 100004,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.010 m, pushed 0.40 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100005,
-      "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.417 m from the goal"
-    },
-    {
-      "task": "T10",
-      "seed": 100006,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.14 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100007,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.004 m, pushed 0.03 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100008,
+      "seed": 100003,
       "stage": "grasp",
       "why": "tomato_sauce: never lifted (max lift 0.002 m)"
     },
     {
       "task": "T10",
-      "seed": 100009,
+      "seed": 100004,
+      "stage": "grasp",
+      "why": "alphabet_soup: never lifted (max lift 0.010 m, pushed 0.42 m)"
+    },
+    {
+      "task": "T10",
+      "seed": 100005,
       "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.300 m from the goal"
+      "why": "alphabet_soup: lifted but ends 0.254 m from the goal"
+    },
+    {
+      "task": "T10",
+      "seed": 100006,
+      "stage": "transport",
+      "why": "alphabet_soup: lifted but ends 0.408 m from the goal"
+    },
+    {
+      "task": "T10",
+      "seed": 100007,
+      "stage": "transport",
+      "why": "alphabet_soup: lifted but ends 0.219 m from the goal"
+    },
+    {
+      "task": "T10",
+      "seed": 100008,
+      "stage": "transport",
+      "why": "alphabet_soup: lifted but ends 0.475 m from the goal"
+    },
+    {
+      "task": "T10",
+      "seed": 100009,
+      "stage": "grasp",
+      "why": "tomato_sauce: never lifted (max lift 0.007 m, pushed 0.06 m)"
+    },
+    {
+      "task": "T10",
+      "seed": 100010,
+      "stage": "grasp",
+      "why": "alphabet_soup: never lifted (max lift 0.012 m, pushed 0.13 m)"
     },
     {
       "task": "T10",
       "seed": 100011,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.010 m, pushed 0.99 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.010 m, pushed 0.08 m)"
     },
     {
       "task": "T10",
       "seed": 100012,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.002 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.012 m, pushed 0.04 m)"
     },
     {
       "task": "T10",
       "seed": 100013,
-      "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.405 m from the goal"
+      "stage": "grasp",
+      "why": "alphabet_soup: never lifted (max lift 0.010 m, pushed 0.06 m)"
+    },
+    {
+      "task": "T10",
+      "seed": 100014,
+      "stage": "grasp",
+      "why": "tomato_sauce: never lifted (max lift 0.006 m, pushed 0.06 m)"
     },
     {
       "task": "T10",
       "seed": 100015,
-      "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.461 m from the goal"
-    },
-    {
-      "task": "T10",
-      "seed": 100016,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.012 m, pushed 0.06 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.14 m)"
     },
     {
       "task": "T10",
       "seed": 100017,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.000 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100018,
-      "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.009 m, pushed 0.04 m)"
+      "why": "tomato_sauce: never lifted (max lift 0.003 m)"
     },
     {
       "task": "T10",
       "seed": 100019,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.000 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100020,
-      "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.008 m, pushed 0.04 m)"
+      "why": "tomato_sauce: never lifted (max lift 0.004 m)"
     },
     {
       "task": "T10",
       "seed": 100021,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.05 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100022,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.001 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.14 m)"
     },
     {
       "task": "T10",
       "seed": 100023,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.001 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100024,
       "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.415 m from the goal"
+      "why": "tomato_sauce: lifted but ends 0.339 m from the goal"
     },
     {
       "task": "T10",
       "seed": 100025,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.006 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.012 m, pushed 0.10 m)"
     },
     {
       "task": "T10",
       "seed": 100026,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.003 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.009 m, pushed 0.17 m)"
     },
     {
       "task": "T10",
       "seed": 100027,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.007 m, pushed 0.08 m)"
+      "why": "tomato_sauce: never lifted (max lift 0.009 m, pushed 0.08 m)"
     },
     {
       "task": "T10",
       "seed": 100028,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.006 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.010 m, pushed 0.46 m)"
     },
     {
       "task": "T10",
       "seed": 100029,
-      "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.410 m from the goal"
-    },
-    {
-      "task": "T10",
-      "seed": 100030,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.008 m, pushed 0.05 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.006 m, pushed 0.03 m)"
     },
     {
       "task": "T10",
       "seed": 100031,
       "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.317 m from the goal"
+      "why": "alphabet_soup: lifted but ends 0.329 m from the goal"
     },
     {
       "task": "T10",
       "seed": 100032,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.010 m, pushed 0.06 m)"
+      "why": "tomato_sauce: never lifted (max lift 0.009 m)"
     },
     {
       "task": "T10",
@@ -1549,32 +1363,26 @@
     {
       "task": "T10",
       "seed": 100034,
-      "stage": "transport",
-      "why": "alphabet_soup: lifted but ends 0.249 m from the goal"
+      "stage": "grasp",
+      "why": "tomato_sauce: never lifted (max lift 0.009 m, pushed 0.04 m)"
     },
     {
       "task": "T10",
       "seed": 100035,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.21 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100036,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.005 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.07 m)"
     },
     {
       "task": "T10",
       "seed": 100037,
       "stage": "grasp",
-      "why": "tomato_sauce: never lifted (max lift 0.009 m, pushed 0.05 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.05 m)"
     },
     {
       "task": "T10",
       "seed": 100038,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.009 m, pushed 0.05 m)"
+      "stage": "transport",
+      "why": "alphabet_soup: lifted but ends 0.368 m from the goal"
     },
     {
       "task": "T10",
@@ -1586,43 +1394,37 @@
       "task": "T10",
       "seed": 100040,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.005 m, pushed 0.04 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100041,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.007 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.005 m, pushed 0.05 m)"
     },
     {
       "task": "T10",
       "seed": 100043,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.003 m)"
-    },
-    {
-      "task": "T10",
-      "seed": 100044,
-      "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.004 m)"
+      "stage": "transport",
+      "why": "alphabet_soup: lifted but ends 0.200 m from the goal"
     },
     {
       "task": "T10",
       "seed": 100045,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.002 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.05 m)"
     },
     {
       "task": "T10",
       "seed": 100046,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.008 m, pushed 0.04 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.000 m)"
     },
     {
       "task": "T10",
       "seed": 100047,
       "stage": "grasp",
-      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.12 m)"
+      "why": "alphabet_soup: never lifted (max lift 0.011 m, pushed 0.06 m)"
+    },
+    {
+      "task": "T10",
+      "seed": 100049,
+      "stage": "transport",
+      "why": "alphabet_soup: lifted but ends 0.265 m from the goal"
     }
   ]
 }

@@ -84,5 +84,87 @@
       "max_depth_m": 0.0,
       "pairs": {}
     }
+  },
+  "eval": {
+    "T1": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 3068,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T10": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 11653,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T2": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 3977,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T3": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 6180,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T4": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 3892,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T5": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 4519,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T6": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 2182,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T7": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 11266,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T8": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 3501,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    },
+    "T9": {
+      "episodes": 50,
+      "with_overlap": 0,
+      "steps": 8007,
+      "overlap_steps": 0,
+      "max_depth_m": 0.0,
+      "pairs": {}
+    }
   }
 }

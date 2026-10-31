@@ -1,7 +1,8 @@
 # 실패 분석 (조교용)
 
 - 평가: `~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model` (25,000 step), task당 50회, seed 100000~100049, `success_original`
-- 결과: 253/500 성공, 10개 task 평균 50.6% (`vla_lab/reports/eval_results.txt`)
+- 결과: 286/500 성공, 10개 task 평균 57.2% (`vla_lab/reports/eval_results.txt`)
+- 데이터·물리: 로봇 자기충돌이 켜진 asset(`rby1-sim-isaac` `selfcollision-hulls`)으로 다시 수집·학습·평가한 결과. 이전(자기충돌 꺼짐) 결과는 253/500, 50.6%였다.
 - 도구: `python vla_lab/scripts/failure_analysis.py --eval ~/vla_lab_runs/eval_smolvla_t1_t10`
 
 ## 분류 기준 (관측 가능한 신호만 사용)
@@ -22,45 +23,46 @@
 
 | Task | 실패/전체 | 접근 | 파지 | 운반 | 배치·조작 | 시간 초과 |
 |---|---|---|---|---|---|---|
-| T1 | 5/50 | 0 | 2 | 3 | 0 | 0 |
-| T2 | 19/50 | 0 | 11 | 7 | 1 | 0 |
-| T3 | 46/50 | 1 | 42 | 3 | 0 | 0 |
-| T4 | 32/50 | 0 | 0 | 0 | 31 | 1 |
-| T5 | 12/50 | 0 | 0 | 0 | 12 | 0 |
-| T6 | 0/50 | 0 | 0 | 0 | 0 | 0 |
-| T7 | 41/50 | 4 | 30 | 7 | 0 | 0 |
-| T8 | 15/50 | 0 | 8 | 6 | 0 | 1 |
-| T9 | 33/50 | 0 | 11 | 8 | 12 | 2 |
-| T10 | 44/50 | 0 | 36 | 8 | 0 | 0 |
-| 합계 | 247/500 | 5 | 140 | 42 | 56 | 4 |
+| T1 | 8/50 | 0 | 4 | 4 | 0 | 0 |
+| T2 | 25/50 | 0 | 17 | 6 | 1 | 1 |
+| T3 | 34/50 | 4 | 26 | 4 | 0 | 0 |
+| T4 | 25/50 | 0 | 0 | 0 | 24 | 1 |
+| T5 | 5/50 | 0 | 0 | 0 | 5 | 0 |
+| T6 | 1/50 | 0 | 0 | 0 | 1 | 0 |
+| T7 | 39/50 | 0 | 9 | 4 | 26 | 0 |
+| T8 | 11/50 | 0 | 7 | 1 | 1 | 2 |
+| T9 | 27/50 | 0 | 17 | 3 | 7 | 0 |
+| T10 | 39/50 | 0 | 30 | 9 | 0 | 0 |
+| 합계 | 214/500 | 4 | 110 | 31 | 65 | 4 |
 
 ## task별 관찰
 
-- **파지 실패가 가장 많습니다(140/247, 57%).** 그리퍼가 물체에 다가가 닫히지만 물체를 놓치거나 밀어서 넘어뜨립니다. 특히 T3(케첩 42회), T10(캔 36회), T7(그릇 30회). 오라클 시범에는 파지에 실패한 뒤 다시 잡는 장면이 없으므로, 첫 접촉이 조금만 어긋나도 정책이 회복하지 못합니다.
-- **T4 실패 32회 중 31회는 서랍을 움직였지만 기준(0.1148m, 최대의 50%)에 못 미친 경우**입니다. 끝났을 때 열림이 0.106~0.115m인 아슬아슬한 경우가 13회, 0.05~0.10m가 8회, 0.05m 미만이 10회(열었다가 다시 밀어 닫은 경우 포함)입니다. 오라클은 약 0.129m까지 엽니다. 당기는 거리가 짧거나 손잡이를 일찍 놓칩니다.
-- **T5 실패 12회는 모두 문을 덜 연 경우**입니다(최종 각도 중앙값 0.73 rad, 필요 0.942 rad). 실패 영상(seed 100001)에서는 문을 일부 연 뒤 손잡이를 일찍 놓고 팔을 머리 위쪽으로 들어 올린 채 멈춥니다. 다시 잡으러 가지 않습니다.
-- **T9는 단계가 길어 실패가 고르게 나뉩니다.** 그릇 파지 11, 운반 8, 서랍을 덜 닫음 12(중앙값 0.014m 남음). 오라클도 서랍을 완전히 닫는 단계가 가장 어려웠습니다(오라클 성공률 78.1%).
-- **T6은 50/50**, T1 45/50, T5 38/50, T8 35/50으로 짧고 단일 접촉인 task는 잘 됩니다.
-- **접근 실패는 5회뿐**입니다(T7 4, T3 1). 지시문으로 task를 구분하는 것과 대략적인 도달은 학습됐습니다.
-- **시간 초과는 4회**로 적습니다. 대부분 시간이 남은 채로 실패 상태에서 멈춰 있습니다(재시도 없음).
+- **파지 실패가 가장 많습니다(110/214, 51%).** 그리퍼가 물체에 다가가 닫히지만 물체를 들지 못하고 밀거나 놓칩니다. 특히 T10(캔 30회), T3(케첩 26회), T2·T9(그릇 각 17회). 오라클 시범에는 파지에 실패한 뒤 다시 잡는 장면이 없으므로, 첫 접촉이 조금만 어긋나도 정책이 회복하지 못합니다.
+- **T7 실패 39회 중 25회는 위 서랍을 충분히 열지 못한 경우**입니다(끝났을 때 열림 중앙값 0.028m, 최대 0.064m, 필요 0.069m). 서랍을 연 뒤 그릇을 들지 못한 경우가 9회입니다.
+- **T4 실패 25회 중 24회는 서랍을 움직였지만 기준(0.115m)에 못 미친 경우**입니다. 17회는 0.106m 이상으로 아슬아슬했고, 7회는 0.05~0.106m였습니다.
+- **T5 실패 5회는 모두 문을 덜 연 경우**입니다(최종 각도 0.58~0.84 rad, 중앙값 0.72, 필요 0.942 rad). 이전 데이터(손잡이를 따라 68° 여는 시범)로 학습했을 때는 12회였습니다.
+- **T9는 그릇 파지 17, 운반 3, 서랍을 덜 닫음 7**(남은 간격 중앙값 0.011m)입니다.
+- **T6 49/50, T5 45/50, T1 42/50, T8 39/50**: 짧고 단일 접촉인 task는 잘 됩니다.
+- **접근 실패는 4회(모두 T3), 시간 초과는 4회**입니다. 대부분 시간이 남은 채로 실패 상태에서 멈춰 있습니다(재시도 없음).
+- **평가 500회 중 로봇 링크끼리 닿은 에피소드는 0회**입니다(`eval_smolvla.py`가 PhysX 접촉 보고로 기록).
 
 ## 대표 영상
 
-`eval_smolvla.py`가 task마다 첫 성공·첫 실패 에피소드를 정면 카메라로 저장한 것입니다(T6은 실패가 없어 성공만).
+`eval_smolvla.py`가 task마다 첫 성공·첫 실패 에피소드를 정면 카메라로 저장한 것입니다.
 
 | Task | 영상 |
 |---|---|
-| T1 | [성공](../docs/assets/eval/T1_success_seed100000.mp4) · [실패](../docs/assets/eval/T1_failure_seed100002.mp4) |
-| T2 | [성공](../docs/assets/eval/T2_success_seed100000.mp4) · [실패](../docs/assets/eval/T2_failure_seed100001.mp4) |
-| T3 | [성공](../docs/assets/eval/T3_success_seed100027.mp4) · [실패](../docs/assets/eval/T3_failure_seed100000.mp4) |
-| T4 | [성공](../docs/assets/eval/T4_success_seed100008.mp4) · [실패](../docs/assets/eval/T4_failure_seed100000.mp4) |
-| T5 | [성공](../docs/assets/eval/T5_success_seed100000.mp4) · [실패](../docs/assets/eval/T5_failure_seed100001.mp4) |
-| T6 | [성공](../docs/assets/eval/T6_success_seed100000.mp4) |
-| T7 | [성공](../docs/assets/eval/T7_success_seed100006.mp4) · [실패](../docs/assets/eval/T7_failure_seed100000.mp4) |
-| T8 | [성공](../docs/assets/eval/T8_success_seed100001.mp4) · [실패](../docs/assets/eval/T8_failure_seed100000.mp4) |
-| T9 | [성공](../docs/assets/eval/T9_success_seed100004.mp4) · [실패](../docs/assets/eval/T9_failure_seed100000.mp4) |
-| T10 | [성공](../docs/assets/eval/T10_success_seed100003.mp4) · [실패](../docs/assets/eval/T10_failure_seed100000.mp4) |
+| T1 | [성공](../docs/assets/eval/T1_success_seed100000.mp4) · [실패](../docs/assets/eval/T1_failure_seed100001.mp4) |
+| T2 | [성공](../docs/assets/eval/T2_success_seed100003.mp4) · [실패](../docs/assets/eval/T2_failure_seed100000.mp4) |
+| T3 | [성공](../docs/assets/eval/T3_success_seed100004.mp4) · [실패](../docs/assets/eval/T3_failure_seed100000.mp4) |
+| T4 | [성공](../docs/assets/eval/T4_success_seed100001.mp4) · [실패](../docs/assets/eval/T4_failure_seed100000.mp4) |
+| T5 | [성공](../docs/assets/eval/T5_success_seed100000.mp4) · [실패](../docs/assets/eval/T5_failure_seed100009.mp4) |
+| T6 | [성공](../docs/assets/eval/T6_success_seed100000.mp4) · [실패](../docs/assets/eval/T6_failure_seed100012.mp4) |
+| T7 | [성공](../docs/assets/eval/T7_success_seed100005.mp4) · [실패](../docs/assets/eval/T7_failure_seed100000.mp4) |
+| T8 | [성공](../docs/assets/eval/T8_success_seed100000.mp4) · [실패](../docs/assets/eval/T8_failure_seed100009.mp4) |
+| T9 | [성공](../docs/assets/eval/T9_success_seed100000.mp4) · [실패](../docs/assets/eval/T9_failure_seed100001.mp4) |
+| T10 | [성공](../docs/assets/eval/T10_success_seed100016.mp4) · [실패](../docs/assets/eval/T10_failure_seed100000.mp4) |
 
 ## 비결정성 메모
 
-정책 추론은 같은 입력·같은 seed에서 완전히 같습니다(차이 0). 하지만 RTX 렌더러가 같은 장면을 두 번 그려도 픽셀이 조금 다르고(평균 2~3/255, 최대 약 70), 이 차이로 첫 action부터 달라집니다. 그래서 같은 seed를 다시 평가해도 에피소드별 결과가 바뀔 수 있습니다. 측정 결과는 `vla_lab/reports/eval_determinism.md`에 있습니다.
+정책 추론은 같은 입력·같은 seed에서 완전히 같습니다(차이 0). 하지만 RTX 렌더러가 같은 장면을 두 번 그려도 픽셀이 조금 다르고, 이 차이로 첫 action부터 달라집니다. 그래서 같은 seed를 다시 평가해도 에피소드별 결과가 바뀔 수 있습니다. 측정 결과는 `vla_lab/reports/eval_determinism.md`에 있습니다.

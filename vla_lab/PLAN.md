@@ -12,7 +12,7 @@
 | Isaac Sim / IsaacLab | 5.1.0 / 2.3.0 (`~/IsaacLab_RS`, e83a5d2) |
 | LeRobot | 0.4.3 (`~/lerobot`, v0.4.3 = 0b067df5, editable) |
 | lightwheel_rby1_transfer | 1178454 (main) → 작업 브랜치 `vla-lab-v1` |
-| rby1-sim-isaac | ba52496 (cailab-hy) |
+| rby1-sim-isaac | 146bec3 (`selfcollision-hulls`, ba52496 위에 자기충돌 asset. push 전) |
 
 - 이 PC에는 `~/lerobot`, `~/rby1-sim-isaac`, `~/lightwheel_rby1_transfer`가 지워져 있어서 다시 clone했다.
   conda 환경(`lerobot-arena`)의 editable 설치 경로(`~/lerobot/src`)가 그대로라 패키지 재설치는 하지 않았다.
@@ -55,14 +55,14 @@
 - 평가: 같은 장면·카메라·15fps·`success_original`. 최대 step은 task별 오라클 시범 길이 최대값의 2배.
 - 체크포인트: 마지막 체크포인트(`checkpoints/last`)를 평가.
 
-## 4. 결과 (2026-10-30)
+## 4. 결과 (2026-10-31, 로봇 자기충돌 켠 asset으로 재수집·재학습)
 
 | 단계 | 결과 | 소요 (조교 PC) | 최대 VRAM |
 |---|---|---|---|
-| 오라클 수집 | 500/534 시도 저장 (93.6%), task별 78.1~100% | 550분 (task 3개 동시) | 2.9~3.3GB |
-| 변환·검증 | 10개 task `--validate` 통과, 병합 500 ep / 182,419 step | 변환 합계 약 8.5시간 (동시 실행), 병합 9분 | - |
-| 학습 | 25,000 step, batch 16, loss 0.008 | 3시간 46분 (깨끗한 실행 기준 약 3시간 23분) | 6.47GB |
-| 평가 | 253/500, 평균 50.6% | 약 9시간 40분 (4~5개 동시) | 5.3GB |
+| 오라클 수집 | 500/509 시도 저장 (98.2%), task별 90.9~100%, 로봇 자기 몸 접촉 0회 | 약 9시간 (task 3~4개 + 변환 동시) | 3.1~3.4GB |
+| 변환·검증 | 10개 task `--validate` 통과, 병합 500 ep / 188,315 step | 변환 합계 약 8.4시간 (동시 실행), 병합 10분 | - |
+| 학습 | 25,000 step, batch 16, loss 0.007 | 3시간 20분 | 6.50GB |
+| 평가 | 286/500, 평균 57.2%, 자기 몸 접촉 0회 | 약 11시간 10분 (4~5개 동시) | 5.2GB |
 
-- T9 오라클 성공률 78.1% (목표 80% 미달). 원인: 서랍을 끝까지 닫는 단계. `docs`와 최종 보고에 기록.
+- 첫 결과(자기충돌 꺼진 asset, 2026-10-30): 오라클 93.6%, 평가 253/500(50.6%). T5 오라클 시범 50개 모두 팔이 몸통을 통과해 asset과 오라클을 고치고 처음부터 다시 했다(`reports/self_collision_review.md`).
 - 평가는 RTX 렌더링 픽셀 노이즈 때문에 에피소드 단위로 재현되지 않음(`reports/eval_determinism.md`). 수집은 비트 단위로 재현됨.

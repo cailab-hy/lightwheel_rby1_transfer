@@ -155,7 +155,7 @@ def chart_lengths():
 
 
 def chart_vram():
-    stages = [("오라클 수집", 3.29), ("학습 (batch 16)", 6.47), ("평가 (시뮬+정책)", 5.31)]
+    stages = [("오라클 수집", 3.34), ("학습 (batch 16)", 6.50), ("평가 (시뮬+정책)", 5.20)]
     fig, ax = plt.subplots(figsize=(8, 3.2))
     y = np.arange(len(stages))[::-1]
     ax.barh(y, [v for _, v in stages], height=0.55, color=SERIES[0], zorder=2)
@@ -177,12 +177,12 @@ def diagram_pipeline():
     fig, ax = plt.subplots(figsize=(13, 3.6))
     ax.set_xlim(0, 13); ax.set_ylim(0, 3.6); ax.axis("off"); ax.grid(False)
     boxes = [
-        ("① 오라클 수집", "정답 상태로 움직이는\n스크립트, 첫 시도만\n500개 (534회 시도)", "#e7f3f8"),
+        ("① 오라클 수집", "정답 상태로 움직이는\n스크립트, 첫 시도만\n500개 (509회 시도)", "#e7f3f8"),
         ("② 변환·검증", "export_dataset.sh\n--format rby1 --validate\nLeRobot v3, AV1 영상", "#edf3ec"),
-        ("③ 병합", "10개 task → 1개\n500 에피소드\n182,419 step", "#edf3ec"),
-        ("④ SmolVLA 학습", "smolvla_base 미세조정\n25,000 step, batch 16\n6.5GB, 약 3.4시간", "#fdebec"),
-        ("⑤ 평가", "task당 50회 × 10\nsuccess_original\n253/500 (50.6%)", "#fbf3db"),
-        ("⑥ 실패 분석", "접근·파지·운반\n배치·조작·시간 초과\n파지 57%", "#f1eef9"),
+        ("③ 병합", "10개 task → 1개\n500 에피소드\n188,315 step", "#edf3ec"),
+        ("④ SmolVLA 학습", "smolvla_base 미세조정\n25,000 step, batch 16\n6.5GB, 약 3.3시간", "#fdebec"),
+        ("⑤ 평가", "task당 50회 × 10\nsuccess_original\n286/500 (57.2%)", "#fbf3db"),
+        ("⑥ 실패 분석", "접근·파지·운반\n배치·조작·시간 초과\n파지 51%", "#f1eef9"),
     ]
     w, gap = 1.85, 0.27
     for i, (title, body, fc) in enumerate(boxes):

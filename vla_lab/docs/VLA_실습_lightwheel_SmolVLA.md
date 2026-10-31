@@ -280,16 +280,16 @@ done
 ```text
 {
   "episodes": 50,
-  "frames": 12924,
+  "frames": 13145,
   "fps": 15,
   "format": "rby1",
   "numeric_arrays_exact_to_raw": true,
   "all_video_frame_counts_match": true,
-  "max_raw_to_video_mse": 8.822860243055555
+  "max_raw_to_video_mse": 11.213232421875
 }
 ```
 
-- 변환 시간: task당 30~87분(시범 50개, 합계 약 8.5시간). 조교 PC에서 2~5개 task를 동시에 변환하며 잰 값입니다. 긴 시범이 많은 T7·T9·T10이 오래 걸립니다.
+- 변환 시간: task당 32~86분(시범 50개, 합계 약 8.4시간). 조교 PC에서 수집 3개와 변환 1~2개를 동시에 돌리며 잰 값입니다. 긴 시범이 많은 T7·T9·T10이 오래 걸립니다.
 - 검증 결과는 `~/datasets/vla_lab/<task>/validation.json`에 저장됩니다.
 
 ## (2) 10개 task를 데이터셋 하나로 합치기
@@ -404,9 +404,9 @@ cd ~/lightwheel_rby1_transfer
 
 | 항목 | 값 |
 |---|---|
-| step당 시간 | `updt_s` 0.455초 + `data_s` 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,301초) |
-| 25,000 step | 약 3시간 23분 (0.488초 × 25,000. 다른 작업과 함께 돌린 이번 실행은 3시간 46분) |
-| 최대 VRAM | 프로세스 **6.47GB** (`nvidia-smi` 6,624MiB), PyTorch 예약 6.15GB |
+| step당 시간 | `updt_s` 0.457초 + `data_s` 0.017초. 로그 기준 실제 약 0.49초/step (8K→25K step: 8,313초) |
+| 25,000 step | 약 3시간 20분 (시작부터 끝까지. 처음 1시간은 재생 검사와 함께 돌림) |
+| 최대 VRAM | 프로세스 **6.50GB** (`nvidia-smi` 6,656MiB), PyTorch 예약 6.18GB |
 | 체크포인트 | 하나당 1.3GB (optimizer 상태 포함), 6개 저장 |
 
 - 8GB GPU에서는 직접 재지 못했습니다. RTX 3090 대비 연산 성능(FP32 35.6 TFLOPS)과 메모리 대역폭(936GB/s)으로 비교하면 RTX 4060(15.1 TFLOPS, 272GB/s)은 약 2.4~3.4배, RTX 3070(20.3 TFLOPS, 448GB/s)은 약 1.8~2.1배 느릴 것으로 **추정**합니다. 25,000 step 기준 약 6~11.6시간입니다(12시간 목표 안이지만 RTX 4060급에서는 여유가 적습니다).
@@ -436,17 +436,17 @@ cd ~/lightwheel_rby1_transfer
 
 ```text
 INFO ... cfg.steps=25000 (25K)
-INFO ... dataset.num_frames=182419 (182K)
+INFO ... dataset.num_frames=188315 (188K)
 INFO ... dataset.num_episodes=500
 INFO ... num_learnable_params=99880992 (100M)
 INFO ... num_total_params=450046176 (450M)
-INFO ... step:2K smpl:40K ep:110 epch:0.22 loss:0.056 grdn:0.685 lr:9.8e-05 updt_s:0.467 data_s:0.018
-INFO ... step:10K smpl:160K ep:439 epch:0.88 loss:0.019 grdn:0.345 lr:6.7e-05 updt_s:0.456 data_s:0.017
-INFO ... step:20K smpl:320K ep:877 epch:1.75 loss:0.010 grdn:0.229 lr:1.2e-05 updt_s:0.454 data_s:0.017
-INFO ... step:25K smpl:400K ep:1K epch:2.19 loss:0.008 grdn:0.194 lr:2.5e-06 updt_s:0.456 data_s:0.017
+INFO ... step:2K smpl:32K ep:85 epch:0.17 loss:0.053 grdn:0.640 lr:9.9e-05 updt_s:0.455 data_s:0.017
+INFO ... step:10K smpl:160K ep:425 epch:0.85 loss:0.017 grdn:0.326 lr:6.7e-05 updt_s:0.458 data_s:0.017
+INFO ... step:20K smpl:320K ep:850 epch:1.70 loss:0.008 grdn:0.204 lr:1.2e-05 updt_s:0.457 data_s:0.017
+INFO ... step:25K smpl:400K ep:1K epch:2.12 loss:0.007 grdn:0.178 lr:2.5e-06 updt_s:0.456 data_s:0.017
 INFO ... Checkpoint policy after step 25000
 INFO ... End of training
-PEAK torch reserved 6.15 GB, allocated 5.98 GB
+PEAK torch reserved 6.18 GB, allocated 5.97 GB
 ```
 
 | 항목 | 의미 |
@@ -465,7 +465,7 @@ W&B를 쓰려면 `--wandb.enable=true --wandb.project=<프로젝트>`를 붙입�
 
 | 구분 | 파라미터 | 값 | 의미 | 기본값과 다르면 바꾼 이유 |
 |---|---|---|---|---|
-| 데이터 | `dataset.root` | `~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle` | 10개 task 합친 데이터셋 (500 에피소드, 182,419 step) | |
+| 데이터 | `dataset.root` | `~/datasets/vla_lab/merged/RBY1-T1-T10-Oracle` | 10개 task 합친 데이터셋 (500 에피소드, 188,315 step) | |
 | 데이터 | `rename_map` | front→camera1, left→camera2, right→camera3 | 우리 카메라 이름을 smolvla_base의 입력 이름에 맞춤 | smolvla_base는 `camera1~3`으로 사전학습됨 |
 | 데이터 | `dataset.image_transforms` | 끔 | 이미지 증강 | 기본값 그대로 |
 | 정책 | `policy.path` | `lerobot/smolvla_base` | 사전학습 가중치에서 시작 | |
@@ -561,9 +561,9 @@ cd ~/lightwheel_rby1_transfer
 | 항목 | 값 |
 |---|---|
 | 속도 | 평가 프로세스 1~3개가 함께 돌 때 프로세스당 약 7~10 step/s (실시간 15 step/s보다 느림) |
-| 전체 평가 (500회, 311,580 step) | 순서대로 돌리면 **약 9~13시간**(위 속도로 추정). 조교는 4~5개를 동시에 돌려 약 9시간 40분 |
-| task 하나 | 성공이 많은 T5·T6은 약 25분, 실패가 많고 긴 T10은 수 시간 |
-| 최대 VRAM | 프로세스 하나(시뮬레이터 + 정책) **5.3GB** 이하 (5,439MiB) |
+| 전체 평가 (500회, 290,542 step) | 순서대로 돌리면 **약 8~12시간**(위 속도로 추정). 조교는 4~5개를 동시에 돌려 약 11시간 10분 |
+| task 하나 | 성공이 많은 T6은 약 25분, 실패가 많고 긴 T9·T10은 수 시간 |
+| 최대 VRAM | 프로세스 하나(시뮬레이터 + 정책) **5.2GB** 이하 (5,327MiB) |
 
 - 실패한 에피소드는 최대 step까지 돌기 때문에 성공률이 낮을수록 오래 걸립니다.
 - 빨리 확인할 때는 `--episodes 5`, `--tasks "T1 T6"`처럼 줄이십시오.
@@ -572,14 +572,15 @@ cd ~/lightwheel_rby1_transfer
 ## (2) 출력 예시
 
 ```text
-POLICY ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model loaded in 6.6 s; chunk 50, n_action_steps 50; horizon 412 steps
-[T5] episode 1/50 seed 100000: SUCCESS (213 steps, 45 s) | 1/1
-[T5] episode 2/50 seed 100001: fail (412 steps, 49 s) | 1/2
-[T5] episode 3/50 seed 100002: SUCCESS (203 steps, 22 s) | 2/3
+POLICY ~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model loaded in 9.2 s; chunk 50, n_action_steps 50; horizon 812 steps
+[T5] episode 1/50 seed 100000: SUCCESS (401 steps, 292 s) | 1/1
+[T5] episode 2/50 seed 100001: SUCCESS (409 steps, 339 s) | 2/2
 ...
-TASK_SUMMARY {"task": "T5", "instruction": "Open the microwave.", ..., "episodes": 50, "successes": 38, "horizon_steps": 412, ...}
+[T5] episode 10/50 seed 100009: fail (812 steps, 910 s) | 9/10
+...
+TASK_SUMMARY {"task": "T5", "instruction": "Open the microwave.", ..., "episodes": 50, "successes": 45, "episodes_with_self_contact": 0, "horizon_steps": 812, ...}
 task    success    rate            95% CI
-T5      38/50     76.0% [ 61.8,  86.9]
+T5      45/50     90.0% [ 78.2,  96.7]
 ```
 
 ## (3) 결과 (조교 baseline)
@@ -588,37 +589,38 @@ T5      38/50     76.0% [ 61.8,  86.9]
 
 | Task | 지시문 | 성공 | 성공률 | 95% 신뢰구간 | 최대 step |
 |---|---|---|---|---|---|
-| T1 | `put the black bowl on the plate.` | 45/50 | **90%** | 78.2 ~ 96.7% | 536 |
-| T2 | `Pick the akita black bowl on the cookies box and place it on the plate.` | 31/50 | **62%** | 47.2 ~ 75.3% | 526 |
-| T3 | `Pick up the ketchup, and put it in the basket.` | 4/50 | **8%** | 2.2 ~ 19.2% | 794 |
-| T4 | `Open the top drawer of the cabinet.` | 18/50 | **36%** | 22.9 ~ 50.8% | 512 |
-| T5 | `Open the microwave.` | 38/50 | **76%** | 61.8 ~ 86.9% | 412 |
-| T6 | `Turn on the stove.` | 50/50 | **100%** | 92.9 ~ 100.0% | 428 |
-| T7 | `Open the top layer of the drawer and put the bowl inside.` | 9/50 | **18%** | 8.6 ~ 31.4% | 1218 |
-| T8 | `Stack the black bowl in the middle on the black bowl at the back.` | 35/50 | **70%** | 55.4 ~ 82.1% | 614 |
-| T9 | `Put the black bowl in the bottom drawer of the cabinet and close it.` | 17/50 | **34%** | 21.2 ~ 48.8% | 1212 |
-| T10 | `Pick up the alphabet soup and the tomato sauce, and put them in the basket.` | 6/50 | **12%** | 4.5 ~ 24.3% | 1562 |
-| **평균** | 10개 task 단순 평균 | 253/500 | **50.6%** | | |
+| T1 | `put the black bowl on the plate.` | 42/50 | **84%** | 70.9 ~ 92.8% | 542 |
+| T2 | `Pick the akita black bowl on the cookies box and place it on the plate.` | 25/50 | **50%** | 35.5 ~ 64.5% | 528 |
+| T3 | `Pick up the ketchup, and put it in the basket.` | 16/50 | **32%** | 19.5 ~ 46.7% | 760 |
+| T4 | `Open the top drawer of the cabinet.` | 25/50 | **50%** | 35.5 ~ 64.5% | 516 |
+| T5 | `Open the microwave.` | 45/50 | **90%** | 78.2 ~ 96.7% | 812 |
+| T6 | `Turn on the stove.` | 49/50 | **98%** | 89.4 ~ 99.9% | 428 |
+| T7 | `Open the top layer of the drawer and put the bowl inside.` | 11/50 | **22%** | 11.5 ~ 36.0% | 1254 |
+| T8 | `Stack the black bowl in the middle on the black bowl at the back.` | 39/50 | **78%** | 64.0 ~ 88.5% | 594 |
+| T9 | `Put the black bowl in the bottom drawer of the cabinet and close it.` | 23/50 | **46%** | 31.8 ~ 60.7% | 1044 |
+| T10 | `Pick up the alphabet soup and the tomato sauce, and put them in the basket.` | 11/50 | **22%** | 11.5 ~ 36.0% | 1296 |
+| **평균** | 10개 task 단순 평균 | 286/500 | **57.2%** | | |
 
-- 짧고 접촉이 한 번인 task(T6 스토브, T1 그릇, T5 전자레인지, T8 쌓기)는 잘 되고, 물체를 정확히 집어야 하는 T3(케첩), T10(캔 두 개), T7(서랍+그릇)이 어렵습니다.
-- 실패의 57%(140/247)는 **파지 실패**(물체를 밀거나 넘어뜨리고 들지 못함)입니다. 단계별 분석은 `vla_lab/reports/failure_analysis.md`에 있습니다.
+- 짧고 접촉이 한 번인 task(T6 스토브, T5 전자레인지, T1 그릇, T8 쌓기)는 잘 되고, 물체를 정확히 집어야 하는 T3(케첩), T10(캔 두 개), T7(서랍+그릇)이 어렵습니다.
+- 실패의 51%(110/214)는 **파지 실패**(물체를 밀거나 넘어뜨리고 들지 못함)입니다. T7 실패의 대부분(25/39)은 서랍을 충분히 열지 못한 경우입니다.
+- 평가 500회 중 **로봇 팔이 자기 몸에 닿은 에피소드는 0회**입니다(`summary.json`의 `episodes_with_self_contact`). 단계별 분석은 `vla_lab/reports/failure_analysis.md`에 있습니다.
 - 신뢰구간이 넓습니다(50회 기준 ±10~15%p). 두 설정을 비교할 때는 구간이 겹치는지 보십시오.
 - **같은 명령을 다시 돌리면 결과가 조금 다를 수 있습니다.** 정책 추론은 같은 입력·seed에서 완전히 같지만, 시뮬레이터의 RTX 렌더링이 같은 장면에서도 픽셀을 조금씩 다르게 그립니다(평균 2~3/255). 이 차이 때문에 같은 seed라도 에피소드 결과가 바뀔 수 있습니다. 조교가 T1·T5를 두 번 평가했을 때 성공 수는 45→46, 38→39로 거의 같았지만, seed별 결과는 T1 5개, T5 11개가 서로 달랐습니다(`vla_lab/reports/eval_determinism.md`). 오라클 수집과 물리는 결정적이라 같은 seed면 시범이 완전히 같습니다.
 
 ## (4) 성공·실패 영상
 
-task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장합니다(T6은 실패가 없음).
+task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장합니다.
 
-- T1: [▶ 성공 (seed 100000)](assets/eval/T1_success_seed100000.mp4) · [▶ 실패 (seed 100002)](assets/eval/T1_failure_seed100002.mp4)
-- T2: [▶ 성공 (seed 100000)](assets/eval/T2_success_seed100000.mp4) · [▶ 실패 (seed 100001)](assets/eval/T2_failure_seed100001.mp4)
-- T3: [▶ 성공 (seed 100027)](assets/eval/T3_success_seed100027.mp4) · [▶ 실패 (seed 100000)](assets/eval/T3_failure_seed100000.mp4)
-- T4: [▶ 성공 (seed 100008)](assets/eval/T4_success_seed100008.mp4) · [▶ 실패 (seed 100000)](assets/eval/T4_failure_seed100000.mp4)
-- T5: [▶ 성공 (seed 100000)](assets/eval/T5_success_seed100000.mp4) · [▶ 실패 (seed 100001)](assets/eval/T5_failure_seed100001.mp4)
-- T6: [▶ 성공 (seed 100000)](assets/eval/T6_success_seed100000.mp4)
-- T7: [▶ 성공 (seed 100006)](assets/eval/T7_success_seed100006.mp4) · [▶ 실패 (seed 100000)](assets/eval/T7_failure_seed100000.mp4)
-- T8: [▶ 성공 (seed 100001)](assets/eval/T8_success_seed100001.mp4) · [▶ 실패 (seed 100000)](assets/eval/T8_failure_seed100000.mp4)
-- T9: [▶ 성공 (seed 100004)](assets/eval/T9_success_seed100004.mp4) · [▶ 실패 (seed 100000)](assets/eval/T9_failure_seed100000.mp4)
-- T10: [▶ 성공 (seed 100003)](assets/eval/T10_success_seed100003.mp4) · [▶ 실패 (seed 100000)](assets/eval/T10_failure_seed100000.mp4)
+- T1: [▶ 성공 (seed 100000)](assets/eval/T1_success_seed100000.mp4) · [▶ 실패 (seed 100001)](assets/eval/T1_failure_seed100001.mp4)
+- T2: [▶ 성공 (seed 100003)](assets/eval/T2_success_seed100003.mp4) · [▶ 실패 (seed 100000)](assets/eval/T2_failure_seed100000.mp4)
+- T3: [▶ 성공 (seed 100004)](assets/eval/T3_success_seed100004.mp4) · [▶ 실패 (seed 100000)](assets/eval/T3_failure_seed100000.mp4)
+- T4: [▶ 성공 (seed 100001)](assets/eval/T4_success_seed100001.mp4) · [▶ 실패 (seed 100000)](assets/eval/T4_failure_seed100000.mp4)
+- T5: [▶ 성공 (seed 100000)](assets/eval/T5_success_seed100000.mp4) · [▶ 실패 (seed 100009)](assets/eval/T5_failure_seed100009.mp4)
+- T6: [▶ 성공 (seed 100000)](assets/eval/T6_success_seed100000.mp4) · [▶ 실패 (seed 100012)](assets/eval/T6_failure_seed100012.mp4)
+- T7: [▶ 성공 (seed 100005)](assets/eval/T7_success_seed100005.mp4) · [▶ 실패 (seed 100000)](assets/eval/T7_failure_seed100000.mp4)
+- T8: [▶ 성공 (seed 100000)](assets/eval/T8_success_seed100000.mp4) · [▶ 실패 (seed 100009)](assets/eval/T8_failure_seed100009.mp4)
+- T9: [▶ 성공 (seed 100000)](assets/eval/T9_success_seed100000.mp4) · [▶ 실패 (seed 100001)](assets/eval/T9_failure_seed100001.mp4)
+- T10: [▶ 성공 (seed 100016)](assets/eval/T10_success_seed100016.mp4) · [▶ 실패 (seed 100000)](assets/eval/T10_failure_seed100000.mp4)
 
 ## (5) 결과 파일 위치
 
@@ -627,18 +629,18 @@ task마다 첫 성공과 첫 실패 에피소드를 정면 카메라로 저장�
 ├── results.json                     # 10개 task 표 + 평균
 ├── failure_analysis.json            # failure_analysis.py 실행 시 생성
 ├── T1/
-│   ├── summary.json                 # 성공 수, 최대 step, 걸린 시간, 영상 이름
+│   ├── summary.json                 # 성공 수, 자기충돌 에피소드 수, 최대 step, 걸린 시간, 영상 이름
 │   ├── episodes.json                # 에피소드별 seed, success, steps, 시간
 │   ├── episode_seed100000.npz       # 에피소드별 action과 관측 신호
 │   ├── ...
 │   ├── T1_success_seed100000.mp4
-│   └── T1_failure_seed100002.mp4
+│   └── T1_failure_seed100001.mp4
 ├── T2/
 └── ...
 ```
 
 - `results.json`: task별 성공 수, 성공률, 95% 신뢰구간(Clopper-Pearson), 10개 task 평균.
-- `Txx/episodes.json`: 에피소드별 seed, 성공 여부, step 수, 시간.
+- `Txx/episodes.json`: 에피소드별 seed, 성공 여부, step 수, 시간, 로봇 링크끼리 닿은 frame 수(`self_contact_frames`).
 - `Txx/episode_seedNNNNNN.npz`: 정책 action과 매 step의 관측 신호(TCP, 그리퍼, 물체 위치, 관절). 실패 분석에 씁니다.
 
 
@@ -682,10 +684,10 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 
 | 단계 | 프로세스 | 최대 VRAM (`nvidia-smi`) | 비고 |
 |---|---|---|---|
-| 오라클 수집 | Isaac Sim (카메라 3대) | **2.9~3.3GB** (T1 2.91, T7 3.29) | task마다 측정 |
+| 오라클 수집 | Isaac Sim (카메라 3대) | **3.1~3.4GB** (T1 3.12, T10 3.34) | task마다 측정 |
 | 변환·병합 | CPU 위주 | GPU 거의 사용 안 함 | |
-| 학습 | lerobot-train | **6.47GB** (PyTorch 예약 6.15GB) | batch 16, fp32, 상한 7.0GB |
-| 평가 | 시뮬레이터 + 정책 한 프로세스 | **4.8~5.3GB** | task마다 측정, 최대는 T10 |
+| 학습 | lerobot-train | **6.50GB** (PyTorch 예약 6.18GB) | batch 16, fp32, 상한 7.0GB |
+| 평가 | 시뮬레이터 + 정책 한 프로세스 | **4.7~5.2GB** | 평가 프로세스마다 측정 |
 
 - 단위는 GB = MiB ÷ 1024 입니다. 모든 단계가 8GB 아래이고, 학습도 7.5GB 목표 아래입니다.
 - 학습 batch를 바꿀 때 참고: batch 8 → 4.0GB, batch 16 → 6.4GB, batch 32 → OOM (fp32는 7.5GB 상한, bf16은 7.0GB 상한에서 모두 초과, 조교 PC 측정).
