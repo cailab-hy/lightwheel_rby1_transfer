@@ -369,9 +369,9 @@ RESULT {"episode": "episode 1", "frames": 267, "recorded_success": true, "replay
 
 `replayed_success_original: true`이면 재현된 것입니다. `--headless`를 빼면 창으로 볼 수 있습니다.
 
-조교가 task마다 시범 10개(episode 0~9)를 재생했을 때 T3을 뺀 9개 task는 모두 10/10 재현됐습니다. 관절 차이는 대부분 0.005 rad 이하이고, 손으로 문·서랍을 미는 T5(최대 0.25 rad), T9(0.07), T7(0.03)이 큽니다.
+조교가 task마다 시범 10개(episode 0~9)를 재생했을 때 10개 task 모두 10/10 재현됐습니다. 관절 차이는 대부분 0.005 rad 이하이고, 손으로 문·서랍을 미는 T5(최대 0.25 rad), T9(0.07), T7(0.03)이 큽니다.
 
-**T3은 `replay_dataset.sh`로 재생하면 대부분 실패합니다(2/9).** 시범 문제가 아니라 재생 도구(`scripts/replay_episode.py`)가 raw 기록에서 장면을 복원할 때 케첩(관절이 있는 자유 물체)의 위치를 복원하지 않기 때문입니다. 케첩이 장면 기본 위치(3.6cm 떨어진 곳)에 남은 채 재생됩니다. 조교가 이 위치만 복원하도록 고친 복사본으로 재생하면 10/10이 재현됐습니다(관절 차이 0.0004 rad 이하).
+- `replay_dataset.sh`는 raw 기록에서 장면을 복원할 때 관절이 있는 자유 물체(T3·T10의 케첩)의 위치를 복원하지 않는 문제가 있어 고쳤습니다(`scripts/replay_episode.py`). 고치기 전에는 케첩이 장면 기본 위치(3.6cm 떨어진 곳)에 남아 T3 재생이 대부분 실패했습니다(2/9). 고친 뒤 T3 10/10(관절 차이 0.0004 rad 이하).
 
 [▶ T1 시범 재생 (episode 0, action 모드)](assets/replay/T1_episode_0_action.mp4)
 

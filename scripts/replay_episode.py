@@ -212,6 +212,9 @@ def body_pose_from_com(body, com_pos, com_quat):
     return pos, Rcom.as_quat()[[3, 0, 1, 2]]
 
 
+free_arts = set()   # articulated objects that are props (e.g. T3/T10 ketchup), not fixed fixtures; set by restore()
+
+
 def set_objects_from_snapshot(snap):
     for n, rec in snap.get("rigid_objects", {}).items():
         if n in success.bodies and n not in success.arts:
@@ -226,7 +229,8 @@ def set_objects_from_snapshot(snap):
             art.set_joint_positions(np.asarray(rec["data"]["joint_pos"][0], float))
             art.set_joint_velocities(np.zeros(art.num_dof))
     for n, rec in snap.get("root_states", {}).get("articulation", {}).items():
-        if n in success.arts and n not in snap.get("articulations", {}):   # free articulated objects (e.g. T3 ketchup)
+        # free articulated objects (e.g. T3 ketchup); they are also listed under "articulations" with their joints
+        if n in success.arts and (n not in snap.get("articulations", {}) or n in free_arts):
             pose = np.asarray(rec["root_pose"][0], float)
             success.arts[n].set_world_pose(pose[:3], pose[3:])
 
@@ -246,6 +250,8 @@ def restore(raw, arr, m, layout):
                 if body is not None and prop["name"] not in success.arts:
                     body.set_world_pose(np.asarray(rec["position"]), np.asarray(rec["orientation_wxyz"]))
                     body.set_linear_velocity(np.zeros(3)); body.set_angular_velocity(np.zeros(3))
+        free_arts.clear()
+        free_arts.update(p["name"] for p in init.get("props", []) if p["name"] in success.arts)
         lines = (raw / "success_state.jsonl").read_text().splitlines()
         snaps = [json.loads(l) for l in lines]
         set_objects_from_snapshot({"articulations": snaps[0].get("articulations", {}), "root_states": snaps[0].get("root_states", {})})
