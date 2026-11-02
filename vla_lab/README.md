@@ -18,4 +18,4 @@
 
 조교 baseline: 시범 500개(오라클 성공률 98.2%, 로봇 자기충돌 켠 asset) → SmolVLA 25,000 step → 286/500 성공, 10개 task 평균 57.2%.
 
-로봇 asset은 `rby1-sim-isaac`의 `selfcollision-hulls` 브랜치를 씁니다(`check_env.sh`가 확인). 자세한 내용은 `reports/self_collision_review.md`.
+로봇 asset은 로봇 링크끼리 충돌하는 `rby1-sim-isaac` `main`(commit `146bec3` 이후)을 씁니다(`check_env.sh`가 확인). 자세한 내용은 `reports/self_collision_review.md`.

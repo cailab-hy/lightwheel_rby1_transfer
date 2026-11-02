@@ -11,8 +11,8 @@
 | Python / PyTorch | 3.11.16 / 2.7.0+cu128 |
 | Isaac Sim / IsaacLab | 5.1.0 / 2.3.0 (`~/IsaacLab_RS`, e83a5d2) |
 | LeRobot | 0.4.3 (`~/lerobot`, v0.4.3 = 0b067df5, editable) |
-| lightwheel_rby1_transfer | 1178454 (main) → 작업 브랜치 `vla-lab-v1` |
-| rby1-sim-isaac | 146bec3 (`selfcollision-hulls`, ba52496 위에 자기충돌 asset. push 전) |
+| lightwheel_rby1_transfer | 1178454 (main) → 작업 브랜치 `vla-lab-v1` (완료 후 `main`에 합침) |
+| rby1-sim-isaac | 146bec3 (ba52496 위에 자기충돌 asset. 작업 브랜치 `selfcollision-hulls`를 `main`에 합침) |
 
 - 이 PC에는 `~/lerobot`, `~/rby1-sim-isaac`, `~/lightwheel_rby1_transfer`가 지워져 있어서 다시 clone했다.
   conda 환경(`lerobot-arena`)의 editable 설치 경로(`~/lerobot/src`)가 그대로라 패키지 재설치는 하지 않았다.

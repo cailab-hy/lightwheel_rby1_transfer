@@ -2,7 +2,7 @@
 
 - 평가: `~/vla_lab_runs/smolvla_t1_t10/checkpoints/last/pretrained_model` (25,000 step), task당 50회, seed 100000~100049, `success_original`
 - 결과: 286/500 성공, 10개 task 평균 57.2% (`vla_lab/reports/eval_results.txt`)
-- 데이터·물리: 로봇 자기충돌이 켜진 asset(`rby1-sim-isaac` `selfcollision-hulls`)으로 다시 수집·학습·평가한 결과. 이전(자기충돌 꺼짐) 결과는 253/500, 50.6%였다.
+- 데이터·물리: 로봇 자기충돌이 켜진 asset(`rby1-sim-isaac` commit `146bec3`, `main`)으로 다시 수집·학습·평가한 결과. 이전(자기충돌 꺼짐) 결과는 253/500, 50.6%였다.
 - 도구: `python vla_lab/scripts/failure_analysis.py --eval ~/vla_lab_runs/eval_smolvla_t1_t10`
 
 ## 분류 기준 (관측 가능한 신호만 사용)

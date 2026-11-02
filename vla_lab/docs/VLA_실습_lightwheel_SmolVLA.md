@@ -34,7 +34,8 @@
 ```bash
 conda activate lerobot-arena
 cd ~/lightwheel_rby1_transfer
-git checkout vla-lab-v1
+git checkout main && git pull origin main
+git -C ~/rby1-sim-isaac checkout main && git -C ~/rby1-sim-isaac pull origin main
 ./vla_lab/check_env.sh
 ```
 
@@ -64,8 +65,8 @@ LeRobot: 0.4.3
 Path: /home/cai/lerobot/src/lerobot/__init__.py
 
 ========== Repositories ==========
-lightwheel_rby1_transfer: <commit> (vla-lab-v1)
-rby1-sim-isaac: 146bec3 (selfcollision-hulls)
+lightwheel_rby1_transfer: <commit> (main)
+rby1-sim-isaac: 146bec3 (main)
 Robot self-collision layer: OK
 
 ========== SmolVLA weights (HF cache) ==========
@@ -77,8 +78,8 @@ NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
 ```
 
 - GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
-- `<commit>` 자리에는 `vla-lab-v1` 브랜치의 commit 해시(7자리)가 나옵니다.
-- `Robot self-collision layer: MISSING`이면 로봇 레포가 `main`입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset(`selfcollision-hulls` 브랜치)을 씁니다: `git -C ~/rby1-sim-isaac checkout selfcollision-hulls`.
+- `<commit>` 자리에는 `main` 브랜치의 commit 해시(7자리)가 나옵니다. `rby1-sim-isaac`도 `main`이며, 이후 commit이 생기면 해시는 `146bec3`과 다를 수 있습니다.
+- `Robot self-collision layer: MISSING`이면 로봇 레포가 자기충돌 asset(`146bec3`)이 들어가기 전 버전입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset을 씁니다: `git -C ~/rby1-sim-isaac pull origin main`.
 - `SmolVLA weights`가 `MISSING`이면 아래 **추가 설치**를 먼저 하십시오.
 
 **2. 경로 설정 확인**

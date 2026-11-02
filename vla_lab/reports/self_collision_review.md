@@ -69,7 +69,7 @@ T5 오라클 첫 시범(seed 0): 관통 구간 10.3~13.7초, 가장 깊은 시�
 
 ## 적용 (B안) — 로봇 USD에서 자기충돌 켜기
 
-### 로봇 asset (`rby1-sim-isaac`, 브랜치 `selfcollision-hulls`, push 안 함)
+### 로봇 asset (`rby1-sim-isaac` commit `146bec3`. 작업 브랜치 `selfcollision-hulls`에서 만들어 `main`에 합침)
 
 `assets/generated/tools/build_selfcollision_hulls.py`가 `rby1_selfcollision_hulls.usda`를 만들고, `rby1_ready_reach_table.usd`가 이 층을 거쳐 기존 충돌 층을 쓰도록 바꿨다. 장면(`environments/T*.usd`)은 로봇 USD를 참조하므로 다시 만들 필요가 없다.
 

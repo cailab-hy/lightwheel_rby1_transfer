@@ -76,7 +76,7 @@
 | T10 | `Pick up the alphabet soup and the tomato sauce, and put them in the basket.` | 캔 두 개를 바구니에 | Multi-Object Sequential Manipulation | 왼팔 → 오른팔 |
 
 - 로봇: Rainbow Robotics RB-Y1(양팔 7자유도 + 그리퍼). 몸통·머리는 고정. 시뮬레이터: Isaac Sim 5.1 / IsaacLab 2.3.
-- 로봇 자기충돌: 팔·몸통·머리·손바닥에 링크별 convex hull 충돌체를 넣고 자기충돌을 켰다(`rby1-sim-isaac` `selfcollision-hulls` 브랜치). 처음 기본 모델은 자기충돌이 꺼져 있어 T5에서 팔이 몸통을 통과했다(이전 시범 50/50).
+- 로봇 자기충돌: 팔·몸통·머리·손바닥에 링크별 convex hull 충돌체를 넣고 자기충돌을 켰다(`rby1-sim-isaac` `main`, commit `146bec3`). 처음 기본 모델은 자기충돌이 꺼져 있어 T5에서 팔이 몸통을 통과했다(이전 시범 50/50).
 - 물체 위치·방향은 에피소드마다 무작위(같은 seed = 같은 배치). 수납장·전자레인지·스토브 같은 고정물은 고정.
 - 성공 판정 `success_original`: LW-BenchHub 원본 판정 코드. 조건 만족 후 약 3.5초(52 step) 뒤 확정. 대부분 **그리퍼가 물체에서 멀어져야** 성공.
 

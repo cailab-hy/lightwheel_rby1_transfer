@@ -69,7 +69,8 @@ li { margin: 0.15em 0; }
 <p><strong>1. Course version이 고정되었는가?</strong></p>
 <pre><code class="language-bash">conda activate lerobot-arena
 cd ~/lightwheel_rby1_transfer
-git checkout vla-lab-v1
+git checkout main &amp;&amp; git pull origin main
+git -C ~/rby1-sim-isaac checkout main &amp;&amp; git -C ~/rby1-sim-isaac pull origin main
 ./vla_lab/check_env.sh
 </code></pre>
 <p>조교 PC 출력:</p>
@@ -96,8 +97,8 @@ LeRobot: 0.4.3
 Path: /home/cai/lerobot/src/lerobot/__init__.py
 
 ========== Repositories ==========
-lightwheel_rby1_transfer: &lt;commit&gt; (vla-lab-v1)
-rby1-sim-isaac: 146bec3 (selfcollision-hulls)
+lightwheel_rby1_transfer: &lt;commit&gt; (main)
+rby1-sim-isaac: 146bec3 (main)
 Robot self-collision layer: OK
 
 ========== SmolVLA weights (HF cache) ==========
@@ -109,8 +110,8 @@ NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
 </code></pre>
 <ul>
 <li>GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.</li>
-<li><code>&lt;commit&gt;</code> 자리에는 <code>vla-lab-v1</code> 브랜치의 commit 해시(7자리)가 나옵니다.</li>
-<li><code>Robot self-collision layer: MISSING</code>이면 로봇 레포가 <code>main</code>입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset(<code>selfcollision-hulls</code> 브랜치)을 씁니다: <code>git -C ~/rby1-sim-isaac checkout selfcollision-hulls</code>.</li>
+<li><code>&lt;commit&gt;</code> 자리에는 <code>main</code> 브랜치의 commit 해시(7자리)가 나옵니다. <code>rby1-sim-isaac</code>도 <code>main</code>이며, 이후 commit이 생기면 해시는 <code>146bec3</code>과 다를 수 있습니다.</li>
+<li><code>Robot self-collision layer: MISSING</code>이면 로봇 레포가 자기충돌 asset(<code>146bec3</code>)이 들어가기 전 버전입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset을 씁니다: <code>git -C ~/rby1-sim-isaac pull origin main</code>.</li>
 <li><code>SmolVLA weights</code>가 <code>MISSING</code>이면 아래 <strong>추가 설치</strong>를 먼저 하십시오.</li>
 </ul>
 <p><strong>2. 경로 설정 확인</strong></p>
