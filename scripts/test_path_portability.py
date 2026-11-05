@@ -32,7 +32,7 @@ with tempfile.TemporaryDirectory(prefix='rby relocation ') as tmp:
     dest.mkdir()
     shutil.copytree(paths.ROOT / 'scripts', dest / 'scripts', ignore=shutil.ignore_patterns('__pycache__'))
     shutil.copytree(paths.ROOT / 'environments', dest / 'environments')
-    for script in ('run_python.sh', 'collect_keyboard.sh', 'collect_t1_keyboard.sh'):
+    for script in ('run_python.sh', 'collect_keyboard.sh'):
         shutil.copy2(paths.ROOT / script, dest / script)
     env = os.environ.copy()
     env.update(RBY1_SIM_ROOT=str(paths.RBY_SIM), RBY1_LIGHTWHEEL_CACHE=str(paths.LIGHTWHEEL_CACHE), RBY1_ISAACLAB_ROOT=str(paths.ISAACLAB), RBY1_DATASETS_ROOT=str(Path(tmp)/'data with spaces'), RBY1_PYTHON=sys.executable, PYTHONPATH=str(dest/'scripts')+os.pathsep+str(paths.ROOT/'usd_deps'))
@@ -59,7 +59,7 @@ print(json.dumps(records))
     assert result.returncode == 0, result.stderr
     relocated = json.loads(result.stdout)
     assert [r['prim_count'] for r in records] == [r['prim_count'] for r in relocated]
-    subprocess.run([str(dest/'collect_t1_keyboard.sh'), '--help'], cwd=tmp, env=env, capture_output=True, check=True)
+    subprocess.run([str(dest/'collect_keyboard.sh'), '--help'], cwd=tmp, env=env, capture_output=True, check=True)
     for row in relocated:
         print(row)
     (paths.ROOT/'reports/path_portability_validation.json').write_text(json.dumps({'authored_scenes_equal_except_paths': True, 'relocated_with_spaces': True, 'external_paths_overridden': True, 'unresolved_external_dependencies': 0, 'wrapper_help_outside_checkout': True, 'tasks': relocated}, indent=2))

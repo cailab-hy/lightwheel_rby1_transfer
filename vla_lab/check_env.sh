@@ -26,7 +26,7 @@ echo
 echo "========== IsaacLab =========="
 ISAACLAB="${RBY1_ISAACLAB_ROOT:-$REPOS/IsaacLab_RS}"
 echo "Path: $ISAACLAB"
-echo "VERSION: $(cat "$ISAACLAB/VERSION" 2>/dev/null)"
+echo "VERSION: $(cat "$ISAACLAB/VERSION" 2>/dev/null || echo "MISSING (see 추가 설치 (2))")"
 git -C "$ISAACLAB" log -1 --oneline 2>/dev/null
 
 echo

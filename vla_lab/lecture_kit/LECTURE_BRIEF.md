@@ -56,7 +56,7 @@
 | 24 | 대표 실패 사례 | T10 캔을 들지 못함, T7 서랍을 충분히 열지 못함, T4 서랍을 아슬아슬하게 덜 엶 | `assets/frames/eval_T10_failure.jpg`, `eval_T7_failure.jpg`, `eval_T4_failure.jpg` |
 | 25 | 재현성 | 수집은 비트 단위로 같음, 평가는 렌더링 노이즈로 에피소드별로 다를 수 있음 | (5절) |
 | 26 | 과제: 더 발전시키려면 | 복구 시범, 노이즈 주입(DART), 다양성, 시범 수, n_action_steps, 체크포인트 비교 | (6절) |
-| 27 | 실습 안내 | 매뉴얼 위치, 소요 시간, 8GB GPU 주의 | (7절) |
+| 27 | 실습 안내 | 설치와 실습은 수업 시간 밖에 각자 PC에서, 매뉴얼 위치, 소요 시간, 디스크 250GB, 8GB GPU 주의 | (7절) |
 
 ---
 
@@ -186,6 +186,7 @@
 | 학습 | `./vla_lab/train_smolvla.sh --output_dir ~/vla_lab_runs/smolvla_t1_t10` | 약 3.3시간 (RTX 3090) |
 | 평가 | `./vla_lab/eval_smolvla.sh --policy-path .../checkpoints/last/pretrained_model --output ...` | 약 8~12시간 (추정) |
 
+- 설치와 실습은 수업 시간 밖에 **각자 PC에서** 진행한다(수업에서는 매뉴얼만 안내). 설치는 약 1시간, 디스크는 여유 250GB가 필요하다.
 - 8GB GPU에서는 학습과 평가를 **동시에 돌리지 말 것**(합계 8GB 초과).
 - 자세한 명령과 출력 예시는 `../docs/VLA_실습_lightwheel_SmolVLA.md`.
 

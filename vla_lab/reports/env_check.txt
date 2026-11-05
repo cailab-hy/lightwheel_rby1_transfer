@@ -21,8 +21,9 @@ LeRobot: 0.4.3
 Path: /home/cai/lerobot/src/lerobot/__init__.py
 
 ========== Repositories ==========
-lightwheel_rby1_transfer: 1178454 (vla-lab-v1)
-rby1-sim-isaac: ba52496 (main)
+lightwheel_rby1_transfer: 17eca17 (main)
+rby1-sim-isaac: 146bec3 (main)
+Robot self-collision layer: OK
 
 ========== SmolVLA weights (HF cache) ==========
 lerobot/smolvla_base: OK

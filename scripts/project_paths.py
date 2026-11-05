@@ -35,7 +35,7 @@ def prepare_assets():
     """Create local ignored links, never modify the external assets themselves."""
     for name, target in [('lightwheel', LIGHTWHEEL_CACHE), ('rby1', RBY_SIM)]:
         if not target.is_dir():
-            raise FileNotFoundError(f'Missing external asset directory: {target}. See PORTABILITY_KO.md')
+            raise FileNotFoundError(f'Missing external asset directory: {target}. See README.md (실행 환경과 경로 설정)')
         ASSET_LINKS.mkdir(exist_ok=True)
         link = ASSET_LINKS / name
         if link.is_symlink():
