@@ -77,10 +77,12 @@ HuggingFaceTB/SmolVLM2-500M-Video-Instruct: OK
 NVIDIA GeForce RTX 3090, 580.178.04, 24576 MiB
 ```
 
-- GPU 이름과 메모리는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
+- GPU 이름과 메모리, 경로의 `/home/cai`는 PC마다 다릅니다. 나머지 버전이 같으면 됩니다.
 - `<commit>` 자리에는 `main` 브랜치의 commit 해시(7자리)가 나옵니다. `rby1-sim-isaac`도 `main`이며, 이후 commit이 생기면 해시는 `146bec3`과 다를 수 있습니다.
 - `Robot self-collision layer: MISSING`이면 로봇 레포가 자기충돌 asset(`146bec3`)이 들어가기 전 버전입니다. 이 실습의 데이터와 평가는 로봇 링크끼리 충돌하는 asset을 씁니다: `git -C ~/rby1-sim-isaac pull origin main`.
 - `SmolVLA weights`가 `MISSING`이면 아래 **추가 설치**를 먼저 하십시오.
+- `IsaacLab`의 `VERSION:` 뒤가 비어 있으면 경로가 틀린 것입니다. 오류 없이 빈칸으로만 나옵니다: [추가 설치 (2)](#install-paths).
+- 마지막 줄에 GPU 대신 `Failed to initialize NVML`이 나오면 [추가 설치 (3)](#install-gpu)을 먼저 하십시오.
 
 **2. 경로 설정 확인**
 
@@ -92,9 +94,264 @@ cd ~/lightwheel_rby1_transfer
 
 `RBY_USD`, `LIGHTWHEEL_CACHE`가 실제 있는 경로로 나오면 됩니다. 레포 위치가 다르면 README의 `RBY1_*` 환경변수를 설정합니다.
 
-# 추가 설치
+> **이 명령을 통과해도 설치가 끝난 것은 아닙니다.** Lightwheel 캐시 폴더가 비어 있어도 통과하고, `IsaacLab_RS` 경로는 검사하지 않습니다. 새 PC에서는 [추가 설치의 (1) 설치 점검](#install-check)을 반드시 실행하십시오.
 
-**조교 PC: 없음.** 기본 환경(`lerobot-arena`)에 필요한 패키지가 모두 있었고, `lerobot/smolvla_base`와 `HuggingFaceTB/SmolVLM2-500M-Video-Instruct`도 HF 캐시(`~/.cache/huggingface`)에 이미 있었습니다. pip 설치, LeRobot extra 설치, HF 로그인은 하지 않았습니다.
+<h1 id="install">추가 설치</h1>
+
+**조교 PC(RTX 3090): 없음.** 기본 환경(`lerobot-arena`)에 필요한 패키지와 USD Asset, 모델 가중치가 이미 있었습니다. pip 설치, LeRobot extra 설치, HF 로그인은 하지 않았습니다.
+
+**새로 세팅한 PC: 아래를 순서대로 하십시오.** 다른 PC(RTX 5000 Ada Laptop)에서 이 매뉴얼을 그대로 따라 했을 때, 레포 clone과 `lw_benchhub` 설치까지 끝난 상태에서도 Asset 누락, 패키지 충돌, 경로 불일치, 드라이버 문제가 발생했습니다. (2)~(5)에 그때의 오류 메시지와 해결 방법을 적었습니다.
+
+<h2 id="install-check">(1) 설치 점검</h2>
+
+수집 전에 한 번에 확인합니다. 시뮬레이터를 띄우지 않으므로 몇 초면 끝납니다. 조치를 하고 나면 다시 실행해 모두 `OK`인지 확인하십시오.
+
+```bash
+conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./run_python.sh - <<'PY'
+import shutil, subprocess
+import project_paths as p
+
+fails = 0
+def check(name, ok, detail=""):
+    global fails
+    fails += not ok
+    print(f"[{'OK' if ok else 'FAIL'}] {name}  {detail}")
+
+# 1. 폴더 경로
+check("IsaacLab_RS", (p.ISAACLAB / "VERSION").is_file(), str(p.ISAACLAB))
+check("rby1-sim-isaac", p.RBY_USD.is_file(), str(p.RBY_SIM))
+
+# 2. GPU 드라이버
+smi = subprocess.run(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"],
+                     capture_output=True, text=True) if shutil.which("nvidia-smi") else None
+check("nvidia-smi", smi is not None and smi.returncode == 0,
+      (smi.stdout or smi.stderr).strip().splitlines()[0] if smi else "not found")
+
+# 3. NumPy / SciPy
+try:
+    import numpy, scipy
+    from scipy.spatial.transform import Rotation
+    from scipy.sparse.linalg import LinearOperator, svds
+    check("numpy==1.26.0", numpy.__version__ == "1.26.0", f"{numpy.__version__}  {numpy.__file__}")
+    check("scipy==1.15.3", scipy.__version__ == "1.15.3", f"{scipy.__version__}  {scipy.__file__}")
+except Exception as e:
+    check("numpy/scipy import", False, repr(e))
+
+# 4. Lightwheel USD Asset
+need = [f"floorplan/robocasa-libero-{n}/scene.usd" for n in ("1-1", "2-2", "8-8")]
+need += [f"object/{n}/{n}.usd" for n in (
+    "AlphabetSoup001 Basket058 Bottle054 Bowl008 Bowl009 Bowl011 Butter001 Cookies002 "
+    "CreamCheeseStick013 Ketchup003 MilkDrink009 OrangeJuice001 Plate012").split()]
+missing = [n for n in need if not (p.LIGHTWHEEL_CACHE / n).is_file()]
+check(f"Lightwheel USD {len(need) - len(missing)}/{len(need)}", not missing,
+      f"{p.LIGHTWHEEL_CACHE}" + (f"  없음: {missing[:3]}..." if missing else ""))
+
+print("\n모두 OK입니다." if not fails else f"\nFAIL {fails}개: 아래 해당 항목을 먼저 해결하십시오.")
+PY
+```
+
+정상이면 다음과 같이 나옵니다(사용자 이름이 `student`인 예).
+
+```text
+[OK] IsaacLab_RS  /home/student/IsaacLab_RS
+[OK] rby1-sim-isaac  /home/student/rby1-sim-isaac
+[OK] nvidia-smi  NVIDIA GeForce RTX 3090, 580.178.04
+[OK] numpy==1.26.0  1.26.0  /home/student/miniforge3/envs/lerobot-arena/lib/python3.11/site-packages/numpy/__init__.py
+[OK] scipy==1.15.3  1.15.3  /home/student/miniforge3/envs/lerobot-arena/lib/python3.11/site-packages/scipy/__init__.py
+[OK] Lightwheel USD 16/16  /home/student/.cache/lightwheel_sdk
+
+모두 OK입니다.
+```
+
+| `FAIL` 항목 | 볼 곳 |
+|---|---|
+| `IsaacLab_RS`, `rby1-sim-isaac` | [(2) 폴더 경로](#install-paths) |
+| `nvidia-smi` | [(3) NVIDIA 드라이버](#install-gpu) |
+| `numpy`, `scipy` | [(4) NumPy·SciPy](#install-numpy) |
+| `Lightwheel USD` | [(5) Lightwheel USD Asset](#install-assets) |
+
+모두 `OK`이면 (2)~(5)는 건너뛰고 [(6) SmolVLA 가중치](#install-weights)로 가십시오. 이 점검은 파일과 버전만 봅니다. 실제 동작은 마지막 [(7) 시험 수집](#install-smoke)으로 확인합니다.
+
+<h2 id="install-paths">(2) 폴더 경로</h2>
+
+**오류 메시지**
+
+```text
+FileNotFoundError: [Errno 2] No such file or directory: '/home/cai/lw_benchhub/IsaacLab_RS/VERSION'
+```
+
+**원인**: `IsaacLab_RS`, `rby1-sim-isaac`, `lerobot`은 **`lightwheel_rby1_transfer`의 상위 폴더**에서 찾습니다(`scripts/project_paths.py`). 위 PC에서는 `IsaacLab_RS`가 `~`에 있는데 찾는 위치는 `~/lw_benchhub`였습니다. 다음 구성이면 환경변수가 필요 없습니다. 사용자 이름은 달라도 됩니다.
+
+```text
+~/
+├── lightwheel_rby1_transfer/
+├── IsaacLab_RS/
+├── rby1-sim-isaac/
+└── lerobot/
+```
+
+**해결**: 코드를 고치거나 다시 clone하지 말고, 실제 위치를 환경변수로 알려 줍니다. `export`만 하면 새 터미널이나 재부팅 후 사라지므로 `~/.bashrc`에 넣습니다.
+
+```bash
+echo 'export RBY1_ISAACLAB_ROOT="$HOME/IsaacLab_RS"' >> ~/.bashrc
+source ~/.bashrc
+conda activate lerobot-arena
+cat "$RBY1_ISAACLAB_ROOT/VERSION"    # 2.3.0
+```
+
+- `rby1-sim-isaac`도 `FAIL`이면 같은 방법으로 `RBY1_SIM_ROOT`를 지정합니다.
+- 오류 메시지의 `See PORTABILITY_KO.md` 파일은 현재 레포에 없습니다. 이 문서와 README의 **실행 환경과 경로 설정**을 보십시오.
+- 사용자 이름이 `cai`가 아니면 `git status`에 `.assets/lightwheel`, `.assets/rby1`이 수정됨(`M`)으로 나옵니다. 실행할 때 각 PC의 경로로 자동 연결되기 때문이며 정상입니다. 조교가 이 상태에서 `git checkout main`과 `git pull`이 되는 것을 확인했습니다. 이 두 줄은 commit하지 마십시오.
+
+<h2 id="install-gpu">(3) NVIDIA 드라이버</h2>
+
+**오류 메시지**
+
+```text
+Failed to initialize NVML: Driver/library version mismatch
+NVML library version: 580.178
+
+[omni.physx.plugin] CUDA libs are present, but no suitable CUDA GPU was found!
+```
+
+**원인**: 메모리에 올라온 드라이버 커널 모듈과 NVML 라이브러리의 버전이 다릅니다. 보통 드라이버가 업데이트된 뒤 재부팅하지 않았을 때 생깁니다. 이때 **PyTorch에서는 GPU가 인식되는데 Isaac Sim의 PhysX에서만 실패**할 수 있으므로, `torch.cuda.is_available()`로 판단하지 말고 `nvidia-smi`로 확인하십시오.
+
+**해결**: 실행 중인 작업을 끝내고 재부팅합니다.
+
+```bash
+sudo reboot
+```
+
+재부팅 후 `nvidia-smi`가 오류 없이 GPU와 드라이버 버전을 보여 주면 됩니다. 위 PC에서는 드라이버 580.178.04, CUDA 13.0으로 복구되었고, 이후 Isaac Sim 로그에서 Warp가 CUDA GPU를 정상 인식했습니다.
+
+<h2 id="install-numpy">(4) NumPy·SciPy</h2>
+
+**오류 메시지** (셋 중 하나 이상)
+
+```text
+ImportError: cannot import name '_spropack' from 'scipy.sparse.linalg._propack'
+
+AttributeError: module 'numpy._globals' has no attribute '_signature_descriptor'
+
+TypeError: Unable to write from unknown dtype, kind=f, size=0    # omni.syntheticdata, SyntheticData.py
+```
+
+**원인**: 환경 안의 NumPy·SciPy 파일이 서로 맞지 않거나 손상된 상태입니다. 위 PC에서는 `numpy-2.4.6.dist-info`와 이전 설치의 잔여 폴더가 발견되었습니다. Isaac Sim 5.1은 `numpy==1.26.0`, `scipy==1.15.3`을 요구합니다(`isaacsim-kernel`, `isaacsim-core`의 의존성).
+
+`TypeError`의 직접 원인은 확정되지 않았습니다. NumPy·SciPy를 정리한 뒤 오라클을 다시 실행했을 때 같은 오류가 재발하지 않아 여기에 함께 적었습니다.
+
+**해결**
+
+**1단계.** 현재 상태를 확인하고 pip으로 제거합니다. 조교 PC의 `conda list`에는 두 패키지 모두 채널이 `pypi`로 나옵니다.
+
+```bash
+conda activate lerobot-arena
+conda list numpy
+conda list scipy
+python -m pip uninstall -y numpy scipy
+```
+
+**2단계.** 제거되지 않고 남은 폴더를 찾습니다. **아무것도 출력되지 않으면 3단계로 넘어가십시오.**
+
+```bash
+SITE="$CONDA_PREFIX/lib/python3.11/site-packages"
+find "$SITE" -maxdepth 1 \( -name numpy -o -name 'numpy-*.dist-info' -o -name numpy.libs \
+    -o -name scipy -o -name 'scipy-*.dist-info' -o -name scipy.libs \) -print
+```
+
+출력이 있으면 삭제하지 말고 백업 폴더로 옮깁니다. 위 `find`와 같은 대상을 옮기는 명령입니다.
+
+```bash
+BACKUP="$HOME/numpy_scipy_backup_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$BACKUP"
+find "$SITE" -maxdepth 1 \( -name numpy -o -name 'numpy-*.dist-info' -o -name numpy.libs \
+    -o -name scipy -o -name 'scipy-*.dist-info' -o -name scipy.libs \) -exec mv -t "$BACKUP" {} +
+```
+
+**3단계.** 지정한 버전으로 다시 설치합니다. `--no-deps`는 다른 패키지를 건드리지 않게 하고, `--no-cache-dir`은 손상된 캐시를 쓰지 않게 합니다.
+
+```bash
+python -m pip install --no-cache-dir --no-deps "numpy==1.26.0" "scipy==1.15.3"
+```
+
+**4단계.** (1) 설치 점검을 다시 실행합니다. 경로가 `envs/lerobot-arena` 아래가 아니면 다른 위치(예: `~/.local`)의 패키지를 읽고 있는 것입니다.
+
+- 이후 다른 패키지를 `pip install`하면 NumPy가 다시 바뀔 수 있습니다. 설치한 뒤에는 (1)을 다시 실행하십시오.
+
+<h2 id="install-assets">(5) Lightwheel USD Asset</h2>
+
+**오류 메시지**
+
+```text
+FileNotFoundError: Missing external asset directory: /home/cai/.cache/lightwheel_sdk. See PORTABILITY_KO.md
+
+Could not open asset: .assets/lightwheel/floorplan/robocasa-libero-1-1/scene.usd
+Could not open asset: .assets/lightwheel/object/Plate012/Plate012.usd
+Could not open asset: .assets/lightwheel/object/Bowl008/Bowl008.usd
+```
+
+**원인**: 장면과 물체 USD는 레포에 들어 있지 않고 Lightwheel 서버에서 `~/.cache/lightwheel_sdk`로 받아야 합니다. `lw_benchhub`의 `git clone`, `git lfs pull`, `pip install -e .`은 이 파일을 받지 않습니다.
+
+> **주의**: `import lightwheel_sdk.loader`는 빈 폴더 3개(16K)만 만듭니다. 그러면 첫 번째 오류는 사라지지만 곧바로 `Could not open asset`이 납니다. 빈 폴더를 직접 만들거나 USD 파일 이름을 바꾸는 것으로도 해결되지 않습니다.
+
+**해결**: 아래 명령으로 T1~T10에 필요한 16개(장면 3, 물체 13)를 **조교 PC와 같은 버전으로** 받습니다. Lightwheel 로그인은 필요 없습니다.
+
+```bash
+conda activate lerobot-arena
+python -m pip show lightwheel_sdk | grep Version    # 조교 PC: 1.0.1
+python - <<'PY'
+from lightwheel_sdk.loader import floorplan_loader, object_loader
+
+FLOORPLANS = {
+    "1-1": "8915408f-2312-4f04-88be-546e720fbcd1",
+    "2-2": "a5dad39c-fe52-407b-b4a1-c5e151faab61",
+    "8-8": "ed73149f-b3a6-49e5-8871-33f7f47285e7",
+}
+OBJECTS = {
+    "AlphabetSoup001": "a869d6d5-5b09-40b2-8f1a-e1e6150946b6",
+    "Basket058": "271fddc3-4cc8-411b-86d5-1a027e46a872",
+    "Bottle054": "39cf315d-6fe3-4e99-847d-8d6062313968",
+    "Bowl008": "a52cd86d-61a4-467e-8df8-408e32e9f372",
+    "Bowl009": "65130b0c-83b1-4f41-87ea-7695ff6c48a0",
+    "Bowl011": "e1380449-a908-4547-8380-0e221644671c",
+    "Butter001": "7769b163-cb0b-4745-a356-705230ef0425",
+    "Cookies002": "4c1be0bf-65cb-4531-acb5-6e13e66e1a06",
+    "CreamCheeseStick013": "08f6d939-5856-4ab8-a509-ad73972c8bbf",
+    "Ketchup003": "fca215f0-5f2d-491f-87db-17dbda43c1e1",
+    "MilkDrink009": "bb25f4c3-1afc-43d0-bdb4-4b4ffd52f675",
+    "OrangeJuice001": "f021d614-0186-4e97-a0d0-9b0fe103eeba",
+    "Plate012": "5e2234da-a84f-4883-b763-5c8e9268cddd",
+}
+for name, version in FLOORPLANS.items():
+    usd, _ = floorplan_loader.get_usd("libero", backend="robocasa", version=version)
+    print("OK", name, usd)
+for name, version in OBJECTS.items():
+    usd, _, _ = object_loader.acquire_by_file_version(version)
+    print("OK", name, usd)
+PY
+```
+
+출력(SDK 로그 줄 생략). 끝나면 (1) 설치 점검을 다시 실행하십시오.
+
+```text
+OK 1-1 /home/student/.cache/lightwheel_sdk/floorplan/robocasa-libero-1-1/scene.usd
+OK 2-2 /home/student/.cache/lightwheel_sdk/floorplan/robocasa-libero-2-2/scene.usd
+OK 8-8 /home/student/.cache/lightwheel_sdk/floorplan/robocasa-libero-8-8/scene.usd
+OK AlphabetSoup001 /home/student/.cache/lightwheel_sdk/object/AlphabetSoup001/AlphabetSoup001.usd
+...
+OK Plate012 /home/student/.cache/lightwheel_sdk/object/Plate012/Plate012.usd
+```
+
+- `lightwheel_sdk`가 없다고 나오면 `python -m pip install lightwheel-sdk==1.0.1`을 먼저 실행하십시오(NumPy를 건드리지 않습니다).
+- 조교가 빈 캐시에서 실행해 확인했습니다. 로그인 없이 약 1분 걸렸고 캐시는 합계 209MB였습니다(네트워크에 따라 다름). 끊기면 같은 명령을 다시 실행하십시오.
+- **버전 ID를 빼고 받지 마십시오.** ID 없이 받으면 그 시점의 최신 버전을 받습니다. 캐시와 버전이 다르면 이미 있던 장면 폴더를 지우고 교체하므로 조교 결과와 다른 장면이 될 수 있습니다.
+- SDK는 항상 `~/.cache/lightwheel_sdk`에 저장합니다. 다른 위치(`RBY1_LIGHTWHEEL_CACHE`)를 쓰려면 받은 뒤 폴더 구조를 유지한 채 옮기십시오.
+- 이 실습의 수집·평가 스크립트는 `lw_benchhub`를 import하지 않습니다. 조교 PC에서 `~/lw_benchhub` 폴더가 없는 상태로 오라클 수집이 정상 동작하는 것을 확인했습니다.
+- 조교가 이 명령으로 받은 Asset으로 T1~T10을 seed 0에서 다시 수집해 기존 데이터와 비교했습니다. 10개 task 모두 길이, 초기 배치, 관절 상태, action이 같았습니다(최대 차이 0). 사용자 이름이 다른 격리 환경에서 수집한 T1·T2·T3·T10 seed 0도 같았습니다.
+
+<h2 id="install-weights">(6) SmolVLA 가중치</h2>
 
 환경 확인에서 `SmolVLA weights: MISSING`이 나오면 모델만 내려받습니다(로그인 불필요, 처음 한 번).
 
@@ -106,6 +363,27 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 
 - 조교가 빈 캐시(`HF_HOME`을 새 폴더로 지정)에서 위 두 명령을 실행해 확인했습니다. huggingface_hub 0.36.2 기준 `smolvla_base`는 약 1분, SmolVLM2는 9분 이상 걸렸고 캐시는 합계 7.6GB였습니다(네트워크에 따라 다름).
 - 학습·평가 스크립트는 `HF_HUB_OFFLINE=1`로 실행되므로, 모델이 캐시에 없으면 다운로드하지 않고 에러를 냅니다.
+
+<h2 id="install-smoke">(7) 시험 수집</h2>
+
+마지막으로 T1 시범 1개를 실제 시뮬레이터에서 수집합니다. 본 데이터와 섞이지 않게 별도 폴더에 저장합니다.
+
+```bash
+conda activate lerobot-arena
+cd ~/lightwheel_rby1_transfer
+./vla_lab/collect_oracle.sh --task T1 --num-demos 1 --seed-start 0 --output ~/datasets/vla_lab/_smoke/T1/oracle
+```
+
+```text
+[T1] attempt 1 seed 0: SAVED (258 frames, 67.0 s) | saved 1/1
+SUMMARY {"task": "T1", "attempts": 1, "saved": 1, "oracle_success_rate": 1.0, "seeds": [0, 0], "failures_by_stage": {}, "mean_seconds_saved": 17.2, ...}
+```
+
+`SAVED`와 `"saved": 1`이 나오면 설치가 끝난 것입니다. [2️⃣ 오라클 데이터 수집](#oracle)으로 가십시오.
+
+- 조교 PC(RTX 3090)에서 Isaac Sim 시작을 포함해 약 1.5분 걸렸습니다. 처음 실행하는 PC는 셰이더를 만드느라 더 걸릴 수 있습니다.
+- 조교 PC와 사용자 이름이 다른 격리 환경에서 seed 0은 모두 `258 frames`였습니다. GPU가 다른 PC에서도 같은 값이 나오는지는 확인하지 못했으므로, 값이 달라도 `SAVED`이면 설치 문제는 아닙니다.
+- 다시 시험할 때는 `~/datasets/vla_lab/_smoke`를 지우거나 `--output`을 바꾸십시오. 같은 폴더면 이미 1개가 저장된 것으로 보고 새로 수집하지 않은 채 끝납니다(`Resuming: 1 attempts, 1 saved`).
 
 ---
 
@@ -133,7 +411,7 @@ hf download HuggingFaceTB/SmolVLM2-500M-Video-Instruct
 
 ---
 
-# 2️⃣ 오라클 데이터 수집
+<h1 id="oracle">2️⃣ 오라클 데이터 수집</h1>
 
 사람이 키보드로 500개 시범을 모으기는 어렵습니다. 그래서 시뮬레이터의 **정답 상태**(물체·손잡이·서랍의 실제 위치)를 읽어 움직이는 스크립트, 즉 **오라클(oracle)**로 시범을 모읍니다.
 
@@ -699,7 +977,7 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 
 # 7️⃣ 문제 해결 FAQ
 
-조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다.
+조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다. 새 PC 설치 중의 오류(`Could not open asset`, `Driver/library version mismatch`, NumPy·SciPy `ImportError`, `IsaacLab_RS/VERSION` 없음)는 [추가 설치](#install)를 보십시오.
 
 | 증상 | 원인과 해결 |
 |---|---|
