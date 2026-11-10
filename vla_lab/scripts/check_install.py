@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 import project_paths as p
-from fetch_assets import FLOORPLANS, OBJECTS
+from fetch_assets import USD_FILES, missing_assets
 
 DATA_GB = 200  # datasets + checkpoints + evaluation of the full lab (TA PC: raw 159, LeRobot 7, runs 7, HF 8, shader cache 8)
 fails = 0
@@ -70,9 +70,8 @@ except Exception as e:
     check("numpy/scipy import", False, repr(e), NUMPY)
 
 # Lightwheel USD assets
-need = [f"floorplan/robocasa-libero-{n}/scene.usd" for n in FLOORPLANS] + [f"object/{n}/{n}.usd" for n in OBJECTS]
-missing = [n for n in need if not (p.LIGHTWHEEL_CACHE / n).is_file()]
-check(f"Lightwheel USD {len(need) - len(missing)}/{len(need)}", not missing,
+missing = missing_assets(p.LIGHTWHEEL_CACHE)
+check(f"Lightwheel USD {len(USD_FILES) - len(missing)}/{len(USD_FILES)}", not missing,
       str(p.LIGHTWHEEL_CACHE) + (f"  없음: {missing[0]} ..." if missing else ""), ASSETS)
 
 # SmolVLA weights

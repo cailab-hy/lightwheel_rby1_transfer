@@ -333,6 +333,8 @@ FileNotFoundError: Missing external asset directory: /home/cai/.cache/lightwheel
 Could not open asset: .assets/lightwheel/floorplan/robocasa-libero-1-1/scene.usd
 Could not open asset: .assets/lightwheel/object/Plate012/Plate012.usd
 Could not open asset: .assets/lightwheel/object/Bowl008/Bowl008.usd
+
+Lightwheel USD 2/16개 없음: floorplan/robocasa-libero-8-8/scene.usd, object/Bowl009/Bowl009.usd
 ```
 
 **원인**: 장면과 물체 USD는 레포에 들어 있지 않고 Lightwheel 서버에서 `~/.cache/lightwheel_sdk`로 받아야 합니다. `lw_benchhub`의 `git clone`, `git lfs pull`, `pip install -e .`은 이 파일을 받지 않습니다.
@@ -481,13 +483,14 @@ done
 | `--task` | (필수) | T1~T10 |
 | `--num-demos` | 50 | 저장할 **성공** 시범 수 |
 | `--seed-start` | 0 | 첫 시도의 배치 seed. 시도 k는 seed `seed-start + k` |
-| `--max-attempts` | 3 × num-demos | 이 횟수만큼 시도하면 멈춤 |
+| `--max-attempts` | 3 × num-demos | 같은 폴더의 이전 시도까지 합쳐 이 횟수가 되면 멈춤 |
 | `--output` | `~/datasets/vla_lab/<task>/oracle` | LeRobot 데이터셋 폴더. raw는 `<output>_raw` |
 | `--joint-speed` | 0.8 | 관절 속도 제한(rad/s), 수집기 기본값과 같음 |
 | `--video` | 없음 | 첫 성공 시범을 정면 카메라 mp4로 저장 |
 
 - 학습 seed는 0~9999 범위만 씁니다. 평가 seed는 100000번대라 겹치지 않습니다.
 - 수집이 중간에 끊기면 같은 명령을 다시 실행하십시오. `<output>_raw/oracle_attempts.jsonl`을 읽고 마지막 seed 다음부터 이어서 수집합니다.
+- `--max-attempts`는 이번 실행의 추가 횟수가 아닙니다. 이미 그 횟수만큼 시도한 폴더에서 같은 값으로 다시 실행하면 새로 수집하지 않고 끝납니다. 더 시도하려면 값을 늘리십시오.
 
 ## (3) 출력 예시
 

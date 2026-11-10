@@ -25,6 +25,13 @@ OBJECTS = {
     "OrangeJuice001": "f021d614-0186-4e97-a0d0-9b0fe103eeba",
     "Plate012": "5e2234da-a84f-4883-b763-5c8e9268cddd",
 }
+USD_FILES = [f"floorplan/robocasa-libero-{n}/scene.usd" for n in FLOORPLANS] + [f"object/{n}/{n}.usd" for n in OBJECTS]
+
+
+def missing_assets(cache):
+    """USD_FILES that are not in the Lightwheel cache folder."""
+    return [n for n in USD_FILES if not (cache / n).is_file()]
+
 
 if __name__ == "__main__":
     from lightwheel_sdk.loader import floorplan_loader, object_loader

@@ -11,12 +11,15 @@ gripper meeting each other when the gripper closes is allowed.
 """
 import argparse
 import json
+import os
 import sys
 import time
+import traceback
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import project_paths as paths
+from fetch_assets import USD_FILES, missing_assets
 
 TASKS = [f"T{i}" for i in range(1, 11)]
 # Maximum recorded length of one attempt (s). About 1.5x the slowest oracle demonstration seen.
@@ -26,7 +29,7 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument("--task", choices=TASKS, required=True)
 p.add_argument("--num-demos", type=int, default=50, help="successful demonstrations to save")
 p.add_argument("--seed-start", type=int, default=0, help="layout seed of the first attempt")
-p.add_argument("--max-attempts", type=int, help="stop after this many attempts (default: 3 x --num-demos)")
+p.add_argument("--max-attempts", type=int, help="stop at this many attempts in the output folder, earlier runs included (default: 3 x --num-demos)")
 p.add_argument("--output", type=Path, help="LeRobot output folder (default: $RBY1_DATASETS_ROOT/vla_lab/<task>/oracle)")
 p.add_argument("--joint-speed", type=float, default=0.8, help="arm joint slew limit rad/s (collector default 0.8)")
 p.add_argument("--video", type=Path, help="front-camera mp4 of the first saved demonstration")
@@ -38,6 +41,11 @@ a.max_attempts = a.max_attempts or 3 * a.num_demos
 output = (a.output or paths.DATASETS / "vla_lab" / a.task / "oracle").expanduser().resolve()
 rawroot = output.with_name(output.name + "_raw")
 paths.prepare_assets()
+# Without these files the simulator still starts: objects fall through a missing floor, or the reset fails.
+missing = missing_assets(paths.LIGHTWHEEL_CACHE)
+if missing:
+    sys.exit(f"Lightwheel USD {len(missing)}/{len(USD_FILES)}개 없음: {', '.join(missing)}\n"
+             f"위치: {paths.LIGHTWHEEL_CACHE}\n./vla_lab/fetch_assets.sh 를 실행하십시오 (매뉴얼 추가 설치 (5)).")
 
 import pinocchio  # noqa: F401  (import before Isaac Sim, as in the collector)
 from isaacsim import SimulationApp
@@ -204,6 +212,7 @@ def predicate_parts():
         return {"error": repr(ex)}
 
 
+crashed = False
 try:
     while saved < a.num_demos and attempts < a.max_attempts:
         writer = None
@@ -243,6 +252,9 @@ try:
               f"({frames} frames, {entry['wall_s']} s) | saved {saved}/{a.num_demos}"
               + (f" | self contact {sorted(entry['self_contacts'])}" if self_contacts else ""), flush=True)
         seed += 1
+except Exception:
+    traceback.print_exc()
+    crashed = True
 finally:
     rec.close()
     rows = [json.loads(l) for l in log_path.read_text().splitlines()] if log_path.exists() else []
@@ -260,4 +272,7 @@ finally:
                "output": str(output), "raw": str(rawroot)}
     (rawroot / "oracle_summary.json").write_text(json.dumps(summary, indent=2))
     print("SUMMARY", json.dumps(summary), flush=True)
+    if crashed:  # app.close() ends the process with exit code 0
+        sys.stderr.flush()
+        os._exit(1)
     app.close()

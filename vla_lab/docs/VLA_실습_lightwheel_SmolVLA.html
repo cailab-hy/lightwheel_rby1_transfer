@@ -339,6 +339,8 @@ find &quot;$SITE&quot; -maxdepth 1 \( -name numpy -o -name 'numpy-*.dist-info' -
 Could not open asset: .assets/lightwheel/floorplan/robocasa-libero-1-1/scene.usd
 Could not open asset: .assets/lightwheel/object/Plate012/Plate012.usd
 Could not open asset: .assets/lightwheel/object/Bowl008/Bowl008.usd
+
+Lightwheel USD 2/16개 없음: floorplan/robocasa-libero-8-8/scene.usd, object/Bowl009/Bowl009.usd
 </code></pre>
 <p><strong>원인</strong>: 장면과 물체 USD는 레포에 들어 있지 않고 Lightwheel 서버에서 <code>~/.cache/lightwheel_sdk</code>로 받아야 합니다. <code>lw_benchhub</code>의 <code>git clone</code>, <code>git lfs pull</code>, <code>pip install -e .</code>은 이 파일을 받지 않습니다.</p>
 <blockquote>
@@ -588,7 +590,7 @@ done
 <tr>
 <td><code>--max-attempts</code></td>
 <td>3 × num-demos</td>
-<td>이 횟수만큼 시도하면 멈춤</td>
+<td>같은 폴더의 이전 시도까지 합쳐 이 횟수가 되면 멈춤</td>
 </tr>
 <tr>
 <td><code>--output</code></td>
@@ -610,6 +612,7 @@ done
 <ul>
 <li>학습 seed는 0~9999 범위만 씁니다. 평가 seed는 100000번대라 겹치지 않습니다.</li>
 <li>수집이 중간에 끊기면 같은 명령을 다시 실행하십시오. <code>&lt;output&gt;_raw/oracle_attempts.jsonl</code>을 읽고 마지막 seed 다음부터 이어서 수집합니다.</li>
+<li><code>--max-attempts</code>는 이번 실행의 추가 횟수가 아닙니다. 이미 그 횟수만큼 시도한 폴더에서 같은 값으로 다시 실행하면 새로 수집하지 않고 끝납니다. 더 시도하려면 값을 늘리십시오.</li>
 </ul>
 <h2>(3) 출력 예시</h2>
 <pre><code class="language-text">[T9] attempt 1 seed 0: SAVED (496 frames, 406.6 s) | saved 1/50
