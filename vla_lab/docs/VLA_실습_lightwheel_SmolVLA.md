@@ -339,7 +339,7 @@ Lightwheel USD 2/16개 없음: floorplan/robocasa-libero-8-8/scene.usd, object/B
 
 **원인**: 장면과 물체 USD는 레포에 들어 있지 않고 Lightwheel 서버에서 `~/.cache/lightwheel_sdk`로 받아야 합니다. `lw_benchhub`의 `git clone`, `git lfs pull`, `pip install -e .`은 이 파일을 받지 않습니다.
 
-> **주의**: `import lightwheel_sdk.loader`는 빈 폴더 3개(16K)만 만듭니다. 그러면 첫 번째 오류는 사라지지만 곧바로 `Could not open asset`이 납니다. 빈 폴더를 직접 만들거나 USD 파일 이름을 바꾸는 것으로도 해결되지 않습니다.
+> **주의**: `import lightwheel_sdk.loader`는 빈 폴더 3개(16K)만 만듭니다. 그러면 첫 번째 오류는 사라지지만 곧바로 `Lightwheel USD 16/16개 없음` 또는 `Could not open asset`이 납니다. 빈 폴더를 직접 만들거나 USD 파일 이름을 바꾸는 것으로도 해결되지 않습니다.
 
 **해결**: 아래 명령으로 T1~T10에 필요한 16개(장면 3, 물체 13)를 **조교 PC와 같은 버전으로** 받습니다. Lightwheel 로그인은 필요 없습니다.
 
@@ -993,7 +993,7 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 
 # 7️⃣ 문제 해결 FAQ
 
-조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다. 새 PC 설치 중의 오류(`Could not open asset`, `Driver/library version mismatch`, NumPy·SciPy `ImportError`, `IsaacLab_RS/VERSION` 없음)는 [추가 설치](#install)를 보십시오.
+조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다. 새 PC 설치 중의 오류(`Lightwheel USD ... 없음`, `Could not open asset`, `Driver/library version mismatch`, NumPy·SciPy `ImportError`, `IsaacLab_RS/VERSION` 없음)는 [추가 설치](#install)를 보십시오.
 
 | 증상 | 원인과 해결 |
 |---|---|
@@ -1004,6 +1004,7 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 | 학습 중 `torch.OutOfMemoryError: CUDA out of memory ... 7.00 GiB allowed` | 래퍼가 건 7.0GB 상한을 넘은 것. `--batch_size`를 줄이십시오. 조교 PC에서 batch 32는 bf16 혼합정밀도로도 이 에러가 났고, batch 16은 PyTorch 6.1GB(프로세스 6.4GB)였습니다. |
 | 데이터셋 합치기 끝에 `terminate called without an active exception` | 영상 처리 스레드가 종료 순서 때문에 내는 메시지입니다. 바로 앞에 `MERGED ... 500 episodes`가 나왔으면 정상이며, 데이터셋은 그대로 로딩됩니다. |
 | Isaac Sim 로그에 `[Warning]`, `[Error] ... torch_dtype is deprecated` 등이 많이 나옴 | 정상입니다. 수집기는 `[T1] attempt ...`, 평가는 `[T1] episode ...` 줄만 보면 됩니다. |
+| 수집이 `"attempts": 0`으로 끝나고 종료 코드가 1 | 첫 시도를 마치기 전에 오류가 난 것입니다. 로그에서 `[py stderr]: Traceback`의 마지막 줄을 확인하십시오. 파일은 있는데 내용이 깨진 USD라면 `KeyError: 'cream_cheese'`처럼 나오고, 같은 로그의 `Could not open asset` 줄에 그 파일 경로가 있습니다. `fetch_assets.sh`는 이미 있는 파일을 다시 받지 않으므로, `~/.cache/lightwheel_sdk/object/`에서 해당 물체의 폴더와 `.zip`, `.lock`을 지운 뒤 다시 실행하십시오. |
 | `FileExistsError: Output directory ... already exists` (학습) | LeRobot은 기존 결과 폴더를 덮어쓰지 않습니다. `--output_dir`을 새 이름으로 바꾸거나, 이어서 학습하려면 `--resume=true --config_path=...`를 쓰십시오. |
 
 ---

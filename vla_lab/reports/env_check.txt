@@ -21,7 +21,7 @@ LeRobot: 0.4.3
 Path: /home/cai/lerobot/src/lerobot/__init__.py
 
 ========== Repositories ==========
-lightwheel_rby1_transfer: 17eca17 (main)
+lightwheel_rby1_transfer: 3a3683b (main)
 rby1-sim-isaac: 146bec3 (main)
 Robot self-collision layer: OK
 

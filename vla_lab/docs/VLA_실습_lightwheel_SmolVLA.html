@@ -344,7 +344,7 @@ Lightwheel USD 2/16개 없음: floorplan/robocasa-libero-8-8/scene.usd, object/B
 </code></pre>
 <p><strong>원인</strong>: 장면과 물체 USD는 레포에 들어 있지 않고 Lightwheel 서버에서 <code>~/.cache/lightwheel_sdk</code>로 받아야 합니다. <code>lw_benchhub</code>의 <code>git clone</code>, <code>git lfs pull</code>, <code>pip install -e .</code>은 이 파일을 받지 않습니다.</p>
 <blockquote>
-<p><strong>주의</strong>: <code>import lightwheel_sdk.loader</code>는 빈 폴더 3개(16K)만 만듭니다. 그러면 첫 번째 오류는 사라지지만 곧바로 <code>Could not open asset</code>이 납니다. 빈 폴더를 직접 만들거나 USD 파일 이름을 바꾸는 것으로도 해결되지 않습니다.</p>
+<p><strong>주의</strong>: <code>import lightwheel_sdk.loader</code>는 빈 폴더 3개(16K)만 만듭니다. 그러면 첫 번째 오류는 사라지지만 곧바로 <code>Lightwheel USD 16/16개 없음</code> 또는 <code>Could not open asset</code>이 납니다. 빈 폴더를 직접 만들거나 USD 파일 이름을 바꾸는 것으로도 해결되지 않습니다.</p>
 </blockquote>
 <p><strong>해결</strong>: 아래 명령으로 T1~T10에 필요한 16개(장면 3, 물체 13)를 <strong>조교 PC와 같은 버전으로</strong> 받습니다. Lightwheel 로그인은 필요 없습니다.</p>
 <pre><code class="language-bash">conda activate lerobot-arena
@@ -1564,7 +1564,7 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 </ul>
 <hr />
 <h1>7️⃣ 문제 해결 FAQ</h1>
-<p>조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다. 새 PC 설치 중의 오류(<code>Could not open asset</code>, <code>Driver/library version mismatch</code>, NumPy·SciPy <code>ImportError</code>, <code>IsaacLab_RS/VERSION</code> 없음)는 <a href="#install">추가 설치</a>를 보십시오.</p>
+<p>조교가 이 자료를 만들며 실제로 겪은 문제만 적었습니다. 새 PC 설치 중의 오류(<code>Lightwheel USD ... 없음</code>, <code>Could not open asset</code>, <code>Driver/library version mismatch</code>, NumPy·SciPy <code>ImportError</code>, <code>IsaacLab_RS/VERSION</code> 없음)는 <a href="#install">추가 설치</a>를 보십시오.</p>
 <table>
 <thead>
 <tr>
@@ -1600,6 +1600,10 @@ VRAM {'samples': 110, 'peak_total_mib': 6578, 'peak_total_gib': 6.42, 'peak_time
 <tr>
 <td>Isaac Sim 로그에 <code>[Warning]</code>, <code>[Error] ... torch_dtype is deprecated</code> 등이 많이 나옴</td>
 <td>정상입니다. 수집기는 <code>[T1] attempt ...</code>, 평가는 <code>[T1] episode ...</code> 줄만 보면 됩니다.</td>
+</tr>
+<tr>
+<td>수집이 <code>"attempts": 0</code>으로 끝나고 종료 코드가 1</td>
+<td>첫 시도를 마치기 전에 오류가 난 것입니다. 로그에서 <code>[py stderr]: Traceback</code>의 마지막 줄을 확인하십시오. 파일은 있는데 내용이 깨진 USD라면 <code>KeyError: 'cream_cheese'</code>처럼 나오고, 같은 로그의 <code>Could not open asset</code> 줄에 그 파일 경로가 있습니다. <code>fetch_assets.sh</code>는 이미 있는 파일을 다시 받지 않으므로, <code>~/.cache/lightwheel_sdk/object/</code>에서 해당 물체의 폴더와 <code>.zip</code>, <code>.lock</code>을 지운 뒤 다시 실행하십시오.</td>
 </tr>
 <tr>
 <td><code>FileExistsError: Output directory ... already exists</code> (학습)</td>
